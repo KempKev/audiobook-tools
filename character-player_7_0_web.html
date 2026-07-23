@@ -1,0 +1,1478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Character Reference Player v7.0-web</title>
+<link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;600;700;800&family=Open+Sans:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:         #f2f2f2;
+    --card:       #ffffff;
+    --ink:        #222222;
+    --mid:        #666666;
+    --light:      #999999;
+    --rule:       #e0e0e0;
+    --accent:     #e05a00;
+    --accent-bg:  #fff3ed;
+    --accent-brd: #f5c9ae;
+    --blue-ipa:   #1155cc;
+    --purple:     #5b21b6;
+    --purple-bg:  #ede9fe;
+    --purple-brd: #c4b5fd;
+    --shadow-sm:  0 1px 4px rgba(0,0,0,0.07);
+    --shadow-md:  0 3px 16px rgba(0,0,0,0.10);
+    --radius:     8px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Open Sans', sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--card); border-bottom: 1px solid var(--rule);
+    padding: 20px 36px; display: flex; align-items: center; gap: 14px;
+    box-shadow: var(--shadow-sm); position: sticky; top: 0; z-index: 200;
+  }
+  .logo-mark {
+    width: 40px; height: 40px; background: var(--ink); border-radius: 6px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .header-text h1 { font-family: 'Raleway', sans-serif; font-weight: 800; font-size: 1.2rem; letter-spacing: -0.01em; }
+  .header-text p   { font-size: 0.75rem; color: var(--mid); margin-top: 2px; }
+  #hd-right { margin-left: auto; display: flex; align-items: center; gap: 14px; }
+  #hd-book { text-align: right; font-size: 0.78rem; color: var(--mid); line-height: 1.5; }
+  #hd-book strong { display: block; color: var(--ink); font-weight: 600; font-size: 0.82rem; }
+  #hd-actions { display: flex; gap: 8px; }
+  .hd-action-btn {
+    padding: 6px 13px; background: transparent; color: var(--mid);
+    border: 1.5px solid var(--rule); border-radius: 20px;
+    font-family: 'Raleway', sans-serif; font-size: 0.7rem; font-weight: 700;
+    letter-spacing: 0.03em; text-transform: uppercase; white-space: nowrap;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .hd-action-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-bg); }
+  #share-btn.copied { border-color: #1f8a4c; color: #1f8a4c; background: #eafaf1; }
+
+  /* ── CONTROLS ── */
+  #ctrl {
+    background: var(--card); border-bottom: 1px solid var(--rule);
+    padding: 11px 36px; display: none; align-items: flex-start; gap: 10px;
+    flex-wrap: wrap; position: sticky; top: 63px; z-index: 190; box-shadow: var(--shadow-sm);
+  }
+  #ctrl.on { display: flex; }
+
+  .search-wrap {
+    display: flex; flex-direction: column; gap: 7px; flex: 1; min-width: 220px;
+  }
+  .search-input-row { display: flex; gap: 7px; align-items: center; }
+
+  /* Dropdown wrapper — positions the list relative to the input */
+  .search-combo { position: relative; flex: 1; min-width: 180px; max-width: 300px; }
+
+  #search {
+    width: 100%;
+    padding: 7px 13px 7px 34px; border: 1.5px solid var(--rule); border-radius: 20px;
+    font-family: 'Open Sans', sans-serif; font-size: 0.84rem; color: var(--ink);
+    background: var(--bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2.5'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E") no-repeat 11px center;
+    outline: none; transition: border-color 0.2s; box-sizing: border-box;
+  }
+  #search:focus { border-color: var(--accent); background-color: #fff; }
+  #search::placeholder { color: var(--light); }
+
+  /* Dropdown list */
+  #dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 5px); left: 0; right: 0;
+    background: var(--card);
+    border: 1.5px solid var(--rule);
+    border-radius: 10px;
+    box-shadow: var(--shadow-md);
+    max-height: 260px;
+    overflow-y: auto;
+    z-index: 300;
+  }
+  #dropdown.open { display: block; }
+  .dd-item {
+    padding: 9px 14px;
+    font-size: 0.84rem;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    border-bottom: 1px solid var(--rule);
+    transition: background 0.12s;
+  }
+  .dd-item:last-child { border-bottom: none; }
+  .dd-item:hover, .dd-item.dd-active { background: var(--accent-bg); }
+  .dd-item.dd-active { background: var(--accent-bg); }
+  .dd-name { font-weight: 600; color: var(--ink); }
+  .dd-name mark { background: none; color: var(--accent); font-weight: 800; }
+  .dd-alias { font-size: 0.74rem; color: var(--light); font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px; }
+  .dd-already { font-size: 0.68rem; font-family: 'Raleway', sans-serif; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: #bbb; flex-shrink: 0; }
+  .dd-empty { padding: 12px 14px; font-size: 0.82rem; color: var(--light); font-style: italic; text-align: center; }
+
+
+  .add-btn {
+    padding: 7px 14px; background: var(--accent); color: #fff; border: none;
+    border-radius: 20px; font-family: 'Raleway', sans-serif; font-size: 0.75rem;
+    font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+    cursor: pointer; white-space: nowrap; transition: background 0.15s;
+  }
+  .add-btn:hover { background: #c44e00; }
+  .add-btn:disabled { background: #d1d5db; cursor: not-allowed; }
+
+  .clear-btn {
+    padding: 7px 14px; background: transparent; color: var(--light);
+    border: 1.5px solid var(--rule); border-radius: 20px;
+    font-family: 'Raleway', sans-serif; font-size: 0.75rem; font-weight: 700;
+    letter-spacing: 0.04em; text-transform: uppercase;
+    cursor: pointer; white-space: nowrap; transition: all 0.15s; display: none;
+  }
+  .clear-btn:hover { border-color: #dc2626; color: #dc2626; }
+  .clear-btn.visible { display: inline-block; }
+
+  /* Scene tags */
+  #tag-row {
+    display: flex; flex-wrap: wrap; gap: 5px; align-items: center;
+    min-height: 0;
+  }
+  .scene-tag {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: var(--ink); color: #fff;
+    padding: 3px 10px 3px 12px; border-radius: 20px;
+    font-family: 'Raleway', sans-serif; font-size: 0.72rem; font-weight: 700;
+    letter-spacing: 0.03em; animation: tagIn 0.15s ease;
+  }
+  @keyframes tagIn { from { opacity:0; transform:scale(0.85); } to { opacity:1; transform:scale(1); } }
+  .scene-tag button {
+    background: none; border: none; color: rgba(255,255,255,0.7); cursor: pointer;
+    font-size: 0.9rem; line-height: 1; padding: 0; display: flex; align-items: center;
+    transition: color 0.15s;
+  }
+  .scene-tag button:hover { color: #fff; }
+
+  #stats { margin-left: auto; font-size: 0.72rem; color: var(--light); font-family: 'Raleway', sans-serif; font-weight: 700; white-space: nowrap; align-self: center; }
+
+  /* ── LOAD PANEL ── */
+  #load { max-width: 560px; margin: 60px auto; padding: 0 20px; }
+  .load-card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow-md); padding: 42px 42px 34px; text-align: center; }
+  .load-icon { width: 60px; height: 60px; background: var(--accent-bg); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 18px; }
+  .load-card h2 { font-family: 'Raleway', sans-serif; font-weight: 800; font-size: 1.45rem; margin-bottom: 10px; }
+  .load-card > p { font-size: 0.86rem; color: var(--mid); line-height: 1.65; margin-bottom: 26px; }
+  .dropzone { border: 2px dashed var(--rule); border-radius: var(--radius); padding: 30px 20px; cursor: pointer; transition: all 0.2s; margin-bottom: 14px; background: var(--bg); }
+  .dropzone:hover, .dropzone.over { border-color: var(--accent); background: var(--accent-bg); }
+  .dropzone p { font-size: 0.82rem; color: var(--light); margin: 0; line-height: 1.5; }
+  .dropzone strong { color: var(--accent); font-weight: 600; }
+  label.btn, button.btn { display: inline-block; background: var(--accent); color: #fff; border: none; padding: 10px 28px; border-radius: 24px; font-family: 'Raleway', sans-serif; font-size: 0.83rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; cursor: pointer; transition: background 0.2s, transform 0.1s; }
+  label.btn:hover, button.btn:hover { background: #c44e00; transform: translateY(-1px); }
+  button.btn:disabled { background: #d1d5db; cursor: not-allowed; transform: none; }
+
+  .note { margin-top: 22px; background: var(--bg); border: 1px solid var(--rule); border-radius: 6px; padding: 15px 18px; text-align: left; font-size: 0.77rem; color: var(--mid); line-height: 1.75; }
+  .note strong { font-family: 'Raleway', sans-serif; font-weight: 700; color: var(--ink); font-size: 0.79rem; display: block; margin-bottom: 5px; }
+  .note code { background: #fff; border: 1px solid var(--rule); padding: 1px 5px; border-radius: 3px; font-family: 'Courier New', monospace; color: var(--accent); font-size: 0.85em; }
+
+  /* ── LOAD MODE TABS ── */
+  .load-tabs { display: flex; gap: 6px; margin-bottom: 22px; background: var(--bg); border-radius: 20px; padding: 4px; }
+  .load-tab {
+    flex: 1; padding: 9px 10px; background: transparent; border: none; border-radius: 16px;
+    font-family: 'Raleway', sans-serif; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.03em;
+    color: var(--mid); cursor: pointer; transition: all 0.18s;
+  }
+  .load-tab:hover { color: var(--ink); }
+  .load-tab.active { background: var(--card); color: var(--accent); box-shadow: var(--shadow-sm); }
+  .load-panel-content { text-align: left; }
+  .load-panel-desc { font-size: 0.84rem; color: var(--mid); line-height: 1.6; margin-bottom: 16px; text-align: center; }
+  .sheet-input-row { display: flex; gap: 8px; }
+  #sheet-url-input {
+    flex: 1; padding: 10px 14px; border: 1.5px solid var(--rule); border-radius: 6px;
+    font-family: 'Open Sans', sans-serif; font-size: 0.85rem; color: var(--ink);
+    outline: none; transition: border-color 0.2s;
+  }
+  #sheet-url-input:focus { border-color: var(--accent); }
+  .load-error {
+    margin-top: 12px; background: #fef2f2; border: 1px solid #fca5a5; color: #b91c1c;
+    border-radius: 6px; padding: 10px 14px; font-size: 0.78rem; line-height: 1.5; text-align: left;
+  }
+  .load-loading {
+    margin-top: 12px; font-size: 0.8rem; color: var(--mid); text-align: center; display: none;
+  }
+  .load-loading.on { display: block; }
+
+  /* ── VERSION TAG ── */
+  #tool-version {
+    text-align: center; padding: 10px 0 22px; font-family: 'Raleway', sans-serif;
+    font-size: 0.66rem; font-weight: 600; letter-spacing: 0.05em;
+    color: #c9c9c9; user-select: none;
+  }
+
+  /* ── GRID ── */
+  #grid { display: none; padding: 24px 36px 72px; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 14px; animation: fadeUp 0.28s ease; }
+  #grid.on { display: grid; }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow-sm);
+    padding: 16px 18px 14px; display: flex; flex-direction: column; gap: 0;
+    border-top: 3px solid var(--rule); transition: box-shadow 0.18s, transform 0.14s;
+    position: relative; overflow: visible;
+  }
+  .card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+  .card.playing-char { box-shadow: 0 0 0 2px var(--accent), var(--shadow-md); border-top-color: var(--accent) !important; }
+  .card.playing-pron { box-shadow: 0 0 0 2px var(--purple), var(--shadow-md); border-top-color: var(--purple) !important; }
+
+  /* ── EXCLUDE BUTTON (top-left corner, scene mode only) ── */
+  .card-exclude-btn {
+    display: none;
+    position: absolute; top: -9px; left: -9px;
+    width: 20px; height: 20px;
+    background: var(--card); border: 1.5px solid var(--rule); border-radius: 50%;
+    color: var(--light); font-size: 0.65rem; line-height: 1;
+    cursor: pointer; align-items: center; justify-content: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+    z-index: 10;
+  }
+  .card-exclude-btn:hover { background: #fee2e2; border-color: #f87171; color: #b91c1c; }
+  #grid.scene-active .card-exclude-btn { display: flex; }
+
+  /* ── CARD TOP ROW: name + two play buttons ── */
+  .card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+  .name-wrap { flex: 1; min-width: 0; }
+  .char-name { font-family: 'Raleway', sans-serif; font-size: 1.12rem; font-weight: 800; letter-spacing: -0.01em; line-height: 1.2; }
+  .alias { font-size: 0.75rem; color: var(--mid); font-style: italic; margin-top: 2px; }
+
+  .btn-group { display: flex; gap: 7px; align-items: flex-start; flex-shrink: 0; }
+
+  /* PLAY BUTTON base */
+  .pbtn {
+    width: 38px; height: 38px; border-radius: 50%; border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    position: relative; transition: background 0.16s, transform 0.12s, box-shadow 0.16s;
+  }
+  .pbtn:disabled { cursor: not-allowed; }
+  .pbtn svg.ico { display: block; }
+  svg.ring { position: absolute; inset: -4px; width: 46px; height: 46px; pointer-events: none; overflow: visible; }
+  svg.ring circle { fill: none; stroke-width: 2.2; stroke-dasharray: 119.38; stroke-dashoffset: 119.38; stroke-linecap: round; transform: rotate(-90deg); transform-origin: 50% 50%; transition: stroke-dashoffset 0.1s linear; }
+
+  /* Character voice button — orange */
+  .pbtn-char { background: var(--ink); box-shadow: 0 2px 8px rgba(0,0,0,0.18); }
+  .pbtn-char:hover:not(:disabled) { background: var(--accent); transform: scale(1.1); box-shadow: 0 4px 14px rgba(224,90,0,0.35); }
+  .pbtn-char:disabled { background: #d1d5db; box-shadow: none; opacity: 0.45; }
+  .pbtn-char.playing { background: var(--accent); }
+  .pbtn-char svg.ring circle { stroke: rgba(255,255,255,0.55); }
+
+  /* Pronunciation ref button — purple */
+  .pbtn-pron { background: var(--purple); box-shadow: 0 2px 8px rgba(91,33,182,0.25); }
+  .pbtn-pron:hover:not(:disabled) { background: #4c1d95; transform: scale(1.1); box-shadow: 0 4px 14px rgba(91,33,182,0.4); }
+  .pbtn-pron:disabled { background: #d1d5db; box-shadow: none; opacity: 0.45; }
+  .pbtn-pron.playing { background: #4c1d95; }
+  .pbtn-pron svg.ring circle { stroke: rgba(255,255,255,0.55); }
+
+  /* Button labels underneath */
+  .btn-col { display: flex; flex-direction: column; align-items: center; gap: 3px; width: 96px; }
+  .btn-lbl { font-family: 'Raleway', sans-serif; font-size: 0.56rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--light); }
+
+  /* ── DIVIDER ── */
+  .divider { height: 1px; background: var(--rule); margin: 10px 0; }
+
+  /* ── TWO-COLUMN BODY ── */
+  .card-body { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; }
+  .col-notes { border-right: 1px solid var(--rule); padding-right: 14px; }
+  .col-vocal  { }
+
+  .section-lbl {
+    font-family: 'Raleway', sans-serif; font-size: 0.6rem; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase; color: var(--light);
+    margin-bottom: 5px; display: block;
+  }
+  .section-text {
+    font-size: 0.78rem; color: var(--ink); line-height: 1.55;
+    white-space: pre-wrap; word-break: break-word;
+  }
+  .section-text.vocal { color: var(--mid); font-style: italic; }
+
+  /* ── IPA ROW ── */
+  .ipa-row { display: flex; align-items: baseline; gap: 6px; margin-bottom: 8px; flex-wrap: wrap; }
+  .ipa-lbl { font-family: 'Raleway', sans-serif; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--light); flex-shrink: 0; }
+  .ipa-val { color: var(--blue-ipa); font-weight: 600; font-size: 0.88rem; }
+
+  /* ── LINKS ROW (legacy, kept for reference) ── */
+  .links-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--rule); align-items: center; }
+  /* Pills sitting under their play button */
+  .btn-pill { margin-top: 4px; font-size: 0.62rem !important; padding: 2px 7px !important; max-width: 96px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .link-pill {
+    font-size: 0.71rem; font-weight: 600; text-decoration: none;
+    padding: 3px 9px; border-radius: 3px; display: inline-flex; align-items: center; gap: 4px;
+    transition: background 0.15s; white-space: nowrap;
+  }
+  .link-pill.orange { color: var(--accent); background: var(--accent-bg); border: 1px solid var(--accent-brd); }
+  .link-pill.orange:hover { background: #fde3d0; }
+  .link-pill.purple { color: var(--purple); background: var(--purple-bg); border: 1px solid var(--purple-brd); }
+  .link-pill.purple:hover { background: #ddd6fe; }
+
+  /* ── FOOTER ── */
+  .card-foot { display: flex; align-items: center; gap: 10px; margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--rule); flex-wrap: wrap; }
+  .meta-pill { font-family: 'Raleway', sans-serif; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--light); }
+  .noaud-lbl { font-size: 0.66rem; color: #bbb; font-style: italic; margin-left: auto; }
+
+  /* ── EMPTY ── */
+  #empty { grid-column: 1/-1; text-align: center; padding: 80px 20px; color: var(--light); font-style: italic; display: none; }
+
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
+
+  /* ── SCENES DROPDOWN ── */
+  .scenes-wrap { position: relative; flex-shrink: 0; }
+  .scenes-toggle-btn {
+    padding: 7px 14px; background: transparent; color: var(--mid);
+    border: 1.5px solid var(--rule); border-radius: 20px;
+    font-family: 'Raleway', sans-serif; font-size: 0.75rem; font-weight: 700;
+    letter-spacing: 0.04em; text-transform: uppercase;
+    cursor: pointer; transition: all 0.15s; white-space: nowrap;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .scenes-toggle-btn:hover, .scenes-toggle-btn.open { border-color: var(--accent); color: var(--accent); background: var(--accent-bg); }
+  .scenes-toggle-btn .chip-count { font-size: 0.68rem; color: var(--light); font-weight: 400; }
+  .scenes-toggle-btn.open .chip-count { color: var(--accent); }
+  .scenes-dropdown {
+    display: none; position: absolute; top: calc(100% + 6px); right: 0;
+    background: var(--card); border: 1.5px solid var(--rule); border-radius: 10px;
+    box-shadow: var(--shadow-md); z-index: 400; min-width: 220px; max-width: 320px;
+    padding: 10px;
+  }
+  .scenes-wrap:hover .scenes-dropdown { display: block; }
+  .scenes-wrap:hover .scenes-toggle-btn { border-color: var(--accent); color: var(--accent); background: var(--accent-bg); }
+  /* Bridge the gap between button and dropdown so mouse can travel across */
+  .scenes-wrap::after {
+    content: ''; position: absolute; top: 100%; left: 0; right: 0; height: 10px;
+  }
+  #saved-list { display: flex; flex-direction: column; gap: 5px; }
+  .saved-list-empty { font-size: 0.8rem; color: var(--light); font-style: italic; padding: 4px 2px; }
+  .scene-chip {
+    display: flex; align-items: stretch; border-radius: 7px; overflow: hidden;
+    border: 1.5px solid var(--rule); transition: border-color 0.15s, opacity 0.15s;
+    cursor: default;
+  }
+  .scene-chip.active { border-color: var(--accent); }
+  .scene-chip.dragging { opacity: 0.4; }
+  .scene-chip.drag-over { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-brd); }
+  .scene-chip-drag {
+    background: var(--bg); border: none; border-right: 1.5px solid var(--rule);
+    padding: 7px 7px; cursor: grab; color: var(--light); font-size: 0.75rem;
+    line-height: 1; display: flex; align-items: center;
+  }
+  .scene-chip-drag:active { cursor: grabbing; }
+  .scene-chip-load {
+    background: var(--bg); border: none; padding: 7px 10px; flex: 1; text-align: left;
+    font-family: 'Open Sans', sans-serif; font-size: 0.82rem; font-weight: 600;
+    color: var(--ink); cursor: pointer; transition: background 0.15s, color 0.15s;
+  }
+  .scene-chip-load:hover, .scene-chip.active .scene-chip-load { background: var(--accent-bg); color: var(--accent); }
+  .scene-chip-count { font-size: 0.72rem; color: var(--light); font-weight: 400; margin-left: 4px; }
+  .scene-chip-del {
+    background: none; border: none; border-left: 1.5px solid var(--rule);
+    padding: 7px 9px; cursor: pointer; color: var(--light);
+    font-size: 0.82rem; line-height: 1; transition: background 0.15s, color 0.15s;
+  }
+  .scene-chip-del:hover { background: #fee2e2; color: #b91c1c; }
+
+  #scene-name-inp {
+    border: 1.5px solid var(--rule); border-radius: 20px; padding: 7px 12px;
+    font-family: 'Open Sans', sans-serif; font-size: 0.84rem; color: var(--ink);
+    outline: none; width: 140px; transition: border-color 0.2s; background: var(--bg);
+  }
+  #scene-name-inp:focus { border-color: var(--accent); background: #fff; }
+  #scene-name-inp::placeholder { color: var(--light); }
+  .save-scene-btn {
+    padding: 7px 14px; background: var(--accent); color: #fff; border: none;
+    border-radius: 20px; font-family: 'Raleway', sans-serif; font-size: 0.75rem;
+    font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+    cursor: pointer; transition: background 0.15s; white-space: nowrap;
+  }
+  .save-scene-btn:hover { background: #c44e00; }
+  .update-scene-btn {
+    padding: 7px 14px; background: transparent; color: var(--accent);
+    border: 1.5px solid var(--accent); border-radius: 20px;
+    font-family: 'Raleway', sans-serif; font-size: 0.75rem; font-weight: 700;
+    letter-spacing: 0.04em; text-transform: uppercase;
+    cursor: pointer; transition: all 0.15s; white-space: nowrap; display: none;
+  }
+  .update-scene-btn.visible { display: inline-block; }
+  .update-scene-btn:hover { background: var(--accent-bg); }
+  .loaded-notice {
+    font-size: 0.74rem; color: var(--accent); font-family: 'Raleway', sans-serif;
+    font-weight: 700; letter-spacing: 0.03em; display: none; white-space: nowrap;
+  }
+  .loaded-notice.visible { display: inline; }
+
+  @media (max-width: 700px) {
+    header, #ctrl, #grid { padding-left: 14px; padding-right: 14px; }
+    #grid { grid-template-columns: 1fr; padding-top: 14px; }
+    #ctrl { top: 60px; }
+    #hd-book { display: none; }
+    .card-body { grid-template-columns: 1fr; }
+    .col-notes { border-right: none; padding-right: 0; border-bottom: 1px solid var(--rule); padding-bottom: 10px; margin-bottom: 10px; }
+  }
+</style>
+</head>
+<body>
+<div id="tag-header"></div>
+
+<!-- ── HEADER ── -->
+<header>
+  <img src="data:image/jpeg;base64,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Xd6OrZa2baf7rdKAMOipJ4ZIH2yoVPv3qOgAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACigDJwOta1hpJfEl1lV7J3P1oAoWlpLdNiNeO7HoK3rPTobbDEeZJ/ebt9BVxEVFCooVR0ApaACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAGTRJMhSVQy+hrGvdIZMvbEsv9w9fwrcooA40ggkEYI7GiunvbCK6GSNsnZx/Wufu7WW1fbKvHZh0NAEFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFPgheeQJEpZjUtlaSXcm1BhR95j0FdJaW0drHsjH1J6mgCvp+nR2oDNh5fXsPpV6iigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACmyxpKhSRQynqDTqKAOe1HTXt8yRZeL9VrOrsqx9T0vOZbYc9Sg7/SgDFooPB5ooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKt6fZPdyf3Yx95v6CjTrJruTuIx95v6CulijWKMJGoVR0AoASGJIYxHGuFFPoooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigDN1TThODLCAJe4/vf/Xrn2BUkMCCOCDXZVnapp4uFMkQAmH/AI9QBz1FBBBIIwR1BooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACrFjavdzBF4Ucs3oKjt4XnlWOMZY/pXUWlultCI0/E+poAfDEkMaxxjCin0UUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRTJ5o4ImlndY41GWZjgAV5x4q+KljYs0Gixi9mGQZScRj6etAHpLusalpGVVHUscAVy2s+PvD+lble8E8o/ggG/n0z0FeF614l1rxBOftd1NIG4EMfCj2CitTQ/h3r+q7XNt9lhb/lpcHbx646n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iiigAooooAKydfuNsawKeW+Zvp2rUkdY42dzhVGTXJ3MzTzvI3Vj+QoAjooooAKKKKACiiigAqS3maCZJE6qc/Wo6KAOvhkWaJZEOVYZFPrD0O72ubdz8rcr9fStygAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKiup1t4Gkft0HqfSgDM166wBboeTy/9BWLTpZGlkZ3OWY5NNoAKKKKACiiigAooooAKKKKAAEqQQcEcg11GnXQurcMT+8Xhh71y9WLG5a1nDjlejD1FAHVUU2N1kRXQ5VhkGnUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFc5q939on2If3SdPc+taGtXnlR+TGf3jjk+grAoAKKKKACiiigAooooAKKKKACiiigAooooA0tHvfIfyZT+6Y8E/wAJroK42tzR7/eBBMfmHCMe/tQBrUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABVa/ultIC55c8KvqaluJkt4mkkOFH61zF5cvdTGR+B0A9BQBFI7SSM7nLMck02iigAooooAKKKKACiiigAooooAKKKKACiiigAoBIIIOCKKKAOh0rUBcKIpTiUdD/AHv/AK9aNccpKsCpII5BFdBpeoC4AjlIEw/8eoA0aKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKbLIkUbPIQqjqaJZEhjLyMFUdTXNajevdyd1iH3V/qaAE1C8a7lz0jX7q/1qrRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABQCQQQcEdCKKKAN7TNTEuIrggSdA3Zv8A69alcbWvpuqFMRXJJXoH9PrQBt0UKQwBUgg9CKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACo7ieO3jLytgD8zUV7ex2iZc5c9FHU1zl3cyXUu+Q/QDoKAJL+9e7kyfljH3VqrRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFAFyw1CS1O378XdT2+ldDbXMVzHuibPqO4rkqfDK8MgeJirDuKAOvorLsdWSXCXGEf+92P+Fag5HFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRUNzcxWybpWx6DuaAJqy7/VViylvh37t2H+NZ99qUtzlV+SL0HU/WqNADpHaRy7sWY9SabRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFW7O/mtcBTuj/ut/SqlFAHT2moQXOAG2P/AHW/pVuuNq9aanPBgMfMT0br+dAHSUVTtdRt7jADbH/utxVygAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiimSyxwrulcKvqTQA+mySJEhaRgqjuTWVdayoytsuT/AHm6flWRPNJO+6Vyx9+1AGreax1W1H/AyP5CsiR2kctIxZj3NNooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAq1bX9xb4CPlR/C3IqrRQBu2+sxNgToUPqORWjDPFMMxSK30NcjQCVIKkgjuKAOyormYdSuov+Wm8ej81eh1odJoiPdT/AEoA2KKpxalayf8ALUKfRhirSSI4yjqw9jmgB1FFFABRRRQAUUUUAFFFFABRRRQAUUVDJd28X35kHtnJoAmorOl1i3T7gdz7DA/WqM2sztxEqxj8zQBvk4GT0qnPqVtDkGTe3onNc9NcTTf62Rm9iePyqKgDUuNYlfIhURj1PJrNkkeVt0jMzepNNooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACgEg5HBoooAmS7uE+7NIB6bqnTVLtf+WmfqooooAni1e4LAFYj+B/xrRt7p5Blgv4CiigCyrk+lPY4oooAieVgDgCs651KaLO1Y/wAQf8aKKAKj6vdN0KL9F/xqF9Qun6zN+HH8qKKAK7yySf6x2b6nNNoooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAP/9k=" alt="The Audiobook Guy" style="height:40px;width:40px;border-radius:50%;object-fit:cover;flex-shrink:0;">
+  <div class="header-text">
+    <h1>Character Reference Player</h1>
+    <p>Voice &amp; Pronunciation Reference — Audio Review Tool</p>
+  </div>
+  <div id="hd-right">
+    <div id="hd-actions">
+      <button id="share-btn" class="hd-action-btn" onclick="shareLink()" style="display:none" type="button">Share Link</button>
+      <button id="switch-btn" class="hd-action-btn" onclick="switchProject()" style="display:none" type="button">Load New Project</button>
+    </div>
+    <div id="hd-book"></div>
+  </div>
+</header>
+
+<!-- ── CONTROLS ── -->
+<div id="ctrl">
+  <div class="search-wrap">
+    <div class="search-input-row">
+      <div class="search-combo">
+        <input type="text" id="search" placeholder="Search or add a character…" autocomplete="off">
+        <div id="dropdown"></div>
+      </div>
+      <button class="add-btn" id="add-btn" disabled>Add to scene</button>
+      <input type="text" id="scene-name-inp" placeholder="Scene name…" maxlength="60">
+      <button class="save-scene-btn" onclick="saveScene()">Save</button>
+      <button class="update-scene-btn" id="update-scene-btn" onclick="updateScene()">Update</button>
+      <button class="clear-btn" id="clear-btn">Clear</button>
+      <div class="scenes-wrap">
+        <button class="scenes-toggle-btn" id="scenes-toggle-btn">
+          Scenes <span class="chip-count" id="scenes-count"></span>
+        </button>
+        <div class="scenes-dropdown" id="scenes-dropdown">
+          <div id="saved-list"><span class="saved-list-empty">No saved scenes yet</span></div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+      <div id="tag-row"></div>
+      <span class="loaded-notice" id="loaded-notice"></span>
+    </div>
+  </div>
+  <span id="stats"></span>
+</div>
+
+<!-- ── LOAD PANEL ── -->
+<div id="load">
+  <div class="load-card">
+    <div class="load-icon">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#e05a00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+      </svg>
+    </div>
+    <h2>Load Your Characters</h2>
+    <p>Choose how you'd like to load your character data.</p>
+
+    <div class="load-tabs">
+      <button class="load-tab active" id="tab-sheet" onclick="switchLoadTab('sheet')" type="button">Google Sheet</button>
+      <button class="load-tab" id="tab-folder" onclick="switchLoadTab('folder')" type="button">Local Folder</button>
+    </div>
+
+    <!-- ── SHEET MODE ── -->
+    <div class="load-panel-content" id="panel-sheet">
+      <p class="load-panel-desc">Paste the link to your Google Sheet. It needs to be shared as <strong>"Anyone with the link"</strong> can view.</p>
+      <div class="sheet-input-row">
+        <input type="text" id="sheet-url-input" placeholder="Paste Google Sheet URL…">
+        <button class="btn" onclick="loadFromSheet()" type="button">Load</button>
+      </div>
+      <div id="sheet-error" class="load-error" style="display:none;"></div>
+      <div id="sheet-loading" class="load-loading">Loading sheet…</div>
+    </div>
+
+    <!-- ── FOLDER MODE ── -->
+    <div class="load-panel-content" id="panel-folder" style="display:none;">
+      <p class="load-panel-desc">Click below and select your <strong>project folder</strong>. It should contain your CSV file and the <code>Audio_0/</code> and <code>audio/</code> subfolders.</p>
+      <div class="dropzone" id="dz" style="cursor:pointer;" onclick="pickFolder()">
+        <p>
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#e05a00" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:8px;display:block;margin-left:auto;margin-right:auto;"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+          Click to <strong>choose your project folder</strong>
+        </p>
+        <button class="btn" onclick="event.stopPropagation();pickFolder()" style="margin-top:10px;">Choose Folder</button>
+      </div>
+
+      <div id="no-support" style="display:none; margin-top:14px; background:#fff3cd; border:1px solid #ffc107; border-radius:6px; padding:14px 18px; font-size:0.82rem; color:#664d03; line-height:1.6;">
+        <strong>⚠️ Browser not supported</strong><br>
+        Folder access requires Chrome or Edge (desktop). Safari and Firefox don't support this feature yet.
+      </div>
+    </div>
+
+    <div class="note" id="load-note">
+      <strong>📁 Expected folder structure</strong>
+      Your project folder should contain:<br>
+      <code>2024 My Book Characters.csv</code> — the filename must include the word <em>Characters</em><br>
+      <code>Audio_0/</code> — character voice recordings, e.g. <code>Ky_0.mp3</code><br>
+      <code>audio/</code> — pronunciation reference MP3s, e.g. <code>Baudelaire.mp3</code>
+    </div>
+  </div>
+</div>
+
+<!-- ── GRID ── -->
+<div id="grid">
+  <div id="empty">No characters match your search.</div>
+</div>
+
+<script>
+// ── COLUMN MAP (0-based) ─────────────────────────────────
+// Character | Alias | Page | Count | Pronunciation | Pronunciation Ref |
+// Notes | Vocal Notes | Vocal Ref | To Do | Author Notes | Author Notes
+const C = { name:0, alias:1, page:2, count:3, pron:4, pronRef:5, notes:6, vocalNotes:7, vocalRef:8 };
+// Cols 9,10,11 (To Do, Author Notes) intentionally skipped
+
+const CHAR_DIR = 'Audio_0';
+const PRON_DIR = 'audio';
+
+let allCards = [], nowAudio = null, nowBtn = null;
+let MODE = 'folder'; // 'folder' | 'sheet'
+
+// ── LOAD TAB SWITCHING ───────────────────────────────────
+function switchLoadTab(tab) {
+  document.getElementById('tab-sheet').classList.toggle('active', tab === 'sheet');
+  document.getElementById('tab-folder').classList.toggle('active', tab === 'folder');
+  document.getElementById('panel-sheet').style.display = tab === 'sheet' ? '' : 'none';
+  document.getElementById('panel-folder').style.display = tab === 'folder' ? '' : 'none';
+  const note = document.getElementById('load-note');
+  if (tab === 'sheet') {
+    note.innerHTML = `<strong>📊 Expected sheet layout</strong>
+      Same columns as the Character CSV: <code>Character, Alias, Page, Count, Pronunciation, Pronunciation Ref, Notes, Vocal Notes, Vocal Ref</code>.<br>
+      Put playable Google Drive links (shared "Anyone with the link") in the <code>Pronunciation Ref</code> and <code>Vocal Ref</code> columns for the Pron/Voice buttons to work.`;
+  } else {
+    note.innerHTML = `<strong>📁 Expected folder structure</strong>
+      Your project folder should contain:<br>
+      <code>2024 My Book Characters.csv</code> — the filename must include the word <em>Characters</em><br>
+      <code>Audio_0/</code> — character voice recordings, e.g. <code>Ky_0.mp3</code><br>
+      <code>audio/</code> — pronunciation reference MP3s, e.g. <code>Baudelaire.mp3</code>`;
+  }
+}
+
+// ── GOOGLE SHEET LOADING ─────────────────────────────────
+function parseSheetUrl(url) {
+  const idMatch  = url.match(/\/d\/([a-zA-Z0-9-_]+)/);
+  const gidMatch = url.match(/[#&?]gid=([0-9]+)/);
+  if (!idMatch) return null;
+  return { sheetId: idMatch[1], gid: gidMatch ? gidMatch[1] : '0' };
+}
+
+// Converts a Google Drive "view"/"open" link into a direct-media link via the Drive API.
+// Uses an API key restricted to Drive API + kempkev.github.io referrer.
+const DRIVE_API_KEY = 'AIzaSyDTimdIo9lCsUZOxD_txBhoJhjRNkK4iWk';
+function convertDriveLink(url) {
+  const u = (url || '').trim();
+  const idMatch = u.match(/[?&]id=([a-zA-Z0-9_-]+)/) || u.match(/\/d\/([a-zA-Z0-9_-]+)/);
+  if (!idMatch) return u;
+  return `https://www.googleapis.com/drive/v3/files/${idMatch[1]}?alt=media&key=${DRIVE_API_KEY}`;
+}
+function isDriveLink(url) { return /drive\.google\.com/i.test(url || ''); }
+
+async function loadFromSheet() {
+  const raw = document.getElementById('sheet-url-input').value.trim();
+  const parsed = parseSheetUrl(raw);
+  const errEl = document.getElementById('sheet-error');
+  errEl.style.display = 'none';
+  if (!parsed) {
+    errEl.textContent = "Couldn't find a Sheet ID in that URL. Paste the full Google Sheet link (from the address bar or Share dialog).";
+    errEl.style.display = '';
+    return;
+  }
+  await loadSheetById(parsed.sheetId, parsed.gid);
+}
+
+// Core sheet loader — used by the manual Load button, share links, and
+// auto-resume on page load. Returns true on success.
+async function loadSheetById(sheetId, gid) {
+  const errEl = document.getElementById('sheet-error');
+  const loadingEl = document.getElementById('sheet-loading');
+  if (errEl) errEl.style.display = 'none';
+  if (loadingEl) loadingEl.classList.add('on');
+
+  const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=${gid}`;
+
+  try {
+    const res = await fetch(csvUrl);
+    if (!res.ok) throw new Error('fetch failed');
+    const text = await res.text();
+    if (/^<!DOCTYPE html/i.test(text.trim())) {
+      throw new Error('not-shared');
+    }
+
+    MODE = 'sheet';
+    folderHandle = null;
+    SCENES_KEY = 'charplayer_scenes_sheet_' + sheetId;
+    currentSceneId = null;
+    sceneExcludes = [];
+    hideLoadedNotice();
+
+    const rows = parseCSV(text);
+    build(rows);
+    document.getElementById('hd-book').innerHTML =
+      `<strong>Google Sheet</strong>Live &middot; ${rows.length - 1} characters`;
+
+    saveLastSource({ type: 'sheet', sheetId, gid });
+    updateShareBtn();
+    return true;
+  } catch (e) {
+    if (errEl) {
+      errEl.textContent = "Couldn't load that sheet. Make sure it's shared as \"Anyone with the link\" can view, and that the link is correct.";
+      errEl.style.display = '';
+    }
+    return false;
+  } finally {
+    if (loadingEl) loadingEl.classList.remove('on');
+  }
+}
+
+// ── CSV PARSE ────────────────────────────────────────────
+function parseCSV(txt) {
+  const rows = []; let row = [], cur = '', q = false;
+  for (let i = 0; i < txt.length; i++) {
+    const c = txt[i];
+    if (c === '"') { if (q && txt[i+1]==='"'){cur+='"';i++;} else q=!q; }
+    else if (c===',' && !q) { row.push(cur); cur=''; }
+    else if ((c==='\n'||c==='\r') && !q) {
+      if (c==='\r'&&txt[i+1]==='\n') i++;
+      row.push(cur); rows.push(row); row=[]; cur='';
+    } else cur+=c;
+  }
+  if (cur||row.length){ row.push(cur); rows.push(row); }
+  return rows.filter(r=>r.some(c=>c.trim()));
+}
+
+// ── PERSISTENCE: last-used source + folder handle ────────
+// localStorage remembers WHICH project was last loaded (sheet id/gid, or
+// "a folder was used"). The actual FileSystemDirectoryHandle can't go in
+// localStorage, so it's kept in IndexedDB — Chrome/Edge support storing and
+// re-querying permission on these handles across sessions without a fresh
+// picker dialog, as long as permission is still granted.
+const LAST_SOURCE_KEY = 'charplayer_last_source';
+function saveLastSource(obj) {
+  try { localStorage.setItem(LAST_SOURCE_KEY, JSON.stringify(obj)); } catch (e) {}
+}
+function getLastSource() {
+  try { return JSON.parse(localStorage.getItem(LAST_SOURCE_KEY) || 'null'); } catch (e) { return null; }
+}
+
+let _idbPromise = null;
+function idbOpen() {
+  if (_idbPromise) return _idbPromise;
+  _idbPromise = new Promise((resolve, reject) => {
+    const req = indexedDB.open('charplayer_store', 1);
+    req.onupgradeneeded = () => req.result.createObjectStore('kv');
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+  return _idbPromise;
+}
+async function idbSet(key, val) {
+  try {
+    const db = await idbOpen();
+    return new Promise((resolve) => {
+      const tx = db.transaction('kv', 'readwrite');
+      tx.objectStore('kv').put(val, key);
+      tx.oncomplete = () => resolve(true);
+      tx.onerror = () => resolve(false);
+    });
+  } catch (e) { return false; }
+}
+async function idbGet(key) {
+  try {
+    const db = await idbOpen();
+    return new Promise((resolve) => {
+      const tx = db.transaction('kv', 'readonly');
+      const req = tx.objectStore('kv').get(key);
+      req.onsuccess = () => resolve(req.result || null);
+      req.onerror = () => resolve(null);
+    });
+  } catch (e) { return null; }
+}
+
+// ── SHARE LINK (Sheet mode only — local folders can't be shared) ────────
+function updateShareBtn() {
+  const btn = document.getElementById('share-btn');
+  if (!btn) return;
+  btn.style.display = (MODE === 'sheet') ? '' : 'none';
+}
+async function shareLink() {
+  const last = getLastSource();
+  if (!last || last.type !== 'sheet') return;
+  const url = `${location.origin}${location.pathname}?sheet=${last.sheetId}&gid=${last.gid}`;
+  const btn = document.getElementById('share-btn');
+  try {
+    await navigator.clipboard.writeText(url);
+    if (btn) {
+      const orig = btn.textContent;
+      btn.textContent = 'Link Copied!';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 1800);
+    }
+  } catch (e) {
+    prompt('Copy this link:', url);
+  }
+}
+
+// ── LOAD NEW PROJECT (return to the load screen mid-session) ────────────
+function switchProject() {
+  stopCurrent();
+  document.getElementById('grid').classList.remove('on');
+  document.getElementById('ctrl').classList.remove('on');
+  document.getElementById('load').style.display = '';
+  document.getElementById('hd-book').innerHTML = '';
+  document.getElementById('share-btn').style.display = 'none';
+  document.getElementById('switch-btn').style.display = 'none';
+}
+
+// ── FOLDER HANDLE STORE ─────────────────────────────────
+let folderHandle = null;  // FileSystemDirectoryHandle for the project folder
+
+// ── FOLDER PICKER ────────────────────────────────────────
+async function pickFolder() {
+  if (!('showDirectoryPicker' in window)) {
+    document.getElementById('no-support').style.display = '';
+    return;
+  }
+  let handle;
+  try {
+    handle = await window.showDirectoryPicker({ mode: 'read' });
+  } catch (e) {
+    // User cancelled — do nothing
+    return;
+  }
+  await loadFolderFromHandle(handle);
+}
+
+// Core folder loader — used by the picker and by silent/one-click resume
+// on page load. Returns true on success.
+async function loadFolderFromHandle(handle) {
+  folderHandle = handle;
+  MODE = 'folder';
+
+  // Find the CSV with "character" in the filename (case-insensitive)
+  let csvFile = null, csvName = '';
+  for await (const [name, entryHandle] of folderHandle.entries()) {
+    if (entryHandle.kind === 'file' && name.toLowerCase().endsWith('.csv') && name.toLowerCase().includes('character')) {
+      csvFile = await entryHandle.getFile();
+      csvName = name;
+      break;
+    }
+  }
+
+  if (!csvFile) {
+    alert('No CSV with "Characters" in the filename found in the selected folder. Please check the folder and try again.');
+    return false;
+  }
+
+  const text = await csvFile.text();
+
+  // Scenes are keyed to the PROJECT FOLDER, not the CSV filename, so that
+  // updating or renaming the Characters CSV inside a folder keeps its scenes,
+  // while switching to a different project folder loads that project's scenes.
+  const folderSlug = (folderHandle.name || 'folder').replace(/[^a-z0-9_-]/gi,'_');
+  const newKey = 'charplayer_scenes_' + folderSlug;
+
+  // One-time migration: earlier versions keyed scenes to the CSV filename.
+  // If this folder has no folder-keyed scenes yet but scenes exist under the
+  // old CSV-filename key, carry them over so nothing gets stranded.
+  const csvSlug = csvName.replace(/\.csv$/i,'').replace(/[^a-z0-9_-]/gi,'_');
+  const oldKey  = 'charplayer_scenes_' + csvSlug;
+  if (oldKey !== newKey) {
+    const newVal = localStorage.getItem(newKey);
+    const oldVal = localStorage.getItem(oldKey);
+    const newEmpty = !newVal || newVal === '[]';
+    if (newEmpty && oldVal && oldVal !== '[]') {
+      localStorage.setItem(newKey, oldVal);
+    }
+  }
+
+  SCENES_KEY = newKey;
+  currentSceneId = null;
+  sceneExcludes = [];
+  hideLoadedNotice();
+
+  const rows = parseCSV(text);
+  build(rows);
+  document.getElementById('hd-book').innerHTML =
+    `<strong>${esc(csvName.replace(/\.csv$/i,''))}</strong>Local Folder &middot; ${rows.length-1} characters`;
+
+  saveLastSource({ type: 'folder' });
+  await idbSet('folderHandle', folderHandle);
+  updateShareBtn();
+  return true;
+}
+
+// ── AUDIO PATH VARIANTS ──────────────────────────────────
+// Returns [hyphenated, spaced] variants (or just [hyphenated] if no spaces)
+function nameVariants(name) {
+  const base   = name.trim();
+  const hyphen = base.replace(/\s+/g, '-');
+  return hyphen === base ? [hyphen] : [hyphen, base];
+}
+
+// Probe all variants via FileSystem Access API; call onOk(objectURL) or onFail
+async function probeVariantsFolder(variants, subDir, suffix, onOk, onFail) {
+  if (!folderHandle) { onFail(); return; }
+  let dirHandle;
+  try { dirHandle = await folderHandle.getDirectoryHandle(subDir); }
+  catch { onFail(); return; }
+
+  for (const v of variants) {
+    const filename = v + suffix;
+    try {
+      const fh   = await dirHandle.getFileHandle(filename);
+      const file = await fh.getFile();
+      const url  = URL.createObjectURL(file);
+      onOk(url);
+      return;
+    } catch { /* try next */ }
+  }
+  onFail();
+}
+
+// Legacy stub kept so build() logic doesn't need changing
+function probeVariants(variants, prefix, suffix, onOk, onFail) {
+  probeVariantsFolder(variants, prefix, suffix, onOk, onFail);
+}
+function isUrl(s) { return /^https?:\/\//i.test((s||'').trim()); }
+
+// ── PRON REF STATUS ──────────────────────────────────────
+// Returns: 'url' | 'recording' | 'link' | 'none'
+function pronRefType(val) {
+  const v = (val||'').trim().toLowerCase();
+  if (isUrl(val))          return 'url';
+  if (v === 'recording')   return 'recording';
+  if (v === 'link')        return 'link';
+  return 'none';
+}
+
+// ── LINK LABEL ───────────────────────────────────────────
+function linkLabel(url) {
+  try {
+    const h = new URL(url).hostname.replace(/^www\./,'');
+    const map = {
+      'drive.google.com':'Google Drive','docs.google.com':'Google Docs',
+      'translate.google.com':'Google Translate','forvo.com':'Forvo',
+      'en.wiktionary.org':'Wiktionary','en.wikipedia.org':'Wikipedia',
+      'merriam-webster.com':'Merriam-Webster','dictionary.cambridge.org':'Cambridge',
+      'oxfordlearnersdictionaries.com':'Oxford','oed.com':'OED',
+      'youtube.com':'YouTube','youtu.be':'YouTube',
+      'dictionary.writtenchinese.com':'Written Chinese'
+    };
+    return map[h] || h;
+  } catch { return url; }
+}
+
+// ── PLAY ENGINE ──────────────────────────────────────────
+function stopCurrent() {
+  if (!nowAudio) return;
+  nowAudio.pause(); nowAudio.currentTime = 0;
+  if (nowBtn) {
+    setIcon(nowBtn, false);
+    nowBtn.classList.remove('playing');
+    nowBtn.closest('.card')?.classList.remove('playing-char','playing-pron');
+    resetRing(nowBtn);
+    nowBtn = null;
+  }
+  nowAudio = null;
+}
+
+function playBtn(btn, cardEl, playingClass) {
+  if (btn.disabled) return;
+  const src = btn.dataset.src;
+  if (!src) return;
+
+  // Toggle off if already playing this button
+  if (nowAudio && !nowAudio.paused && nowBtn === btn) {
+    nowAudio.pause();
+    setIcon(btn, false); btn.classList.remove('playing');
+    cardEl.classList.remove('playing-char','playing-pron');
+    return;
+  }
+
+  stopCurrent();
+
+  const audio = new Audio(src);
+  audio.addEventListener('timeupdate', () => {
+    if (audio.duration) updateRing(btn, audio.currentTime / audio.duration);
+  });
+  audio.addEventListener('ended', () => {
+    setIcon(btn, false); btn.classList.remove('playing');
+    cardEl.classList.remove('playing-char','playing-pron');
+    resetRing(btn); nowAudio = null; nowBtn = null;
+  });
+  audio.play().then(() => {
+    nowAudio = audio; nowBtn = btn;
+    setIcon(btn, true); btn.classList.add('playing');
+    cardEl.classList.remove('playing-char','playing-pron');
+    cardEl.classList.add(playingClass);
+  }).catch(() => {
+    btn.disabled = true;
+  });
+}
+
+// ── BUILD ────────────────────────────────────────────────
+function build(rows) {
+  const grid = document.getElementById('grid');
+  [...grid.querySelectorAll('.card')].forEach(c=>c.remove());
+  allCards = [];
+
+  const data = rows.slice(1).filter(r=>(r[C.name]||'').trim());
+
+  data.forEach(r => {
+    const name      = (r[C.name]      ||'').trim();
+    const alias     = (r[C.alias]     ||'').trim();
+    const page      = (r[C.page]      ||'').trim();
+    const count     = (r[C.count]     ||'').trim();
+    const pron      = (r[C.pron]      ||'').trim();
+    const pronRef   = (r[C.pronRef]   ||'').trim();
+    const notes     = (r[C.notes]     ||'').trim();
+    const vocalNotes= (r[C.vocalNotes]||'').trim();
+    const vocalRef  = (r[C.vocalRef]  ||'').trim();
+    if (!name) return;
+
+    const showPron = pron && pron.toLowerCase() !== 'not found';
+    const prt      = pronRefType(pronRef);
+    const hasPronUrl = prt === 'url';
+
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.dataset.key = name.toLowerCase();
+    card.dataset.w = name.toLowerCase() + ' ' + alias.toLowerCase();
+
+    // ── IPA line ──
+    const ipaHtml = showPron
+      ? `<div class="ipa-row"><span class="ipa-lbl">IPA</span><span class="ipa-val">${esc(pron)}</span></div>`
+      : '';
+
+    // ── Links row ──
+    let linkHtml = '';
+    if (hasPronUrl) {
+      linkHtml += `<a class="link-pill purple" href="${esc(pronRef)}" target="_blank">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        ${esc(linkLabel(pronRef))}</a>`;
+    } else if (prt === 'recording' || prt === 'link') {
+      linkHtml += `<span class="link-pill purple" style="opacity:0.5;cursor:default">${esc(pronRef)}</span>`;
+    }
+    if (isUrl(vocalRef)) {
+      linkHtml += `<a class="link-pill orange" href="${esc(vocalRef)}" target="_blank">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        ${esc(linkLabel(vocalRef))}</a>`;
+    }
+
+    // ── Footer meta ──
+    let footMeta = '';
+    if (page)  footMeta += `<span class="meta-pill">p.&nbsp;${esc(page)}</span>`;
+    if (count && count !== '0') footMeta += `<span class="meta-pill">${esc(count)}×</span>`;
+
+    card.innerHTML = `
+      <button class="card-exclude-btn" title="Remove from scene">✕</button>
+      <div class="card-top">
+        <div class="name-wrap">
+          <div class="char-name">${esc(name)}</div>
+          ${alias ? `<div class="alias">${esc(alias)}</div>` : ''}
+        </div>
+        <div class="btn-group">
+          <div class="btn-col">
+            <button class="pbtn pbtn-pron" title="Pronunciation reference" disabled>
+              <svg class="ring" viewBox="0 0 46 46"><circle cx="23" cy="23" r="19"/></svg>
+              <svg class="ico" width="12" height="12" viewBox="0 0 24 24" fill="white" stroke="none"><polygon points="5,3 19,12 5,21"/></svg>
+            </button>
+            <span class="btn-lbl">Pron</span>
+            ${hasPronUrl ? `<a class="link-pill purple btn-pill" href="${esc(pronRef)}" target="_blank">
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              ${esc(linkLabel(pronRef))}</a>` : (prt === 'recording' || prt === 'link') ? `<span class="link-pill purple btn-pill" style="opacity:0.5;cursor:default">${esc(pronRef)}</span>` : ''}
+          </div>
+          <div class="btn-col">
+            <button class="pbtn pbtn-char" title="Character voice" disabled>
+              <svg class="ring" viewBox="0 0 46 46"><circle cx="23" cy="23" r="19"/></svg>
+              <svg class="ico" width="12" height="12" viewBox="0 0 24 24" fill="white" stroke="none"><polygon points="5,3 19,12 5,21"/></svg>
+            </button>
+            <span class="btn-lbl">Voice</span>
+            ${isUrl(vocalRef) ? `<a class="link-pill orange btn-pill" href="${esc(vocalRef)}" target="_blank">
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              ${esc(linkLabel(vocalRef))}</a>` : ''}
+          </div>
+        </div>
+      </div>
+      ${ipaHtml}
+      <div class="divider"></div>
+      <div class="card-body">
+        <div class="col-notes">
+          <span class="section-lbl">Character Notes</span>
+          <div class="section-text">${esc(notes)}</div>
+        </div>
+        <div class="col-vocal">
+          <span class="section-lbl">Vocal Direction</span>
+          <div class="section-text vocal">${esc(vocalNotes)}</div>
+        </div>
+      </div>
+      ${footMeta ? `<div class="card-foot">${footMeta}<span class="noaud-lbl" style="display:none">No voice audio</span></div>` : '<div class="card-foot" style="display:none"><span class="noaud-lbl" style="display:none">No voice audio</span></div>'}
+    `;
+
+    grid.insertBefore(card, document.getElementById('empty'));
+    allCards.push(card);
+
+    const btnChar = card.querySelector('.pbtn-char');
+    const btnPron = card.querySelector('.pbtn-pron');
+    const noAudLbl = card.querySelector('.noaud-lbl');
+
+    if (MODE === 'sheet') {
+      // ── Sheet mode: audio comes directly from the Ref columns' Drive links ──
+      if (isUrl(pronRef) && isDriveLink(pronRef)) {
+        btnPron.dataset.src = convertDriveLink(pronRef);
+        btnPron.disabled = false;
+      }
+      if (isUrl(vocalRef) && isDriveLink(vocalRef)) {
+        btnChar.dataset.src = convertDriveLink(vocalRef);
+        btnChar.disabled = false;
+      } else if (noAudLbl) {
+        noAudLbl.style.display = '';
+        card.querySelector('.card-foot').style.display = 'flex';
+      }
+    } else {
+      // ── Folder mode: probe local Audio_0/ and audio/ subfolders ──
+      probeVariants(nameVariants(name), CHAR_DIR, '_0.mp3',
+        (src) => { btnChar.dataset.src = src; btnChar.disabled = false; },
+        () => { if (noAudLbl) { noAudLbl.style.display = ''; card.querySelector('.card-foot').style.display = 'flex'; } }
+      );
+
+      probeVariants(nameVariants(name), PRON_DIR, '.mp3',
+        (src) => { btnPron.dataset.src = src; btnPron.disabled = false; },
+        () => { /* stays disabled/greyed */ }
+      );
+    }
+
+    btnChar.addEventListener('click', () => playBtn(btnChar, card, 'playing-char'));
+    btnPron.addEventListener('click', () => playBtn(btnPron, card, 'playing-pron'));
+
+    const exBtn = card.querySelector('.card-exclude-btn');
+    exBtn.addEventListener('click', () => excludeCard(card));
+  });
+
+  // Build name index for autocomplete
+  allNames = allCards.map(card => {
+    const parts = card.dataset.w.split(' \u200b'); // dataset.w = "name alias"
+    // Re-derive from card DOM for proper casing
+    const nameEl  = card.querySelector('.char-name');
+    const aliasEl = card.querySelector('.alias');
+    const name  = nameEl  ? nameEl.textContent.trim()  : '';
+    const alias = aliasEl ? aliasEl.textContent.trim() : '';
+    return { name, alias, key: name.toLowerCase() };
+  }).filter(n => n.name);
+
+  refilter();
+  document.getElementById('grid').classList.add('on');
+  document.getElementById('ctrl').classList.add('on');
+  document.getElementById('load').style.display = 'none';
+  document.getElementById('switch-btn').style.display = '';
+  renderSavedList();
+}
+
+// ── ICON / RING ───────────────────────────────────────────
+function setIcon(btn, playing) {
+  const ico = btn.querySelector('.ico');
+  ico.innerHTML = playing
+    ? '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>'
+    : '<polygon points="5,3 19,12 5,21"/>';
+}
+function updateRing(btn, pct) {
+  const c = btn.querySelector('.ring circle'); if(c) c.style.strokeDashoffset = 119.38*(1-pct);
+}
+function resetRing(btn) {
+  const c = btn.querySelector('.ring circle'); if(c) c.style.strokeDashoffset = 119.38;
+}
+
+// ── SCENE SEARCH ─────────────────────────────────────────
+const searchEl  = document.getElementById('search');
+const addBtn    = document.getElementById('add-btn');
+const clearBtn  = document.getElementById('clear-btn');
+const tagRow    = document.getElementById('tag-row');
+const dropdown  = document.getElementById('dropdown');
+
+let sceneTags    = [];   // committed tags
+let sceneExcludes = [];  // cards explicitly removed from current scene
+let ddIndex      = -1;   // keyboard-highlighted dropdown item
+let allNames     = [];   // populated after build(); [{name, alias, key}]
+
+// ── DROPDOWN ─────────────────────────────────────────────
+function openDropdown(q) {
+  if (!q) { closeDropdown(); return; }
+  const matches = allNames.filter(n => n.key.includes(q));
+  if (!matches.length) {
+    dropdown.innerHTML = '<div class="dd-empty">No matches</div>';
+    dropdown.classList.add('open');
+    ddIndex = -1;
+    return;
+  }
+  dropdown.innerHTML = matches.slice(0, 12).map((n, i) => {
+    const already = sceneTags.includes(n.key);
+    const highlighted = n.name.replace(new RegExp(`(${escRe(q)})`, 'gi'), '<mark>$1</mark>');
+    return `<div class="dd-item" data-key="${esc(n.key)}" data-name="${esc(n.name)}" data-idx="${i}">
+      <span class="dd-name">${highlighted}</span>
+      <span class="dd-alias">${n.alias ? esc(n.alias) : ''}</span>
+      ${already ? '<span class="dd-already">In scene</span>' : ''}
+    </div>`;
+  }).join('');
+  dropdown.querySelectorAll('.dd-item').forEach(item => {
+    item.addEventListener('mousedown', e => {
+      e.preventDefault(); // prevent blur firing before click
+      selectItem(item.dataset.key, item.dataset.name);
+    });
+  });
+  dropdown.classList.add('open');
+  ddIndex = -1;
+}
+
+function closeDropdown() {
+  dropdown.classList.remove('open');
+  ddIndex = -1;
+}
+
+function highlightItem(idx) {
+  const items = dropdown.querySelectorAll('.dd-item');
+  items.forEach((el, i) => el.classList.toggle('dd-active', i === idx));
+  if (items[idx]) items[idx].scrollIntoView({ block: 'nearest' });
+}
+
+function selectItem(key, name) {
+  // If character is currently excluded, un-exclude them first
+  if (sceneExcludes.includes(key)) {
+    sceneExcludes = sceneExcludes.filter(k => k !== key);
+    if (currentSceneId) persistExcludes();
+  }
+  if (!sceneTags.includes(key)) {
+    sceneTags.push(key);
+    renderTags();
+  }
+  refilter();
+  searchEl.value = '';
+  addBtn.disabled = true;
+  closeDropdown();
+  searchEl.focus();
+}
+
+// ── INPUT EVENTS ─────────────────────────────────────────
+searchEl.addEventListener('input', () => {
+  const q = searchEl.value.trim().toLowerCase();
+  addBtn.disabled = !q;
+  openDropdown(q);
+  if (!sceneTags.length) refilter(); // live filter when no tags committed
+});
+
+searchEl.addEventListener('keydown', e => {
+  const items = dropdown.querySelectorAll('.dd-item');
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    ddIndex = Math.min(ddIndex + 1, items.length - 1);
+    highlightItem(ddIndex);
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    ddIndex = Math.max(ddIndex - 1, 0);
+    highlightItem(ddIndex);
+  } else if (e.key === 'Enter') {
+    e.preventDefault();
+    if (ddIndex >= 0 && items[ddIndex]) {
+      selectItem(items[ddIndex].dataset.key, items[ddIndex].dataset.name);
+    } else {
+      addTag();
+    }
+  } else if (e.key === 'Escape') {
+    closeDropdown();
+  }
+});
+
+searchEl.addEventListener('blur', () => {
+  // Small delay so mousedown on dropdown item fires first
+  setTimeout(closeDropdown, 150);
+});
+
+addBtn.addEventListener('click', addTag);
+clearBtn.addEventListener('click', clearAll);
+
+// ── TAG MANAGEMENT ───────────────────────────────────────
+function addTag() {
+  const val = searchEl.value.trim().toLowerCase();
+  if (!val) return;
+  if (!sceneTags.includes(val)) {
+    sceneTags.push(val);
+    renderTags();
+    refilter();
+  }
+  searchEl.value = '';
+  addBtn.disabled = true;
+  closeDropdown();
+}
+
+function removeTag(val) {
+  sceneTags = sceneTags.filter(t => t !== val);
+  renderTags();
+  refilter();
+}
+
+function excludeCard(card) {
+  const key = card.dataset.key;
+  if (!sceneExcludes.includes(key)) {
+    sceneExcludes.push(key);
+    // Auto-save excludes if a scene is loaded
+    if (currentSceneId) persistExcludes();
+    refilter();
+  }
+}
+
+function persistExcludes() {
+  const scenes = loadScenes();
+  const idx = scenes.findIndex(s => s.id === currentSceneId);
+  if (idx === -1) return;
+  scenes[idx].excludes = [...sceneExcludes];
+  persistScenes(scenes);
+}
+
+function clearAll() {
+  sceneTags = [];
+  sceneExcludes = [];
+  searchEl.value = '';
+  addBtn.disabled = true;
+  renderTags();
+  refilter();
+}
+
+function renderTags() {
+  tagRow.innerHTML = '';
+  sceneTags.forEach(val => {
+    // Show the original-case name if we can find it
+    const match = allNames.find(n => n.key === val);
+    const label = match ? match.name : val;
+    const tag = document.createElement('span');
+    tag.className = 'scene-tag';
+    tag.innerHTML = `${esc(label)}<button aria-label="Remove ${esc(label)}">✕</button>`;
+    tag.querySelector('button').addEventListener('click', () => removeTag(val));
+    tagRow.appendChild(tag);
+  });
+  clearBtn.classList.toggle('visible', sceneTags.length > 0);
+}
+
+function refilter() {
+  const live  = searchEl.value.trim().toLowerCase();
+  const terms = sceneTags.length > 0 ? sceneTags : (live ? [live] : []);
+  const sceneActive = sceneTags.length > 0;
+  document.getElementById('grid').classList.toggle('scene-active', sceneActive);
+  let vis = 0;
+  allCards.forEach(card => {
+    const w = card.dataset.w;
+    const included = terms.length === 0 || terms.some(t => w.includes(t));
+    const excluded = sceneActive && sceneExcludes.includes(card.dataset.key);
+    const show = included && !excluded;
+    card.style.display = show ? '' : 'none';
+    if (show) vis++;
+  });
+  document.getElementById('stats').textContent = `${vis} of ${allCards.length}`;
+  document.getElementById('empty').style.display = vis === 0 ? '' : 'none';
+}
+
+// ── UTILS ─────────────────────────────────────────────────
+function escRe(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
+// ── BROWSER SUPPORT CHECK ────────────────────────────────
+if (!('showDirectoryPicker' in window)) {
+  document.getElementById('no-support').style.display = '';
+}
+
+// ── AUTO-RESUME ON PAGE LOAD ──────────────────────────────
+// Priority: a shared link (?sheet=...&gid=...) always wins and jumps
+// straight into that project. Otherwise, silently continue the last
+// project used on this device/browser, if possible.
+(async function initResume() {
+  const params = new URLSearchParams(location.search);
+  const sharedSheet = params.get('sheet');
+  if (sharedSheet) {
+    await loadSheetById(sharedSheet, params.get('gid') || '0');
+    return;
+  }
+
+  const last = getLastSource();
+  if (!last) return;
+
+  if (last.type === 'sheet' && last.sheetId) {
+    await loadSheetById(last.sheetId, last.gid || '0');
+  } else if (last.type === 'folder') {
+    const handle = await idbGet('folderHandle');
+    if (!handle) return;
+    try {
+      // queryPermission does NOT require a user gesture — only
+      // requestPermission (the prompting version) does. If we already
+      // hold 'granted' permission from a previous session, we can load
+      // straight away with no click needed.
+      const state = await handle.queryPermission({ mode: 'read' });
+      if (state === 'granted') {
+        await loadFolderFromHandle(handle);
+      }
+      // If state is 'prompt', permission has lapsed — fall back to the
+      // normal load screen; the user just clicks Choose Folder once more.
+    } catch (e) { /* handle unusable — ignore, show load screen */ }
+  }
+})();
+
+
+// ── UTIL ──────────────────────────────────────────────────
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ── SAVED SCENES ─────────────────────────────────────────
+let SCENES_KEY = 'charplayer_scenes_v1';
+let currentSceneId = null;
+
+function loadScenes() {
+  try { return JSON.parse(localStorage.getItem(SCENES_KEY) || '[]'); }
+  catch(e) { return []; }
+}
+function persistScenes(s) { localStorage.setItem(SCENES_KEY, JSON.stringify(s)); }
+
+function saveScene() {
+  if (!sceneTags.length) { alert('Add some characters to the scene first!'); return; }
+  const inp = document.getElementById('scene-name-inp');
+  const name = inp.value.trim() || ('Scene ' + (loadScenes().length + 1));
+  const scenes = loadScenes();
+  const id = Date.now().toString();
+  scenes.push({ id, name, chars: [...sceneTags], excludes: [...sceneExcludes] });
+  persistScenes(scenes);
+  currentSceneId = id;
+  inp.value = '';
+  renderSavedList();
+  showLoadedNotice(name);
+}
+
+function updateScene() {
+  if (!currentSceneId) return;
+  if (!sceneTags.length) { alert('Scene is empty — add characters first.'); return; }
+  const scenes = loadScenes();
+  const idx = scenes.findIndex(s => s.id === currentSceneId);
+  if (idx === -1) return;
+  scenes[idx].chars = [...sceneTags];
+  scenes[idx].excludes = [...sceneExcludes];
+  persistScenes(scenes);
+  renderSavedList();
+  showLoadedNotice(scenes[idx].name);
+}
+
+function loadScene(id) {
+  const scene = loadScenes().find(s => s.id === id);
+  if (!scene) return;
+  sceneTags = [...scene.chars];
+  sceneExcludes = [...(scene.excludes || [])];
+  currentSceneId = id;
+  renderTags();
+  refilter();
+  renderSavedList();
+  showLoadedNotice(scene.name);
+}
+
+function deleteScene(id) {
+  const scenes = loadScenes().filter(s => s.id !== id);
+  persistScenes(scenes);
+  if (currentSceneId === id) {
+    currentSceneId = null;
+    hideLoadedNotice();
+  }
+  renderSavedList();
+}
+
+function showLoadedNotice(name) {
+  const n = document.getElementById('loaded-notice');
+  n.textContent = 'Editing: ' + name;
+  n.classList.add('visible');
+  document.getElementById('update-scene-btn').classList.add('visible');
+}
+
+function hideLoadedNotice() {
+  document.getElementById('loaded-notice').classList.remove('visible');
+  document.getElementById('update-scene-btn').classList.remove('visible');
+}
+
+function renderSavedList() {
+  const scenes = loadScenes();
+  const list = document.getElementById('saved-list');
+  const countEl = document.getElementById('scenes-count');
+  if (countEl) countEl.textContent = scenes.length ? '(' + scenes.length + ')' : '';
+  if (!scenes.length) {
+    list.innerHTML = '<span class="saved-list-empty">No saved scenes yet</span>';
+    return;
+  }
+  list.innerHTML = scenes.map(s => `
+    <div class="scene-chip ${s.id === currentSceneId ? 'active' : ''}" id="chip-${s.id}" draggable="true">
+      <span class="scene-chip-drag" title="Drag to reorder">☰</span>
+      <button class="scene-chip-load" onclick="loadScene('${s.id}')">
+        ${esc(s.name)}<span class="scene-chip-count">&thinsp;(${s.chars.length})</span>
+      </button>
+      <button class="scene-chip-del" onclick="deleteScene('${s.id}')" title="Delete scene">✕</button>
+    </div>`).join('');
+  initDragDrop();
+}
+
+let dragSrcId = null;
+
+function initDragDrop() {
+  const list = document.getElementById('saved-list');
+  list.querySelectorAll('.scene-chip').forEach(chip => {
+    chip.addEventListener('dragstart', e => {
+      dragSrcId = chip.id.replace('chip-', '');
+      chip.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    chip.addEventListener('dragend', () => {
+      chip.classList.remove('dragging');
+      list.querySelectorAll('.scene-chip').forEach(c => c.classList.remove('drag-over'));
+    });
+    chip.addEventListener('dragover', e => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      list.querySelectorAll('.scene-chip').forEach(c => c.classList.remove('drag-over'));
+      if (chip.id !== 'chip-' + dragSrcId) chip.classList.add('drag-over');
+    });
+    chip.addEventListener('dragleave', () => chip.classList.remove('drag-over'));
+    chip.addEventListener('drop', e => {
+      e.preventDefault();
+      chip.classList.remove('drag-over');
+      const targetId = chip.id.replace('chip-', '');
+      if (dragSrcId === targetId) return;
+      const scenes = loadScenes();
+      const srcIdx = scenes.findIndex(s => s.id === dragSrcId);
+      const tgtIdx = scenes.findIndex(s => s.id === targetId);
+      if (srcIdx === -1 || tgtIdx === -1) return;
+      const [moved] = scenes.splice(srcIdx, 1);
+      scenes.splice(tgtIdx, 0, moved);
+      persistScenes(scenes);
+      renderSavedList();
+    });
+  });
+}
+
+// Close dropdown handled by CSS hover on .scenes-wrap
+
+
+document.getElementById('clear-btn').addEventListener('click', () => {
+  currentSceneId = null;
+  hideLoadedNotice();
+  renderSavedList();
+});
+
+document.getElementById('sheet-url-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') { e.preventDefault(); loadFromSheet(); }
+});
+
+
+</script>
+<div id="tool-version">v7.0</div>
+<div id="tag-footer"></div>
+<script src="/audiobook-tools/partials/inject-brand.js"></script>
+</body>
+</html>
