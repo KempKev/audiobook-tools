@@ -1,5 +1,5 @@
 (function () {
-  var PARTIAL_URL = '/audiobook-tools/partials/header-footer.html';
+  var PARTIAL_URL = '/partials/header-footer.html';
 
   function inject(doc) {
     var headerSlot = document.getElementById('tag-header');
