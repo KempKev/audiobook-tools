@@ -1,0 +1,2090 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prep Suite</title>
+<link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;600;700;800&family=Open+Sans:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/lamejs@1.2.1/lame.min.js"></script>
+<script src="https://accounts.google.com/gsi/client" async defer onload="window.__gisLoaded && window.__gisLoaded()"></script>
+<style>
+  :root {
+    --bg:#f2f2f2; --card:#ffffff; --ink:#222222; --mid:#666666; --light:#999999; --rule:#e0e0e0;
+    --accent:#e05a00; --accent-bg:#fff3ed; --accent-brd:#f5c9ae;
+    --blue-ipa:#1155cc; --green-ipa:#2e6b2e;
+    --purple:#5b21b6; --purple-bg:#ede9fe; --purple-brd:#c4b5fd;
+    --red:#dc2626; --red-bg:#fef2f2; --red-brd:#fecaca;
+    --amber:#b45309; --amber-bg:#fffbeb; --amber-brd:#fcd34d;
+    --green:#15803d; --green-bg:#eafaf1;
+    --shadow-sm:0 1px 4px rgba(0,0,0,0.07); --shadow-md:0 3px 16px rgba(0,0,0,0.10); --radius:8px;
+    --tag-name-bg:#dbeafe; --tag-name-txt:#1e40af; --tag-place-bg:#dcfce7; --tag-place-txt:#166534;
+    --tag-fash-bg:#fef9c3; --tag-fash-txt:#854d0e; --tag-hist-bg:#ffedd5; --tag-hist-txt:#9a3412;
+    --tag-acad-bg:#fce7f3; --tag-acad-txt:#9d174d; --tag-for-bg:#f1f5f9; --tag-for-txt:#475569;
+    --tag-comp-bg:#f8fafc; --tag-comp-txt:#334155;
+  }
+  *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Open Sans',sans-serif; background:var(--bg); color:var(--ink); min-height:100vh; -webkit-font-smoothing:antialiased; }
+  a { color:var(--accent); }
+
+  /* ── TOP BAR (header + tabs + controls stick together) ── */
+  #topbar { position:sticky; top:0; z-index:200; }
+  header { background:var(--card); border-bottom:1px solid var(--rule); padding:16px 36px; display:flex; align-items:center; gap:14px; box-shadow:var(--shadow-sm); flex-wrap:wrap; }
+  .header-text h1 { font-family:'Raleway',sans-serif; font-weight:800; font-size:1.2rem; letter-spacing:-0.01em; }
+  .header-text p { font-size:0.75rem; color:var(--mid); margin-top:2px; }
+  #hd-right { margin-left:auto; display:flex; align-items:center; gap:14px; flex-wrap:wrap; justify-content:flex-end; }
+  #hd-book { text-align:right; font-size:0.78rem; color:var(--mid); line-height:1.5; }
+  #hd-book strong { display:block; color:var(--ink); font-weight:600; font-size:0.82rem; }
+  #hd-actions { display:flex; gap:8px; flex-wrap:wrap; }
+  .hd-action-btn { padding:6px 13px; background:transparent; color:var(--mid); border:1.5px solid var(--rule); border-radius:20px; font-family:'Raleway',sans-serif; font-size:0.7rem; font-weight:700; letter-spacing:0.03em; text-transform:uppercase; white-space:nowrap; cursor:pointer; transition:all 0.15s; text-decoration:none; display:inline-flex; align-items:center; gap:5px; }
+  .hd-action-btn:hover { border-color:var(--accent); color:var(--accent); background:var(--accent-bg); }
+  #acct-btn { text-transform:none; font-weight:600; max-width:240px; overflow:hidden; text-overflow:ellipsis; }
+  .hd-action-btn.copied, #edit-btn.on { border-color:var(--green); color:var(--green); background:var(--green-bg); }
+  .dot { width:7px; height:7px; border-radius:50%; background:currentColor; display:inline-block; }
+
+  /* Tabs */
+  #tabs { display:none; background:var(--card); border-bottom:1px solid var(--rule); padding:0 36px; gap:4px; }
+  #tabs.on { display:flex; }
+  .tab-btn { padding:12px 18px 10px; background:none; border:none; border-bottom:3px solid transparent; font-family:'Raleway',sans-serif; font-size:0.86rem; font-weight:800; color:var(--light); cursor:pointer; transition:color 0.15s, border-color 0.15s; display:flex; align-items:center; gap:7px; }
+  .tab-btn:hover { color:var(--ink); }
+  .tab-btn.active { color:var(--ink); border-bottom-color:var(--accent); }
+  .tab-count { font-size:0.7rem; font-weight:700; color:var(--light); }
+  .tab-flag { font-size:0.62rem; font-weight:800; background:var(--red); color:#fff; border-radius:10px; padding:1px 7px; letter-spacing:0.02em; }
+  .tab-flag:empty { display:none; }
+
+  /* Controls */
+  .ctrl { background:var(--card); border-bottom:1px solid var(--rule); padding:11px 36px; display:none; align-items:flex-start; gap:10px; flex-wrap:wrap; box-shadow:var(--shadow-sm); }
+  .ctrl.on { display:flex; }
+  .search-wrap { display:flex; flex-direction:column; gap:7px; flex:1; min-width:220px; }
+  .search-input-row { display:flex; gap:7px; align-items:center; flex-wrap:wrap; }
+  .search-combo { position:relative; flex:1; min-width:170px; max-width:280px; }
+  .search { width:100%; padding:7px 13px 7px 34px; border:1.5px solid var(--rule); border-radius:20px; font-family:'Open Sans',sans-serif; font-size:0.84rem; color:var(--ink); background:var(--bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2.5'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E") no-repeat 11px center; outline:none; transition:border-color 0.2s; }
+  .search:focus { border-color:var(--accent); background-color:#fff; }
+  .dropdown { display:none; position:absolute; top:calc(100% + 5px); left:0; right:0; background:var(--card); border:1.5px solid var(--rule); border-radius:10px; box-shadow:var(--shadow-md); max-height:260px; overflow-y:auto; z-index:300; }
+  .dropdown.open { display:block; }
+  .dd-item { padding:8px 14px; font-size:0.83rem; cursor:pointer; display:flex; align-items:center; justify-content:space-between; gap:10px; border-bottom:1px solid var(--rule); }
+  .dd-item:last-child { border-bottom:none; }
+  .dd-item:hover, .dd-item.dd-active { background:var(--accent-bg); }
+  .dd-name { font-weight:600; }
+  .dd-name mark { background:none; color:var(--accent); font-weight:800; }
+  .dd-sub { font-size:0.72rem; color:var(--light); font-style:italic; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:120px; }
+  .dd-already { font-size:0.66rem; font-family:'Raleway',sans-serif; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; color:#bbb; flex-shrink:0; }
+  .dd-empty { padding:12px 14px; font-size:0.82rem; color:var(--light); font-style:italic; text-align:center; }
+
+  .pill-btn { padding:7px 14px; background:var(--accent); color:#fff; border:none; border-radius:20px; font-family:'Raleway',sans-serif; font-size:0.74rem; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; cursor:pointer; white-space:nowrap; transition:background 0.15s; }
+  .pill-btn:hover { background:#c44e00; }
+  .pill-btn:disabled { background:#d1d5db; cursor:not-allowed; }
+  .pill-btn.ghost { background:transparent; color:var(--mid); border:1.5px solid var(--rule); }
+  .pill-btn.ghost:hover { border-color:var(--accent); color:var(--accent); background:var(--accent-bg); }
+  .pill-btn.dark { background:var(--ink); }
+  .pill-btn.dark:hover { background:var(--accent); }
+  .clear-btn { display:none; }
+  .clear-btn.visible { display:inline-block; }
+  .clear-btn:hover { border-color:var(--red) !important; color:var(--red) !important; background:var(--red-bg) !important; }
+  .update-scene-btn { display:none; background:transparent; color:var(--accent); border:1.5px solid var(--accent); }
+  .update-scene-btn.visible { display:inline-block; }
+  .update-scene-btn:hover { background:var(--accent-bg); }
+  .scene-name-inp { border:1.5px solid var(--rule); border-radius:20px; padding:7px 12px; font-family:'Open Sans',sans-serif; font-size:0.84rem; outline:none; width:130px; background:var(--bg); }
+  .scene-name-inp:focus { border-color:var(--accent); background:#fff; }
+
+  .needs-btn { padding:7px 14px; background:transparent; color:var(--red); border:1.5px solid var(--red-brd); border-radius:20px; font-family:'Raleway',sans-serif; font-size:0.74rem; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; cursor:pointer; white-space:nowrap; transition:all 0.15s; display:inline-flex; align-items:center; gap:6px; }
+  .needs-btn:hover { background:var(--red-bg); border-color:var(--red); }
+  .needs-btn.on { background:var(--red); border-color:var(--red); color:#fff; }
+  .needs-btn .n { font-weight:800; }
+  .needs-btn.zero { color:var(--light); border-color:var(--rule); }
+
+  .tag-row { display:flex; flex-wrap:wrap; gap:5px; align-items:center; }
+  .scene-tag { display:inline-flex; align-items:center; gap:5px; background:var(--ink); color:#fff; padding:3px 10px 3px 12px; border-radius:20px; font-family:'Raleway',sans-serif; font-size:0.72rem; font-weight:700; letter-spacing:0.03em; }
+  .scene-tag button { background:none; border:none; color:rgba(255,255,255,0.7); cursor:pointer; font-size:0.9rem; line-height:1; }
+  .scene-tag button:hover { color:#fff; }
+  .loaded-notice { font-size:0.74rem; color:var(--accent); font-family:'Raleway',sans-serif; font-weight:700; display:none; white-space:nowrap; }
+  .loaded-notice.visible { display:inline; }
+  .stats { margin-left:auto; font-size:0.72rem; color:var(--light); font-family:'Raleway',sans-serif; font-weight:700; white-space:nowrap; align-self:center; }
+  .ctrl-right { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+
+  .chips { display:flex; gap:5px; flex-wrap:wrap; align-items:center; }
+  .chip { padding:4px 12px; border-radius:20px; font-family:'Raleway',sans-serif; font-size:0.7rem; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; cursor:pointer; border:1.5px solid var(--rule); background:#fff; color:var(--mid); }
+  .chip:hover { border-color:var(--accent); color:var(--accent); }
+  .chip.on { background:var(--ink); border-color:var(--ink); color:#fff; }
+
+  /* Scenes dropdown */
+  .scenes-wrap { position:relative; flex-shrink:0; }
+  .scenes-wrap::after { content:''; position:absolute; top:100%; left:0; right:0; height:10px; }
+  .scenes-dropdown { display:none; position:absolute; top:calc(100% + 6px); right:0; background:var(--card); border:1.5px solid var(--rule); border-radius:10px; box-shadow:var(--shadow-md); z-index:400; min-width:220px; max-width:320px; padding:10px; }
+  .scenes-wrap:hover .scenes-dropdown { display:block; }
+  #saved-list { display:flex; flex-direction:column; gap:5px; }
+  .saved-list-empty { font-size:0.8rem; color:var(--light); font-style:italic; padding:4px 2px; }
+  .scene-chip { display:flex; align-items:stretch; border-radius:7px; overflow:hidden; border:1.5px solid var(--rule); }
+  .scene-chip.active { border-color:var(--accent); }
+  .scene-chip.dragging { opacity:0.4; }
+  .scene-chip.drag-over { border-color:var(--accent); box-shadow:0 0 0 2px var(--accent-brd); }
+  .scene-chip-drag { background:var(--bg); border-right:1.5px solid var(--rule); padding:7px; cursor:grab; color:var(--light); font-size:0.75rem; display:flex; align-items:center; }
+  .scene-chip-load { background:var(--bg); border:none; padding:7px 10px; flex:1; text-align:left; font-family:'Open Sans',sans-serif; font-size:0.82rem; font-weight:600; color:var(--ink); cursor:pointer; }
+  .scene-chip-load:hover, .scene-chip.active .scene-chip-load { background:var(--accent-bg); color:var(--accent); }
+  .scene-chip-count { font-size:0.72rem; color:var(--light); font-weight:400; margin-left:4px; }
+  .scene-chip-del { background:none; border:none; border-left:1.5px solid var(--rule); padding:7px 9px; cursor:pointer; color:var(--light); }
+  .scene-chip-del:hover { background:var(--red-bg); color:var(--red); }
+
+  /* ── LOAD PANEL ── */
+  #load { max-width:560px; margin:60px auto; padding:0 20px; }
+  .load-card { background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow-md); padding:42px 42px 34px; text-align:center; }
+  .load-icon { width:60px; height:60px; background:var(--accent-bg); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 18px; }
+  .load-card h2 { font-family:'Raleway',sans-serif; font-weight:800; font-size:1.45rem; margin-bottom:10px; }
+  .load-card > p { font-size:0.86rem; color:var(--mid); line-height:1.65; margin-bottom:22px; }
+  .sheet-input-row { display:flex; gap:8px; }
+  #sheet-url-input { flex:1; padding:10px 14px; border:1.5px solid var(--rule); border-radius:6px; font-family:'Open Sans',sans-serif; font-size:0.85rem; outline:none; min-width:0; }
+  #sheet-url-input:focus { border-color:var(--accent); }
+  .load-error { margin-top:12px; background:var(--red-bg); border:1px solid #fca5a5; color:#b91c1c; border-radius:6px; padding:10px 14px; font-size:0.78rem; line-height:1.5; text-align:left; display:none; }
+  .load-loading { margin-top:12px; font-size:0.8rem; color:var(--mid); display:none; }
+  .load-loading.on { display:block; }
+  .note { margin-top:22px; background:var(--bg); border:1px solid var(--rule); border-radius:6px; padding:15px 18px; text-align:left; font-size:0.77rem; color:var(--mid); line-height:1.75; }
+  .note strong { font-family:'Raleway',sans-serif; font-weight:700; color:var(--ink); font-size:0.79rem; display:block; margin-bottom:5px; }
+  .note code { background:#fff; border:1px solid var(--rule); padding:1px 5px; border-radius:3px; font-family:'Courier New',monospace; color:var(--accent); font-size:0.85em; }
+
+  /* ── GRIDS ── */
+  .grid { display:none; padding:24px 36px 40px; gap:14px; }
+  .grid.on { display:grid; }
+  #grid-char { grid-template-columns:repeat(auto-fill, minmax(360px, 1fr)); }
+  #grid-pron { grid-template-columns:repeat(auto-fill, minmax(285px, 1fr)); }
+  .empty { grid-column:1/-1; text-align:center; padding:80px 20px; color:var(--light); font-style:italic; display:none; }
+
+  .card { background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow-sm); padding:16px 18px 13px; display:flex; flex-direction:column; border-top:3px solid var(--rule); transition:box-shadow 0.18s, transform 0.14s; position:relative; }
+  .card:hover { box-shadow:var(--shadow-md); transform:translateY(-2px); }
+  .card.flag-rec { box-shadow:inset 4px 0 0 var(--red), var(--shadow-sm); }
+  .card.flag-rec:hover { box-shadow:inset 4px 0 0 var(--red), var(--shadow-md); }
+  .card.playing { box-shadow:0 0 0 2px var(--accent), var(--shadow-md); border-top-color:var(--accent) !important; }
+  .card.playing-pron { box-shadow:0 0 0 2px var(--purple), var(--shadow-md); border-top-color:var(--purple) !important; }
+
+  .flags { display:flex; gap:5px; flex-wrap:wrap; margin-bottom:8px; }
+  .flags:empty { display:none; }
+  .flag { font-family:'Raleway',sans-serif; font-size:0.6rem; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; padding:3px 8px; border-radius:3px; display:inline-flex; align-items:center; gap:5px; }
+  .flag.rec { background:var(--red-bg); color:var(--red); border:1px solid var(--red-brd); }
+  .flag.wip { background:var(--amber-bg); color:var(--amber); border:1px solid var(--amber-brd); }
+
+  .card-exclude-btn { display:none; position:absolute; top:-9px; left:-9px; width:20px; height:20px; background:var(--card); border:1.5px solid var(--rule); border-radius:50%; color:var(--light); font-size:0.65rem; cursor:pointer; align-items:center; justify-content:center; box-shadow:0 1px 3px rgba(0,0,0,0.12); z-index:10; }
+  .card-exclude-btn:hover { background:#fee2e2; border-color:#f87171; color:#b91c1c; }
+  #grid-char.scene-active .card-exclude-btn { display:flex; }
+
+  .card-top { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; margin-bottom:10px; }
+  .name-wrap { flex:1; min-width:0; }
+  .char-name, .word { font-family:'Raleway',sans-serif; font-size:1.1rem; font-weight:800; letter-spacing:-0.01em; line-height:1.2; word-break:break-word; }
+  .alias { font-size:0.75rem; color:var(--mid); font-style:italic; margin-top:2px; }
+  .btn-group { display:flex; gap:7px; align-items:flex-start; flex-shrink:0; }
+  .btn-col { display:flex; flex-direction:column; align-items:center; gap:3px; width:90px; }
+  .btn-lbl { font-family:'Raleway',sans-serif; font-size:0.56rem; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:var(--light); }
+
+  .pbtn { width:38px; height:38px; border-radius:50%; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; position:relative; background:var(--ink); box-shadow:0 2px 8px rgba(0,0,0,0.18); transition:background 0.16s, transform 0.12s; }
+  .pbtn:hover:not(:disabled) { background:var(--accent); transform:scale(1.1); }
+  .pbtn:disabled { background:#d1d5db; box-shadow:none; opacity:0.45; cursor:not-allowed; }
+  .pbtn.playing { background:var(--accent); }
+  .pbtn.pron { background:var(--purple); }
+  .pbtn.pron:hover:not(:disabled), .pbtn.pron.playing { background:#4c1d95; }
+  .pbtn.pron:disabled { background:#d1d5db; }
+  .pbtn svg.ico { display:block; }
+  svg.ring { position:absolute; inset:-4px; width:46px; height:46px; pointer-events:none; overflow:visible; }
+  svg.ring circle { fill:none; stroke:rgba(255,255,255,0.55); stroke-width:2.2; stroke-dasharray:119.38; stroke-dashoffset:119.38; stroke-linecap:round; transform:rotate(-90deg); transform-origin:50% 50%; transition:stroke-dashoffset 0.1s linear; }
+
+  .link-pill { font-size:0.62rem; font-weight:600; text-decoration:none; padding:2px 7px; border-radius:3px; display:inline-flex; align-items:center; gap:4px; white-space:nowrap; max-width:90px; overflow:hidden; text-overflow:ellipsis; }
+  .link-pill.orange { color:var(--accent); background:var(--accent-bg); border:1px solid var(--accent-brd); }
+  .link-pill.purple { color:var(--purple); background:var(--purple-bg); border:1px solid var(--purple-brd); }
+
+  .ipa-row { display:flex; align-items:baseline; gap:6px; margin-bottom:6px; flex-wrap:wrap; font-size:0.82rem; }
+  .ipa-lbl { font-family:'Raleway',sans-serif; font-size:0.58rem; font-weight:700; letter-spacing:0.07em; text-transform:uppercase; color:var(--light); min-width:24px; }
+  .ipa-val, .rp { color:var(--blue-ipa); font-weight:600; }
+  .nat { color:var(--green-ipa); font-style:italic; }
+  .rs { color:var(--mid); font-size:0.77rem; }
+  .divider { height:1px; background:var(--rule); margin:8px 0 10px; }
+  .card-body { display:grid; grid-template-columns:1fr 1fr; gap:0 14px; }
+  .col-notes { border-right:1px solid var(--rule); padding-right:14px; }
+  .section-lbl { font-family:'Raleway',sans-serif; font-size:0.6rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:var(--light); margin-bottom:5px; display:block; }
+  .section-text { font-size:0.78rem; line-height:1.55; white-space:pre-wrap; word-break:break-word; }
+  .section-text.vocal { color:var(--mid); font-style:italic; }
+  .cnote { font-size:0.74rem; color:var(--mid); font-style:italic; line-height:1.45; border-top:1px solid var(--rule); padding-top:7px; margin-top:4px; white-space:pre-wrap; word-break:break-word; }
+
+  .tags { display:flex; align-items:center; gap:5px; margin-top:4px; flex-wrap:wrap; }
+  .tag { font-family:'Raleway',sans-serif; font-size:0.6rem; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; padding:2px 7px; border-radius:3px; }
+  .tag.Name{background:var(--tag-name-bg);color:var(--tag-name-txt)} .tag.Place{background:var(--tag-place-bg);color:var(--tag-place-txt)}
+  .tag.Fashion{background:var(--tag-fash-bg);color:var(--tag-fash-txt)} .tag.Historical{background:var(--tag-hist-bg);color:var(--tag-hist-txt)}
+  .tag.Academic{background:var(--tag-acad-bg);color:var(--tag-acad-txt)} .tag.Foreign{background:var(--tag-for-bg);color:var(--tag-for-txt)}
+  .tag.Complex{background:var(--tag-comp-bg);color:var(--tag-comp-txt)}
+  .card[data-c="Name"]{border-top-color:#3b82f6} .card[data-c="Place"]{border-top-color:#22c55e} .card[data-c="Fashion"]{border-top-color:#eab308}
+  .card[data-c="Historical"]{border-top-color:#f97316} .card[data-c="Academic"]{border-top-color:#ec4899} .card[data-c="Foreign"]{border-top-color:#94a3b8} .card[data-c="Complex"]{border-top-color:#cbd5e1}
+  .inf { background:var(--red-bg); color:var(--red); font-family:'Raleway',sans-serif; font-size:0.6rem; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; padding:2px 7px; border-radius:3px; }
+  .srcs { display:flex; gap:6px; flex-wrap:wrap; align-items:center; border-top:1px solid var(--rule); padding-top:7px; margin-top:6px; }
+  .src-link { font-size:0.72rem; color:var(--accent); text-decoration:none; background:var(--accent-bg); padding:2px 8px; border-radius:3px; border:1px solid var(--accent-brd); font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:170px; }
+
+  .card-foot { display:flex; align-items:center; gap:10px; margin-top:10px; padding-top:8px; border-top:1px solid var(--rule); flex-wrap:wrap; }
+  .meta-pill { font-family:'Raleway',sans-serif; font-size:0.66rem; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; color:var(--light); }
+  .noaud { font-size:0.66rem; color:#bbb; font-style:italic; }
+  .edit-btn { margin-left:auto; background:none; border:none; color:var(--light); font-family:'Raleway',sans-serif; font-size:0.66rem; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; cursor:pointer; padding:2px 4px; }
+  .edit-btn:hover { color:var(--accent); }
+
+  /* ── MODAL ── */
+  #modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:500; align-items:flex-start; justify-content:center; padding:40px 16px; overflow-y:auto; }
+  #modal-overlay.on { display:flex; }
+  #modal { background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow-md); width:100%; max-width:560px; padding:26px 26px 22px; }
+  #modal h3 { font-family:'Raleway',sans-serif; font-weight:800; font-size:1.1rem; margin-bottom:4px; }
+  .modal-hint { font-size:0.76rem; color:var(--mid); line-height:1.55; margin-bottom:16px; }
+  .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px 14px; }
+  .form-grid .full { grid-column:1/-1; }
+  .fld label { font-family:'Raleway',sans-serif; font-size:0.64rem; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:var(--light); display:block; margin-bottom:5px; }
+  .fld label .req { color:var(--accent); }
+  .fld input, .fld textarea, .fld select { width:100%; padding:8px 11px; border:1.5px solid var(--rule); border-radius:6px; font-family:'Open Sans',sans-serif; font-size:0.84rem; color:var(--ink); outline:none; background:#fff; }
+  .fld textarea { min-height:74px; resize:vertical; line-height:1.5; }
+  .fld input:focus, .fld textarea:focus, .fld select:focus { border-color:var(--accent); }
+  .fld .help { font-size:0.68rem; color:var(--light); margin-top:4px; line-height:1.4; }
+  .auto-note { grid-column:1/-1; font-size:0.74rem; color:var(--mid); background:var(--bg); border:1px solid var(--rule); border-radius:6px; padding:9px 12px; line-height:1.5; }
+  .modal-actions { display:flex; gap:10px; margin-top:18px; justify-content:flex-end; align-items:center; }
+  #modal-status { font-size:0.76rem; color:var(--mid); margin-right:auto; line-height:1.4; }
+  #modal-status.err { color:var(--red); }
+  .del-btn { color:var(--red) !important; border-color:var(--red-brd) !important; }
+  .del-btn:hover { background:var(--red-bg) !important; border-color:var(--red) !important; }
+  #del-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:650; align-items:center; justify-content:center; padding:16px; }
+  #del-overlay.on { display:flex; }
+  #del-box { background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow-md); width:100%; max-width:440px; padding:24px 24px 20px; border-top:4px solid var(--red); }
+  #del-box h3 { font-family:'Raleway',sans-serif; font-size:1.05rem; margin:0 0 8px; }
+  .del-q { font-size:0.86rem; margin:0 0 10px; }
+  .del-name { font-family:'Raleway',sans-serif; font-weight:700; font-size:1rem; margin-bottom:10px; }
+  .del-list { margin:0; padding-left:18px; font-size:0.76rem; color:var(--mid); line-height:1.6; }
+  .del-confirm { background:var(--red) !important; border-color:var(--red) !important; color:#fff !important; }
+  .del-confirm:hover { filter:brightness(0.92); }
+  #del-status { font-size:0.74rem; color:var(--mid); margin-right:auto; line-height:1.4; }
+  #del-status.err { color:var(--red); }
+
+  /* ── TOAST ── */
+  #toast { position:fixed; bottom:22px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--ink); color:#fff; padding:10px 18px; border-radius:20px; font-size:0.8rem; opacity:0; pointer-events:none; transition:all 0.25s; z-index:600; max-width:90vw; text-align:center; }
+  #toast.on { opacity:1; transform:translateX(-50%) translateY(0); }
+  #toast.err { background:var(--red); }
+
+  .sec-lbl { font-family:'Raleway',sans-serif; font-size:0.68rem; font-weight:700; letter-spacing:0.07em; text-transform:uppercase; color:var(--light); text-align:left; margin:22px 0 8px; }
+  #recent-list { display:flex; flex-direction:column; gap:6px; }
+  .recent-row { display:flex; align-items:stretch; border:1.5px solid var(--rule); border-radius:7px; overflow:hidden; transition:border-color 0.15s; }
+  .recent-row:hover { border-color:var(--accent); }
+  .recent-open { flex:1; min-width:0; text-align:left; background:var(--bg); border:none; padding:9px 12px; cursor:pointer; font-family:'Open Sans',sans-serif; font-size:0.86rem; font-weight:600; color:var(--ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .recent-open:hover { background:var(--accent-bg); color:var(--accent); }
+  .recent-del { background:none; border:none; border-left:1.5px solid var(--rule); padding:0 11px; cursor:pointer; color:var(--light); }
+  .recent-del:hover { background:var(--red-bg); color:var(--red); }
+  .np-form { display:flex; flex-direction:column; gap:8px; align-items:stretch; }
+  .np-form input { padding:10px 14px; border:1.5px solid var(--rule); border-radius:6px; font-family:'Open Sans',sans-serif; font-size:0.85rem; outline:none; }
+  .np-form input:focus { border-color:var(--accent); }
+  .np-form .pill-btn { align-self:flex-end; }
+  #np-progress { list-style:none; text-align:left; margin-top:10px; display:flex; flex-direction:column; gap:5px; }
+  #np-progress li { font-size:0.8rem; color:var(--mid); display:flex; gap:8px; align-items:center; }
+  #np-progress li .st { width:16px; text-align:center; font-weight:800; }
+  #np-progress li.done .st { color:var(--green); }
+  #np-progress li.fail .st { color:var(--red); }
+  #np-progress li.active { color:var(--ink); font-weight:600; }
+  .rbtn { width:38px; height:38px; border-radius:50%; border:1.5px solid var(--red-brd); background:#fff; color:var(--red); cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all 0.15s; }
+  .rbtn:hover { background:var(--red); border-color:var(--red); color:#fff; transform:scale(1.08); }
+  .rbtn svg { width:14px; height:14px; }
+  .flag.rec.clickable { cursor:pointer; }
+  .flag.rec.clickable:hover { background:var(--red); color:#fff; }
+  #rec-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:550; align-items:flex-start; justify-content:center; padding:40px 16px; overflow-y:auto; }
+  #rec-overlay.on { display:flex; }
+  .rec-panel { background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow-md); width:100%; max-width:440px; padding:26px 26px 22px; text-align:center; }
+  .rec-panel h3 { font-family:'Raleway',sans-serif; font-weight:800; font-size:1.1rem; margin-bottom:4px; }
+  .rec-sub { font-size:0.78rem; color:var(--mid); line-height:1.5; margin-bottom:18px; }
+  .rec-sub code { background:var(--bg); border:1px solid var(--rule); padding:1px 5px; border-radius:3px; color:var(--accent); font-size:0.9em; }
+  .rec-big-wrap { position:relative; width:104px; height:104px; margin:0 auto 14px; }
+  #rec-big { width:100%; height:100%; border-radius:50%; border:none; cursor:pointer; background:var(--ink); color:#fff; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 18px rgba(0,0,0,0.22); transition:background 0.2s, transform 0.15s; position:relative; z-index:2; }
+  #rec-big:hover { background:var(--accent); transform:scale(1.04); }
+  #rec-big.recording { background:var(--red); }
+  #rec-big svg { width:36px; height:36px; }
+  .pulse-ring { position:absolute; inset:0; border-radius:50%; border:2px solid var(--red); opacity:0; pointer-events:none; }
+  .pulse-ring.on { animation:pulse 1.6s ease-out infinite; }
+  @keyframes pulse { 0% { transform:scale(1); opacity:0.55; } 100% { transform:scale(1.45); opacity:0; } }
+  #rec-timer { font-family:'Raleway',sans-serif; font-size:1.6rem; font-weight:800; font-variant-numeric:tabular-nums; }
+  #rec-meter { height:30px; margin:8px auto 12px; display:flex; align-items:center; justify-content:center; gap:3px; }
+  .meter-bar { width:4px; border-radius:3px; background:var(--rule); height:6px; transition:height 0.06s, background 0.06s; }
+  .meter-bar.active { background:var(--accent); }
+  #rec-playback { width:100%; height:38px; margin:4px 0 12px; display:none; }
+  #rec-status { font-size:0.78rem; color:var(--mid); min-height:18px; margin-top:10px; line-height:1.45; }
+  #rec-status.err { color:var(--red); } #rec-status.ok { color:var(--green); }
+  .rec-actions { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:6px; }
+  .af-block { text-align:left; background:var(--bg); border:1px solid var(--rule); border-radius:6px; padding:14px; margin-top:12px; }
+  .af-block .ttl { font-family:'Raleway',sans-serif; font-size:0.7rem; font-weight:800; letter-spacing:0.05em; text-transform:uppercase; color:var(--ink); margin-bottom:8px; }
+  .af-block input { width:100%; padding:8px 11px; border:1.5px solid var(--rule); border-radius:6px; font-size:0.82rem; margin-bottom:8px; outline:none; font-family:'Open Sans',sans-serif; }
+  .af-block input:focus { border-color:var(--accent); }
+  .af-block .pill-btn { width:100%; }
+  .af-current { font-size:0.76rem; color:var(--mid); text-align:left; margin-top:4px; line-height:1.6; }
+  #tool-version { text-align:center; padding:10px 0 22px; font-family:'Raleway',sans-serif; font-size:0.66rem; font-weight:600; letter-spacing:0.05em; color:#c9c9c9; user-select:none; }
+  ::-webkit-scrollbar { width:5px; } ::-webkit-scrollbar-thumb { background:#d1d5db; border-radius:10px; }
+
+  @media (max-width:700px) {
+    header, .ctrl, .grid, #tabs { padding-left:14px; padding-right:14px; }
+    #grid-char, #grid-pron { grid-template-columns:1fr; }
+    #hd-book { display:none; }
+    .card-body { grid-template-columns:1fr; }
+    .col-notes { border-right:none; padding-right:0; border-bottom:1px solid var(--rule); padding-bottom:10px; margin-bottom:10px; }
+    .form-grid { grid-template-columns:1fr; }
+    #topbar { position:static; }
+  }
+  /* ── Client Confirmed button ── */
+  .conf-btn { margin-left:auto; display:inline-flex; align-items:center; gap:5px; font-family:'Raleway',sans-serif; font-size:0.62rem; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; padding:4px 10px; border-radius:20px; cursor:pointer; border:1px solid #e8a0a0; background:#f4cccc; color:#a12a2a; transition:background .15s, border-color .15s, transform .1s; }
+  .conf-btn:hover { border-color:#c96a6a; }
+  .conf-btn:active { transform:scale(0.97); }
+  .conf-btn.on { background:#d9ead3; border-color:#9cc48f; color:#2f6b22; }
+  .conf-btn.on:hover { border-color:#6fa25f; }
+  .conf-btn.busy { opacity:0.55; pointer-events:none; }
+  .conf-btn + .edit-btn { margin-left:4px; }
+  body.ro .conf-btn { cursor:default; pointer-events:none; }
+  /* ── Unconfirmed filter ── */
+  .unconf-btn { color:#a12a2a; border-color:#e8a0a0; }
+  .unconf-btn:hover { background:#f4cccc; border-color:#c96a6a; }
+  .unconf-btn.on { background:#c0392b; border-color:#c0392b; color:#fff; }
+  /* ── Paste Whole Entry ── */
+  .paste-toggle { background:none; border:1px dashed var(--rule); border-radius:6px; padding:6px 12px; font-family:'Raleway',sans-serif; font-size:0.68rem; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; color:var(--mid); cursor:pointer; margin-bottom:12px; transition:all .15s; }
+  .paste-toggle:hover, .paste-toggle.on { border-color:var(--accent); color:var(--accent); border-style:solid; }
+  #paste-panel { display:none; margin-bottom:16px; }
+  #paste-panel.on { display:block; }
+  .paste-help { font-size:0.72rem; color:var(--mid); line-height:1.5; margin-bottom:8px; }
+  .paste-scroll { overflow-x:auto; border:1px solid #c7c7c7; border-radius:4px; background:#fff; }
+  .paste-row { border-collapse:collapse; font-family:Arial, sans-serif; font-size:12px; min-width:100%; }
+  .paste-row th { background:#f3f3f3; color:#555; font-weight:600; font-size:10.5px; border:1px solid #d6d6d6; padding:3px 6px; white-space:nowrap; text-align:left; }
+  .paste-row th .cl { color:#999; font-weight:700; margin-right:4px; }
+  .paste-row td { border:1px solid #d6d6d6; padding:0; min-width:110px; }
+  .paste-row td input { width:100%; border:none; padding:5px 6px; font:inherit; background:transparent; outline:none; min-width:110px; }
+  .paste-row td input:focus { box-shadow:inset 0 0 0 2px #1a73e8; }
+  .paste-row td.auto { background:#f7f7f7; color:#aaa; font-style:italic; padding:5px 6px; white-space:nowrap; }
+  .paste-row td.filled input { background:#e8f0fe; }
+  .paste-status { font-size:0.72rem; margin-top:6px; color:#2f6b22; min-height:1em; }
+  .fld.just-filled input, .fld.just-filled textarea, .fld.just-filled select { box-shadow:0 0 0 2px #9cc48f; transition:box-shadow .4s; }
+  /* ── Read-only (client) view ── */
+  body.ro #edit-btn, body.ro #acct-btn, body.ro #open-sheet-btn, body.ro #share-btn, body.ro #ro-btn, body.ro #audio-folders-btn,
+  body.ro #open-folder-btn, body.ro #switch-btn, body.ro .needs-btn, body.ro #new-char, body.ro #new-pron,
+  body.ro .tab-flag, body.ro .flags, body.ro .rbtn, body.ro .rec-col, body.ro .edit-btn,
+  body.ro #rec-overlay, body.ro #modal-overlay, body.ro #del-overlay, body.ro .owner-only { display:none !important; }
+  body.ro .card.flag-rec { box-shadow:var(--shadow-sm); }
+  body.ro .card.flag-rec:hover { box-shadow:var(--shadow-md); }
+  .ro-badge { display:none; font-family:'Raleway',sans-serif; font-size:0.62rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:#777; border:1px solid #ddd; border-radius:20px; padding:3px 10px; margin-left:8px; vertical-align:middle; }
+  body.ro .ro-badge { display:inline-block; }
+</style>
+</head>
+<body>
+<div id="tag-header"></div>
+
+<div id="topbar">
+<header>
+  <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAB4AHgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD6OooooAKVVZmCqCSegA61Y0+ymvZdkQwB95j0FdTp+n29kv7tdz93PU/4UAYdloVzKA07CFfTq1a1vo1jF96Myn1c/wBK0aKAI47eCMYjhjX6KKkwKKKAI5LeCQYkhjb6qDVK40Wxl+7GYj6of6Vo0UAcxe6FcxZaBhMvp0asplZWKsCCOoPau8qpqGn296n7xdr9nHUf40AcbRVnULKayl2SjIP3WHQ1WoAKKKKACrWnWcl7cCJOFHLN6CqyqWYKoJJOAB3rsdKs1srRY8DeeXPqaAJrW3itoVhhXao/X3qWiigAqO6ngtbeS4uZo4YY13PJIwVVHqSelLPLFBBJPM6xxRqXd2OAoAySa8c13WpvFd/bXE9jLf2ty5/sPQw2wXQU4N1cntGD0BoA7JvHjajI0fhPw/f66qnBuhiC2z7SP978BVf/AISLx1vx/YPh7Of9T/bHz/8AoOKdaeA7jU4kk8X6xcXxAG2ws3NvZwj+6FXBbHqTV/8A4Vx4G8vZ/wAI1Y49dp3fnnNAFVfHjadIsfizw/f6ErHAujie2z7yJ0/EV2NrPBdW8dxbTRzQyLuSSNgysPUEda4m78CXGmRPJ4Q1i4ssg7tPvHNxZzD+6VbJXPqDXJ6FrU3hS/ubiCylsLW3cf25oZbcLQMcC6tj3iJ6gUAezUUyCWOeCOeF1kikUOjqchgRkEU+gCK6t4rmFoZl3Kf0965DUbOSyuTE/IPKt6iu0qpqtmt7aNHwHHKH0NAHG0UrKVYqwwQcEelFAGt4ZtvNvDOwysQ4/wB4101Z3h2HytMRu8hLH+laNABRRRQBxXxbnabStP8AD6SmL+2b1beZwcFYFBeU/wDfK4/Gqnwujshps/jDUHt7aXVnK2okcKILRDtiiXPQYGffNUfjVdXFpregSW9nLeOLbUcRxsARmDBfnsoJP4Vyt34P0+3+DFrrmoNJqGpSRWnlSTOStvG0iARxr0A2nB9eaAPdLaeC5iEttNHNGejxsGB/EVJXC/Cy2t7HV/F9hZwpBawasFihjGEQeUh4Hau6oAjubiC2iMtzNHDGOC8jBQPxNcH8UY7JtOg8Yae9vcy6U4W6EbhhPaOdssTY6jBz7Yqb4p2tvf6v4QsLyFLi1n1YiWGQZRwInPI71wNp4P0+f4MXWuae0mn6jHFdebJC5C3ESyODHIvQjaMD04oA9D+Ec7Q6TqHh55TL/Y161vC56tAwDxH/AL5bH4V2teZfBW5uLrWfEEtxZy2bm30/MUjAk4t8B+P7wAP416bQAUUUUAcz4mthFeCdRhZRz/vCitXxFD5umO2OYyHH9aKALtqgjtoox/CgH6VJQOlVDqemgkHULQEcEecv+NAFuiqn9qaZ/wBBG0/7/L/jR/ammf8AQRtP+/y/40AcR8Xra/W60vVrXTrq+gtre9gmW2Te6GaHarY/u56ntWZrcsc37PWmvE6uot7Jcqc8iSMEfgQRXpX9qaZ/0EbT/v8AL/jXn/iDwRpF5FdW+jeLv7IsruUTT2SvHLAXDBtyqT8hyAeDigDX+HX/ACM3jX/sLj/0SldpXKeDLGx0FL+W68R2+o3uoXP2i4nYpGC20KAFBwOBXQf2ppn/AEEbT/v8v+NAHLfET/kZvBX/AGFz/wCiXrndFljh/Z61J5ZFRTb3q5Y45MsgA/EkCur8Z2NjryafLa+I7fTr3T7n7RbzqUkAbaVIKk4PBrn/AA/4I0ezjtbfWfFv9r2dnKZoLJnjigDli25lBO85JPJxQBa+ENtftcapqt1p11YwXMFlBCtymx3MMIRm2+meh716DVT+1NM/6CNp/wB/l/xo/tTTP+gjaf8Af5f8aALdFVP7U0z/AKCNp/3+X/GganppIA1C0JPAHnL/AI0AT3SCS2ljP8SEfpRUh6c0UAR2riS2ikH8SA/pXGXd98NofEJ0S4sNKGptIEMR0zJLHn72zHfrmum8OzebpiLnmMlT/SuZ1bH/AAt216f8i/P/AOjVoAa1/wDDJbNbxrLRhA1obwP/AGaOYQ+wt9z+8cY61d8OQeAvEMEs+kaPpNxHC4RydNCYOM/xIM14nDHeR+FC91eRzRP4XdrdRFt8lPti/KTn5ucnPvXuvgLU01DRpGbxHYa7LDIRJcWkYjVBgEKQCecUAVoYfAE2oalp8el6K1zpiB7yP7AmYlIzn7vPHpmqdxffDKCz+1y2OjLD9lju939mg/upG2o2AmeTxjrXAeGL24fxFc6q1hcxR+IbbUlW4cLsuCCXjCYOeFUjkDrxWS2oWVz4eEtvdRyR2mg6ZDcMp4idboEq3oQO1AHq9hd/DS+jtpLWy0R1uZJY4ydPVfmjXc4OU+XC884qrBrXwpnsLq+it9Ea3tdnnN/ZvKhztUgbMkE8ZGa4hriC/wBbe7spFuLe51jVmhkj5WQGyXlfWsq8v7S78OmWyvYSLbQ9IhllHzLDKtxyG9x1IoA9Pk1b4Vx6VFqbW2ifZZpWhRhpoLF1GWG3ZuGAQTkd6feal8LbSW0iuLfQVa8iSaAiwUgo5wrEhMKCfXFee6TqNra31nqmo6nbywNq+rB9QA2QzM1uoVlHQAngDJqjJc29p4cktLqVYri88O6YltG/DTEXBJCjvxzQB62n/CvXu47RNM0Zp5LySySMaeuTMgy6/d7DqenvUfiSb4ceHbiK31mw0W1llQuinT1Y7QcbjtQ4Ge5rivAxNj8Wr691AK9pealf2Vi5PENwGV2H1deB/u4q98WtSh0rxdeTyy2KNL4aeOFLxC0c7efkx4BGSVyOvegDqXb4dpNJEdN0XfHcQ27Aaep/eSrujGQvO4HOelPsT8P7g6c9ppujs9/K8dpt09QzPHnfxtyu3BznFecXF5bjxLLYO0cN7ca1o00VqBhiggXcVHXaOntXYeENGtrf4veJJFd2jtI45baI/dia5G6Ur6ZKD86APQbpxHbSueioT+lFUvEUwi0x1zzIQo/rRQBk+GbnyrwwMfllHH+8K6QxRGXzTGhkC7dxUZx6Z9K4ZWKsGU4YHIPpXY6VeLe2iycBxw49DQBIbKzKbDaQbQuzHljG3OcfTPanQW1tboyQW8USt94IgUH64qWigCJba3URqsEQEX+rAQfJ9PSmCxshG8Ys7cJIcuvljDH3HerFFAEUdrbRiMR28KCPJTagG3PXHpTBY2QjeMWduEc5dfLGGPqR3qxRQBA1nZtAIGtYDEpyEMY2g/SnPa2zvG728TNH9wlASv09KlooAi+zW2c/Z4vv+Z9wfe/vfX3ontre4Kme3ilKnK70DY+malooAia2t2nWdoIjMowJCg3D8etPWONZGkWNA74DMBycdMmnVU1W8WytGk43nhB6mgDD8TXPnXggU5WIc/7x60VlMxZizEkk5J9aKAEq1pt5JZXIlTlTwy+oqrRQB3FrcRXMKywtuU/p7VLXGafezWUu+I5U/eU9DXUafqFver+7bbJ3Q9R/jQBbooooAKKKKACiiigAooqpqGoW9kv7xtz9kHU/4UATXVxFbQtNM21R+vtXI6leSXtyZX4UcKvoKNQvZr2XfKcKPuqOgqrQAUUUUAFFFFABSqSrBlJBHQg0UUAatlrlzCAs6iZR3PDfnWtb61YygbpDEfRx/WiigC7HcQSDKTRt9GFSZGM5oooAjkngjGXmjX6sBVK41qxiHyyGU+iD+tFFAGTe65czArABCvqOW/OspiWYsxJJ6knrRRQAlFFFABRRRQB//9k=" alt="The Audiobook Guy" style="height:40px;width:40px;border-radius:50%;object-fit:cover;flex-shrink:0;">
+  <div class="header-text">
+    <h1>Prep Suite<span class="ro-badge">View only</span></h1>
+    <p>Characters &amp; Pronunciations — one project, one Sheet</p>
+  </div>
+  <div id="hd-right">
+    <div id="hd-actions">
+      <button id="edit-btn" class="hd-action-btn" type="button" style="display:none" title="Sign in with Google so the suite can add and edit entries in this Sheet"><span class="dot"></span><span id="edit-btn-txt">Enable editing</span></button>
+      <button id="acct-btn" class="hd-action-btn" type="button" style="display:none" title="Sign in with a different Google account">Switch account</button>
+      <a id="open-sheet-btn" class="hd-action-btn" target="_blank" rel="noopener" style="display:none">Open Sheet</a>
+      <button id="share-btn" class="hd-action-btn" type="button" style="display:none" title="Copy a link that opens this project with full editing">Share Link</button>
+      <button id="ro-btn" class="hd-action-btn" type="button" style="display:none" title="Copy a view-only link for clients — no editing or recording">Read-Only Link</button>
+      <button id="audio-folders-btn" class="hd-action-btn" type="button" style="display:none" title="Choose where recordings are saved">Audio Folders</button>
+      <a id="open-folder-btn" class="hd-action-btn" target="_blank" rel="noopener" style="display:none">Project Folder</a>
+      <button id="switch-btn" class="hd-action-btn" type="button" style="display:none">Projects</button>
+    </div>
+    <div id="hd-book"></div>
+  </div>
+</header>
+
+<nav id="tabs">
+  <button class="tab-btn active" data-tab="char" type="button">Characters <span class="tab-count" id="count-char"></span><span class="tab-flag" id="flagcount-char"></span></button>
+  <button class="tab-btn" data-tab="pron" type="button">Pronunciations <span class="tab-count" id="count-pron"></span><span class="tab-flag" id="flagcount-pron"></span></button>
+</nav>
+
+<!-- Character controls -->
+<div class="ctrl" id="ctrl-char">
+  <div class="search-wrap">
+    <div class="search-input-row">
+      <div class="search-combo">
+        <input type="text" class="search" id="search-char" placeholder="Search or add a character…" autocomplete="off">
+        <div class="dropdown" id="dd-char"></div>
+      </div>
+      <button class="pill-btn" id="tagadd-char" disabled>Add to scene</button>
+      <input type="text" class="scene-name-inp" id="scene-name-inp" placeholder="Scene name…" maxlength="60">
+      <button class="pill-btn" id="save-scene-btn">Save</button>
+      <button class="pill-btn update-scene-btn" id="update-scene-btn">Update</button>
+      <button class="pill-btn ghost clear-btn" id="clear-char">Clear</button>
+      <div class="scenes-wrap">
+        <button class="pill-btn ghost" id="scenes-toggle-btn">Scenes <span id="scenes-count" style="font-weight:400"></span></button>
+        <div class="scenes-dropdown"><div id="saved-list"></div></div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+      <div class="tag-row" id="tags-char"></div>
+      <span class="loaded-notice" id="loaded-notice"></span>
+    </div>
+  </div>
+  <div class="ctrl-right">
+    <button class="needs-btn" id="needs-char" type="button" title="Show only entries still to record or marked with *">Needs work <span class="n" id="needs-n-char">0</span></button>
+    <button class="needs-btn unconf-btn" id="unconf-char" type="button" title="Show only characters the client hasn't confirmed yet">Unconfirmed <span class="n" id="unconf-n">0</span></button>
+    <button class="pill-btn dark" id="new-char" type="button">+ Add Character</button>
+    <span class="stats" id="stats-char"></span>
+  </div>
+</div>
+
+<!-- Pronunciation controls -->
+<div class="ctrl" id="ctrl-pron">
+  <div class="search-wrap">
+    <div class="search-input-row">
+      <div class="search-combo">
+        <input type="text" class="search" id="search-pron" placeholder="Search or add a word…" autocomplete="off">
+        <div class="dropdown" id="dd-pron"></div>
+      </div>
+      <button class="pill-btn" id="tagadd-pron" disabled>Add</button>
+      <button class="pill-btn ghost clear-btn" id="clear-pron">Clear all</button>
+    </div>
+    <div class="tag-row" id="tags-pron"></div>
+  </div>
+  <div class="chips" id="chips"></div>
+  <div class="ctrl-right">
+    <button class="needs-btn" id="needs-pron" type="button" title="Show only entries marked with *">Needs work <span class="n" id="needs-n-pron">0</span></button>
+    <button class="pill-btn dark" id="new-pron" type="button">+ Add Pronunciation</button>
+    <span class="stats" id="stats-pron"></span>
+  </div>
+</div>
+</div>
+
+<!-- MAIN MENU -->
+<div id="load">
+  <div class="load-card">
+    <div class="load-icon">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#e05a00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+    </div>
+    <h2>Your Prep Projects</h2>
+    <p>Open a project's Prep Sheet, or start a new one from the template. The Characters and Pronunciation tabs load together — everything else in the Sheet is left alone.</p>
+
+    <div id="recent-wrap" style="display:none">
+      <div class="sec-lbl">Recent projects</div>
+      <div id="recent-list"></div>
+    </div>
+
+    <div class="sec-lbl">Open a project</div>
+    <div class="sheet-input-row">
+      <input type="text" id="sheet-url-input" placeholder="Paste Google Sheet URL…">
+      <button class="pill-btn" id="load-btn" type="button" style="padding:10px 24px">Load</button>
+    </div>
+    <div id="sheet-error" class="load-error"></div>
+    <div id="sheet-loading" class="load-loading">Loading sheet…</div>
+
+    <div class="sec-lbl owner-only">Start a new project</div>
+    <div class="np-form owner-only">
+      <input type="text" id="np-name" placeholder="Project name, e.g. 2026 The Glass Crown" maxlength="120">
+      <input type="text" id="np-parent" placeholder="Drive folder link to create it in (optional — blank = My Drive)" spellcheck="false">
+      <button class="pill-btn" id="np-btn" type="button" style="padding:10px 24px">Create Project</button>
+    </div>
+    <ul id="np-progress" class="owner-only"></ul>
+    <div id="np-error" class="load-error owner-only"></div>
+
+    <div class="note owner-only">
+      <strong>📊 How projects work</strong>
+      <b>New Project</b> creates a project folder (with <code>Audio</code> for pronunciations and <code>Audio_0</code> for character voices inside) and a fresh copy of the Prep Sheet template, ready for entries. The first time, Google asks you to select the template once so the suite is allowed to copy it.<br>
+      <b>Existing Sheets</b> need tabs named <code>Characters</code> and <code>Pronunciation</code>, shared as <strong>"Anyone with the link"</strong> can view. Click <strong>Enable editing</strong> after loading to add or edit entries.
+    </div>
+  </div>
+</div>
+
+<div class="grid" id="grid-char"><div class="empty" id="empty-char">No characters match.</div></div>
+<div class="grid" id="grid-pron"><div class="empty" id="empty-pron">No entries match.</div></div>
+
+<!-- ADD / EDIT MODAL -->
+<div id="modal-overlay">
+  <div id="modal">
+    <h3 id="modal-title">Add Character</h3>
+    <div class="modal-hint" id="modal-hint"></div>
+    <button class="paste-toggle" id="paste-toggle" type="button" title="Paste a full row copied from a Google Sheet or the research tools">⧉ Paste Whole Entry</button>
+    <div id="paste-panel">
+      <div class="paste-help">Click a cell and paste (⌘V / Ctrl+V) a row copied from a Google Sheet or the research tools' <b>Copy row</b>. It spreads across the columns like in Sheets and fills the form below. Grey columns are formulas and fill themselves.</div>
+      <div class="paste-scroll"><table class="paste-row" id="paste-row"></table></div>
+      <div class="paste-status" id="paste-status"></div>
+    </div>
+    <form id="modal-form" class="form-grid" autocomplete="off"></form>
+    <div class="modal-actions">
+      <button class="pill-btn ghost del-btn" id="modal-delete" type="button" style="display:none">Delete Entry</button>
+      <span id="modal-status"></span>
+      <button class="pill-btn ghost" id="modal-cancel" type="button">Cancel</button>
+      <button class="pill-btn" id="modal-save" type="button">Save to Sheet</button>
+    </div>
+  </div>
+</div>
+
+<!-- RECORDER / AUDIO FOLDERS -->
+<!-- DELETE CONFIRM -->
+<div id="del-overlay">
+  <div id="del-box">
+    <h3>Delete entry?</h3>
+    <p class="del-q">Are you sure you wish to delete this entry?</p>
+    <div class="del-name" id="del-name"></div>
+    <ul class="del-list" id="del-list"></ul>
+    <div class="modal-actions">
+      <span id="del-status"></span>
+      <button class="pill-btn ghost" id="del-cancel" type="button">Cancel</button>
+      <button class="pill-btn del-confirm" id="del-confirm" type="button">Yes, delete</button>
+    </div>
+  </div>
+</div>
+
+<div id="rec-overlay"><div class="rec-panel" id="rec-panel"></div></div>
+
+<div id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════════════════════════
+// API key: restricted to tools.theaudiobookguy.co.uk. Needs Drive API,
+// Google Sheets API and Google Picker API enabled on it.
+// Read-only client view: ?view=1 hides editing, recording and flags
+const RO = new URLSearchParams(location.search).get('view') === '1';
+if (RO) document.body.classList.add('ro');
+const API_KEY   = 'AIzaSyDTimdIo9lCsUZOxD_txBhoJhjRNkK4iWk';
+const CLIENT_ID = '962851243153-l8a4i5snfmidiehnhabiiqokr9i8v2at.apps.googleusercontent.com';
+const APP_ID    = '962851243153';   // Cloud project number (first part of the client ID)
+const SCOPE     = 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/userinfo.email';
+const SHEETS    = 'https://sheets.googleapis.com/v4/spreadsheets/';
+
+const LAST_KEY      = 'prepsuite_last_sheet';
+const TAB_KEY       = 'prepsuite_active_tab';
+const WRITE_OK_KEY  = 'prepsuite_write_ok_';
+
+// Column maps (0-based) — match the Prep Sheet template exactly.
+const CC = { name:0, alias:1, page:2, count:3, pron:4, pronRef:5, notes:6, vocalNotes:7, vocalRef:8, file:9, author:10 };
+const PC = { word:0, cat:1, count:2, page:3, inferred:4, rpIPA:5, natIPA:6, respell:7, s1:8, s2:9, s3:10, notes:11, author:12 };
+
+// ═══════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════
+const S = {
+  sheetId:null, title:'', charTab:null, pronTab:null,
+  chars:[], prons:[],            // parsed entries with .row (1-based sheet row)
+  charRaw:[], pronRaw:[],        // raw value arrays incl. header
+  tab:'char', canWriteChar:false, canWritePron:false
+};
+let token = null, tokenExpiry = 0, tokenClient = null, tokenWaiter = null, gisReady = false;
+let editAccess = false;          // this account has drive.file access to the loaded Sheet
+
+// ═══════════════════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════════════════
+const $ = id => document.getElementById(id);
+function esc(s){ return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function escRe(s){ return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); }
+function linkify(s){ return esc(s).replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>'); }
+function isUrl(s){ return /^https?:\/\//i.test((s||'').trim()); }
+function isDriveLink(u){ return /drive\.google\.com/i.test(u||''); }
+function driveMedia(url){
+  const m = (url||'').match(/[?&]id=([a-zA-Z0-9_-]+)/) || (url||'').match(/\/d\/([a-zA-Z0-9_-]+)/);
+  return m ? `https://www.googleapis.com/drive/v3/files/${m[1]}?alt=media&key=${API_KEY}` : url;
+}
+function linkLabel(url){
+  try {
+    const h = new URL(url).hostname.replace(/^www\./,'');
+    const map = { 'drive.google.com':'Google Drive','docs.google.com':'Google Docs','translate.google.com':'Google Translate','forvo.com':'Forvo','en.wiktionary.org':'Wiktionary','en.wikipedia.org':'Wikipedia','merriam-webster.com':'Merriam-Webster','dictionary.cambridge.org':'Cambridge','oxfordlearnersdictionaries.com':"Oxford Learner's",'oed.com':'OED','collinsdictionary.com':'Collins','youglish.com':'YouGlish','youtube.com':'YouTube','youtu.be':'YouTube' };
+    return map[h] || h;
+  } catch { return url; }
+}
+function parseSheetId(url){ const m = (url||'').match(/\/d\/([a-zA-Z0-9-_]+)/); return m ? m[1] : (/^[a-zA-Z0-9-_]{25,}$/.test((url||'').trim()) ? url.trim() : null); }
+function q(title){ return `'${title.replace(/'/g,"''")}'`; }
+function hasStar(...vals){ return vals.some(v => (v||'').includes('*')); }
+function toast(msg, isErr){ const t=$('toast'); t.textContent=msg; t.className='on'+(isErr?' err':''); clearTimeout(toast._t); toast._t=setTimeout(()=>t.className='', 3200); }
+function normCat(raw){
+  const lc=(raw||'').toLowerCase().trim();
+  if (lc.includes('name')) return 'Name';
+  if (lc.includes('place')||lc.includes('location')) return 'Place';
+  if (lc.includes('fashion')||lc.includes('subculture')) return 'Fashion';
+  if (lc.includes('histor')) return 'Historical';
+  if (lc.includes('academ')) return 'Academic';
+  if (lc.includes('foreign')||lc.includes('language')) return 'Foreign';
+  return 'Complex';
+}
+const PLAY_SVG = '<polygon points="5,3 19,12 5,21"/>';
+const PAUSE_SVG = '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';
+const EXT_SVG = '<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>';
+const MIC_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10v1a7 7 0 0 0 14 0v-1M12 18v4"/></svg>';
+function confBtnHtml(on){ return `<button class="conf-btn${on ? ' on' : ''}" type="button" title="${on ? 'Client has confirmed — click to undo' : 'Click when the client confirms this character'}">${on ? '✓' : '✕'} Client Confirmed</button>`; }
+function recBtnHtml(title){ return `<button class="rbtn" type="button" title="${title}">${MIC_SVG}</button>`; }
+function playBtnHtml(cls, title){ return `<button class="pbtn ${cls}" title="${title}" disabled><svg class="ring" viewBox="0 0 46 46"><circle cx="23" cy="23" r="19"/></svg><svg class="ico" width="12" height="12" viewBox="0 0 24 24" fill="white">${PLAY_SVG}</svg></button>`; }
+
+// ═══════════════════════════════════════════════════════════
+// SHEETS API — reading (API key for link-shared sheets, token as fallback)
+// ═══════════════════════════════════════════════════════════
+async function sheetsGet(path){
+  const sep = path.includes('?') ? '&' : '?';
+  let res = await fetch(SHEETS + path + sep + 'key=' + API_KEY);
+  if (!res.ok && tokenValid()) {
+    res = await fetch(SHEETS + path, { headers:{ Authorization:'Bearer '+token } });
+  }
+  if (!res.ok) { const e = new Error('read '+res.status); e.status = res.status; throw e; }
+  return res.json();
+}
+
+// ── Cell colour helpers ──
+const GREEN = { red:0xd9/255, green:0xea/255, blue:0xd3/255 };   // #d9ead3
+const DEFAULT_RED = { red:0xf4/255, green:0xcc/255, blue:0xcc/255 }; // #f4cccc
+const ch = (c, k) => (c && typeof c[k] === 'number') ? c[k] : 0;
+function isGreen(c){ return !!c && ch(c,'green') > ch(c,'red') + 0.03 && ch(c,'green') > ch(c,'blue') + 0.03; }
+function isReddish(c){ return !!c && ch(c,'red') > ch(c,'green') + 0.08 && ch(c,'red') > ch(c,'blue') + 0.08; }
+// Reuse whatever red is already in the Sheet, so un-confirming matches your colour
+function detectRed(fmt){
+  for (let i = 1; i < fmt.length; i++) for (const c of [fmt[i].k, fmt[i].j]) if (isReddish(c)) return { red:ch(c,'red'), green:ch(c,'green'), blue:ch(c,'blue') };
+  return DEFAULT_RED;
+}
+// col: 0-based column index (J = 9, K = 10)
+async function setCellColour(row, col, colour){
+  const r = await fetch(`${SHEETS}${S.sheetId}:batchUpdate`, {
+    method:'POST', headers:{ Authorization:'Bearer '+token, 'Content-Type':'application/json' },
+    body: JSON.stringify({ requests:[{ repeatCell:{
+      range:{ sheetId:S.charTab.sheetId, startRowIndex:row-1, endRowIndex:row, startColumnIndex:col, endColumnIndex:col+1 },
+      cell:{ userEnteredFormat:{ backgroundColor:colour } }, fields:'userEnteredFormat.backgroundColor' } }] })
+  });
+  if (!r.ok) { const e = new Error('format '+r.status); e.status = r.status; throw e; }
+}
+const COL_J = 9, COL_K = 10;
+
+async function loadSheet(sheetId, opts = {}){
+  const errEl = $('sheet-error'), loadingEl = $('sheet-loading');
+  errEl.style.display = 'none';
+  if (!opts.quiet) loadingEl.classList.add('on');
+  try {
+    const meta = await sheetsGet(`${sheetId}?fields=properties.title,sheets.properties(sheetId,title)`);
+    const tabs = meta.sheets.map(s => s.properties);
+    const charTab = tabs.find(t => /^characters?$/i.test(t.title.trim())) || tabs.find(t => /character/i.test(t.title));
+    const pronTab = tabs.find(t => /^pronunciations?$/i.test(t.title.trim())) || tabs.find(t => /pronunciation/i.test(t.title));
+    if (!charTab && !pronTab) {
+      throw Object.assign(new Error('no-tabs'), { tabs: tabs.map(t=>t.title) });
+    }
+    const notesTab = tabs.find(t => /^notes\s*[\/&]?\s*q/i.test(t.title.trim())) || null;
+    const ranges = [];
+    if (charTab) ranges.push(`${q(charTab.title)}!A1:K`);
+    if (pronTab) ranges.push(`${q(pronTab.title)}!A1:M`);
+    if (notesTab) ranges.push(`${q(notesTab.title)}!B1:B3`);
+    const data = await sheetsGet(`${sheetId}/values:batchGet?${ranges.map(r=>'ranges='+encodeURIComponent(r)).join('&')}`);
+    const vr = data.valueRanges || [];
+    const charVals = charTab ? (vr[0]?.values || []) : [];
+    const pronVals = pronTab ? (vr[charTab ? 1 : 0]?.values || []) : [];
+    const nv = notesTab ? (vr[(charTab ? 1 : 0) + (pronTab ? 1 : 0)]?.values || []) : [];
+    const cell = i => ((nv[i] || [])[0] || '').trim();
+    const notes = { b1:cell(0), b2:cell(1), b3:cell(2) };   // B1 project folder · B2 audio holding folder · B3 read-only link
+
+    // Cell colours for Characters J (To Do) and K (Confirmed) — green = done
+    let charFmt = [];
+    if (charTab) {
+      try {
+        const g = await sheetsGet(`${sheetId}?ranges=${encodeURIComponent(q(charTab.title)+'!J1:K')}&fields=sheets.data.rowData.values.effectiveFormat.backgroundColor`);
+        charFmt = (g.sheets?.[0]?.data?.[0]?.rowData || []).map(rd => ({ j: rd.values?.[0]?.effectiveFormat?.backgroundColor, k: rd.values?.[1]?.effectiveFormat?.backgroundColor }));
+      } catch(e) { console.warn('cell colours unavailable', e); }
+    }
+    S.charFmt = charFmt;
+    S.redColor = detectRed(charFmt);
+
+    const sameSheet = S.sheetId === sheetId;
+    S.sheetId = sheetId; S.title = meta.properties.title; S.charTab = charTab || null; S.pronTab = pronTab || null;
+    S.notesTab = notesTab; S.notes = notes; if (!sameSheet) S.notesFilled = false;
+    S.projectFolderId = parseFolderId(notes.b1) || null;
+    // B2 holds the Audio folders; if it's empty, it's the same as the project folder in B1
+    S.audioParentId = parseFolderId(notes.b2) || S.projectFolderId || null;
+    S.charRaw = charVals; S.pronRaw = pronVals;
+    S.canWriteChar = !!charTab && /^character/i.test((charVals[0]?.[0]||'').trim());
+    S.canWritePron = !!pronTab && /^word/i.test((pronVals[0]?.[0]||'').trim());
+    if (!sameSheet) { editAccess = false; migrateScenes(); currentSceneId = null; sceneTags.char = []; sceneTags.pron = []; sceneExcludes = []; }
+
+    await syncAudioFoldersFromSheet();
+    buildChars(charVals);
+    buildProns(pronVals);
+    showApp();
+    localStorage.setItem(LAST_KEY, sheetId);
+    addRecent(sheetId, S.title);
+    if (!sameSheet && tokenValid()) checkEditAccess();
+    return true;
+  } catch (e) {
+    let msg = "Couldn't load that Sheet. Make sure it's shared as \"Anyone with the link\" can view, and the link is correct.";
+    if (e.message === 'no-tabs') msg = `Couldn't find a Characters or Pronunciation tab. Tabs in this Sheet: ${e.tabs.join(', ')}.`;
+    else if (e.status === 403 && !tokenValid()) msg += ' (If it is shared, the API key may still need the Google Sheets API switched on.)';
+    if (opts.quiet) toast(msg, true); else { errEl.textContent = msg; errEl.style.display = 'block'; }
+    return false;
+  } finally { loadingEl.classList.remove('on'); }
+}
+
+function showApp(){
+  $('load').style.display = 'none';
+  $('tabs').classList.add('on');
+  ['edit-btn','acct-btn','open-sheet-btn','share-btn','ro-btn','switch-btn','audio-folders-btn'].forEach(id => $(id).style.display = '');
+  const projId = S.projectFolderId || (getProjectInfo(S.sheetId) || {}).folderId;
+  $('open-folder-btn').style.display = projId ? '' : 'none';
+  if (projId) $('open-folder-btn').href = folderUrl(projId);
+  $('open-sheet-btn').href = `https://docs.google.com/spreadsheets/d/${S.sheetId}/edit`;
+  $('hd-book').innerHTML = `<strong>${esc(S.title)}</strong>Live · ${S.chars.length} characters · ${S.prons.length} words`;
+  $('count-char').textContent = S.chars.length; $('count-pron').textContent = S.prons.length;
+  $('new-char').style.display = S.charTab ? '' : 'none';
+  $('new-pron').style.display = S.pronTab ? '' : 'none';
+  updateEditUI();
+  setTab(S.tab);
+}
+
+function setTab(tab){
+  S.tab = tab; localStorage.setItem(TAB_KEY, tab);
+  stopCurrent();
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  $('ctrl-char').classList.toggle('on', tab === 'char');
+  $('ctrl-pron').classList.toggle('on', tab === 'pron');
+  $('grid-char').classList.toggle('on', tab === 'char');
+  $('grid-pron').classList.toggle('on', tab === 'pron');
+}
+document.querySelectorAll('.tab-btn').forEach(b => b.addEventListener('click', () => setTab(b.dataset.tab)));
+
+// ═══════════════════════════════════════════════════════════
+// PLAYBACK
+// ═══════════════════════════════════════════════════════════
+let nowAudio = null, nowBtn = null;
+function setIcon(btn, playing){ btn.querySelector('.ico').innerHTML = playing ? PAUSE_SVG : PLAY_SVG; }
+function ring(btn, pct){ const c = btn.querySelector('.ring circle'); if (c) c.style.strokeDashoffset = 119.38 * (1 - pct); }
+function stopCurrent(){
+  if (!nowAudio) return;
+  nowAudio.pause(); nowAudio.currentTime = 0;
+  if (nowBtn) { setIcon(nowBtn,false); nowBtn.classList.remove('playing'); nowBtn.closest('.card')?.classList.remove('playing','playing-pron'); ring(nowBtn,0); }
+  nowAudio = null; nowBtn = null;
+}
+function wirePlay(btn, src, card, playingClass){
+  if (!src) return;
+  btn.dataset.src = src; btn.disabled = false;
+  btn.addEventListener('click', () => {
+    if (nowAudio && !nowAudio.paused && nowBtn === btn) { nowAudio.pause(); setIcon(btn,false); btn.classList.remove('playing'); card.classList.remove('playing','playing-pron'); return; }
+    stopCurrent();
+    const audio = new Audio(src);
+    audio.addEventListener('timeupdate', () => { if (audio.duration) ring(btn, audio.currentTime / audio.duration); });
+    audio.addEventListener('ended', () => { setIcon(btn,false); btn.classList.remove('playing'); card.classList.remove('playing','playing-pron'); ring(btn,0); nowAudio=null; nowBtn=null; });
+    audio.play().then(() => { nowAudio = audio; nowBtn = btn; setIcon(btn,true); btn.classList.add('playing'); card.classList.add(playingClass); })
+      .catch(() => { btn.disabled = true; toast("That audio file couldn't be played — check it's shared \"Anyone with the link\".", true); });
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// CHARACTERS
+// ═══════════════════════════════════════════════════════════
+function buildChars(rows){
+  const grid = $('grid-char');
+  grid.querySelectorAll('.card').forEach(c => c.remove());
+  S.chars = [];
+  rows.forEach((r, i) => {
+    if (i === 0) return;
+    const g = k => (r[CC[k]] || '').trim();
+    const name = g('name'); if (!name) return;
+    const e = { row:i+1, name, alias:g('alias'), page:g('page'), count:g('count'), pron:g('pron'), pronRef:g('pronRef'),
+      notes:g('notes'), vocalNotes:g('vocalNotes'), vocalRef:g('vocalRef'), author:g('author') };
+    e.section = /^00/.test(name);
+    e.needsRec = !e.section && !isUrl(e.vocalRef);
+    e.wip = hasStar(e.notes, e.vocalNotes);
+    e.confirmed = isGreen((S.charFmt || [])[i]?.k);
+    e.key = name.toLowerCase();
+    S.chars.push(e);
+
+    const showPron = e.pron && !/^(not found|#ref!|#n\/a)$/i.test(e.pron);
+    const card = document.createElement('div');
+    card.className = 'card' + (e.needsRec ? ' flag-rec' : '');
+    card.dataset.key = e.key;
+    card.dataset.w = (name + ' ' + e.alias).toLowerCase();
+    let flags = '';
+    if (e.needsRec) flags += '<span class="flag rec clickable" title="Record this voice now">● Record voice</span>';
+    if (e.wip) flags += '<span class="flag wip">✱ In progress</span>';
+    let meta = '';
+    if (e.page) meta += `<span class="meta-pill">p.&nbsp;${esc(e.page)}</span>`;
+    if (e.count && e.count !== '0') meta += `<span class="meta-pill">${esc(e.count)}×</span>`;
+
+    card.innerHTML = `
+      <button class="card-exclude-btn" title="Remove from scene">✕</button>
+      <div class="flags">${flags}</div>
+      <div class="card-top">
+        <div class="name-wrap"><div class="char-name">${esc(name)}</div>${e.alias ? `<div class="alias">${esc(e.alias)}</div>` : ''}</div>
+        <div class="btn-group">
+          <div class="btn-col">${playBtnHtml('pron','Pronunciation reference')}<span class="btn-lbl">Pron</span>
+            ${isUrl(e.pronRef) ? `<a class="link-pill purple" href="${esc(e.pronRef)}" target="_blank" rel="noopener">${EXT_SVG}${esc(linkLabel(e.pronRef))}</a>` : ''}</div>
+          <div class="btn-col">${playBtnHtml('voice','Character voice')}<span class="btn-lbl">Voice</span>
+            ${isUrl(e.vocalRef) ? `<a class="link-pill orange" href="${esc(e.vocalRef)}" target="_blank" rel="noopener">${EXT_SVG}${esc(linkLabel(e.vocalRef))}</a>` : ''}</div>
+          ${e.section ? '' : `<div class="btn-col rec-col" style="width:44px">${recBtnHtml('Record character voice')}<span class="btn-lbl">Rec</span></div>`}
+        </div>
+      </div>
+      ${showPron ? `<div class="ipa-row"><span class="ipa-lbl">IPA</span><span class="ipa-val">${esc(e.pron)}</span></div>` : ''}
+      <div class="divider"></div>
+      <div class="card-body">
+        <div class="col-notes"><span class="section-lbl">Character Notes</span><div class="section-text">${linkify(e.notes)}</div></div>
+        <div><span class="section-lbl">Vocal Direction</span><div class="section-text vocal">${linkify(e.vocalNotes)}</div></div>
+      </div>
+      ${e.author ? `<div class="cnote"><b style="font-style:normal">Author:</b> ${linkify(e.author)}</div>` : ''}
+      <div class="card-foot">${meta}${e.section ? '' : confBtnHtml(e.confirmed)}<button class="edit-btn" type="button">Edit</button></div>`;
+    grid.insertBefore(card, $('empty-char'));
+    e.card = card;
+
+    if (isUrl(e.pronRef) && isDriveLink(e.pronRef)) wirePlay(card.querySelector('.pbtn.pron'), driveMedia(e.pronRef), card, 'playing-pron');
+    if (isUrl(e.vocalRef) && isDriveLink(e.vocalRef)) wirePlay(card.querySelector('.pbtn.voice'), driveMedia(e.vocalRef), card, 'playing');
+    card.querySelector('.card-exclude-btn').addEventListener('click', () => excludeCard(e.key));
+    card.querySelector('.edit-btn').addEventListener('click', () => openForm('char', e));
+    card.querySelector('.rbtn')?.addEventListener('click', () => openRecorder('char', e));
+    card.querySelector('.flag.rec')?.addEventListener('click', () => openRecorder('char', e));
+    card.querySelector('.conf-btn')?.addEventListener('click', ev => toggleConfirmed(e, ev.currentTarget));
+  });
+  const flagged = S.chars.filter(c => c.needsRec || c.wip).length;
+  $('needs-n-char').textContent = flagged;
+  $('needs-char').classList.toggle('zero', flagged === 0);
+  $('flagcount-char').textContent = flagged || '';
+  updateUnconfCount();
+  renderTags('char'); refilterChar(); renderSavedList();
+}
+
+// ═══════════════════════════════════════════════════════════
+// PRONUNCIATIONS
+// ═══════════════════════════════════════════════════════════
+let activeCat = 'All';
+function buildProns(rows){
+  const grid = $('grid-pron');
+  grid.querySelectorAll('.card').forEach(c => c.remove());
+  S.prons = [];
+  const cats = new Set();
+  rows.forEach((r, i) => {
+    if (i === 0) return;
+    const g = k => (r[PC[k]] || '').trim();
+    const word = g('word'); if (!word) return;
+    const e = { row:i+1, word, catRaw:g('cat'), cat:normCat(g('cat')), count:g('count'), page:g('page'), inferred:g('inferred'),
+      rpIPA:g('rpIPA'), natIPA:g('natIPA'), respell:g('respell'), s1:g('s1'), s2:g('s2'), s3:g('s3'), notes:g('notes'), author:g('author') };
+    e.wip = hasStar(e.notes);
+    e.key = word.toLowerCase();
+    cats.add(e.cat);
+    S.prons.push(e);
+
+    const card = document.createElement('div');
+    card.className = 'card'; card.dataset.c = e.cat; card.dataset.w = e.key;
+    let ipa = '';
+    if (e.rpIPA) ipa += `<div class="ipa-row"><span class="ipa-lbl">RP</span><span class="rp">${esc(e.rpIPA)}</span></div>`;
+    if (e.natIPA) ipa += `<div class="ipa-row"><span class="ipa-lbl">Alt</span><span class="nat">${esc(e.natIPA)}</span></div>`;
+    if (e.respell) ipa += `<div class="ipa-row"><span class="ipa-lbl">Str</span><span class="rs">${esc(e.respell)}</span></div>`;
+    const srcs = [e.s1,e.s2,e.s3].filter(isUrl);
+    const driveSrc = srcs.find(isDriveLink);
+    card.innerHTML = `
+      <div class="flags">${e.wip ? '<span class="flag wip">✱ In progress</span>' : ''}</div>
+      <div class="card-top">
+        <div class="name-wrap"><div class="word">${esc(word)}</div>
+          <div class="tags"><span class="tag ${e.cat}">${e.cat}</span>${/^y/i.test(e.inferred) ? '<span class="inf">Inferred</span>' : ''}</div></div>
+        <div class="btn-group">${playBtnHtml('', 'Play ' + esc(word))}${recBtnHtml('Record pronunciation')}</div>
+      </div>
+      ${ipa}
+      ${e.notes ? `<div class="cnote">${linkify(e.notes)}</div>` : ''}
+      ${e.author ? `<div class="cnote"><b style="font-style:normal">Author:</b> ${linkify(e.author)}</div>` : ''}
+      ${srcs.length ? `<div class="srcs"><span class="ipa-lbl">Sources</span>${srcs.map(u=>`<a class="src-link" href="${esc(u)}" target="_blank" rel="noopener" title="${esc(u)}">${esc(linkLabel(u))}</a>`).join('')}</div>` : ''}
+      <div class="card-foot">
+        ${e.page ? `<span class="meta-pill">p.&nbsp;${esc(e.page)}</span>` : ''}${e.count ? `<span class="meta-pill">${esc(e.count)}×</span>` : ''}
+        ${driveSrc ? '' : '<span class="noaud">No audio</span>'}
+        <button class="edit-btn" type="button">Edit</button>
+      </div>`;
+    grid.insertBefore(card, $('empty-pron'));
+    e.card = card;
+    if (driveSrc) wirePlay(card.querySelector('.pbtn'), driveMedia(driveSrc), card, 'playing');
+    card.querySelector('.edit-btn').addEventListener('click', () => openForm('pron', e));
+    card.querySelector('.rbtn').addEventListener('click', () => openRecorder('pron', e));
+  });
+  buildChips([...cats].sort());
+  const flagged = S.prons.filter(p => p.wip).length;
+  $('needs-n-pron').textContent = flagged;
+  $('needs-pron').classList.toggle('zero', flagged === 0);
+  $('flagcount-pron').textContent = flagged || '';
+  renderTags('pron'); refilterPron();
+}
+function buildChips(cats){
+  const wrap = $('chips'); wrap.innerHTML = '';
+  if (!cats.includes(activeCat)) activeCat = 'All';
+  ['All', ...cats].forEach(cat => {
+    const b = document.createElement('button');
+    b.className = 'chip' + (cat === activeCat ? ' on' : ''); b.textContent = cat; b.type = 'button';
+    b.addEventListener('click', () => { activeCat = cat; wrap.querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c === b)); refilterPron(); });
+    wrap.appendChild(b);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// SEARCH / TAGS / NEEDS-WORK FILTERS
+// ═══════════════════════════════════════════════════════════
+const sceneTags = { char:[], pron:[] };
+let sceneExcludes = [];
+const needsOn = { char:false, pron:false };
+let unconfOn = false;
+
+function namesFor(kind){
+  return kind === 'char' ? S.chars.map(c => ({ name:c.name, sub:c.alias, key:c.key }))
+                         : S.prons.filter(p => activeCat === 'All' || p.cat === activeCat).map(p => ({ name:p.word, sub:p.cat, key:p.key }));
+}
+function refilter(kind){ kind === 'char' ? refilterChar() : refilterPron(); }
+
+function refilterChar(){
+  const live = $('search-char').value.trim().toLowerCase();
+  const tags = sceneTags.char;
+  const terms = tags.length ? tags : (live ? [live] : []);
+  const sceneActive = tags.length > 0;
+  $('grid-char').classList.toggle('scene-active', sceneActive);
+  let vis = 0;
+  S.chars.forEach(c => {
+    const inc = !terms.length || terms.some(t => c.card.dataset.w.includes(t));
+    const exc = sceneActive && sceneExcludes.includes(c.key);
+    const flagOk = !needsOn.char || c.needsRec || c.wip;
+    const confOk = !unconfOn || (!c.section && !c.confirmed);
+    const show = inc && !exc && flagOk && confOk;
+    c.card.style.display = show ? '' : 'none'; if (show) vis++;
+  });
+  $('stats-char').textContent = `${vis} of ${S.chars.length}`;
+  $('empty-char').style.display = vis ? 'none' : 'block';
+  $('empty-char').textContent = (needsOn.char || unconfOn) && !vis ? 'Nothing left to do here. 🎉' : 'No characters match.';
+}
+function refilterPron(){
+  const live = $('search-pron').value.trim().toLowerCase();
+  const tags = sceneTags.pron;
+  const terms = tags.length ? tags : (live ? [live] : []);
+  let vis = 0;
+  S.prons.forEach(p => {
+    const show = (activeCat === 'All' || p.cat === activeCat) && (!terms.length || terms.some(t => p.key.includes(t))) && (!needsOn.pron || p.wip);
+    p.card.style.display = show ? '' : 'none'; if (show) vis++;
+  });
+  $('stats-pron').textContent = `${vis} of ${S.prons.length}`;
+  $('empty-pron').style.display = vis ? 'none' : 'block';
+  $('empty-pron').textContent = needsOn.pron && !vis ? 'Nothing left to do here. 🎉' : 'No entries match.';
+}
+function updateUnconfCount(){
+  const n = S.chars.filter(c => !c.section && !c.confirmed).length;
+  $('unconf-n').textContent = n;
+  $('unconf-char').classList.toggle('zero', n === 0);
+}
+$('unconf-char').addEventListener('click', () => {
+  unconfOn = !unconfOn;
+  $('unconf-char').classList.toggle('on', unconfOn);
+  refilterChar();
+});
+['char','pron'].forEach(kind => {
+  $('needs-'+kind).addEventListener('click', () => {
+    needsOn[kind] = !needsOn[kind];
+    $('needs-'+kind).classList.toggle('on', needsOn[kind]);
+    refilter(kind);
+  });
+  setupSearch(kind);
+});
+
+function setupSearch(kind){
+  const input = $('search-'+kind), dd = $('dd-'+kind), addBtn = $('tagadd-'+kind), clearBtn = $('clear-'+kind);
+  let idx = -1;
+  const close = () => { dd.classList.remove('open'); idx = -1; };
+  const select = key => {
+    if (kind === 'char' && sceneExcludes.includes(key)) { sceneExcludes = sceneExcludes.filter(k => k !== key); if (currentSceneId) persistExcludes(); }
+    if (!sceneTags[kind].includes(key)) sceneTags[kind].push(key);
+    input.value = ''; addBtn.disabled = true; close(); renderTags(kind); refilter(kind); input.focus();
+  };
+  const open = qv => {
+    if (!qv) { close(); return; }
+    const matches = namesFor(kind).filter(n => n.key.includes(qv)).slice(0, 12);
+    if (!matches.length) { dd.innerHTML = '<div class="dd-empty">No matches</div>'; dd.classList.add('open'); idx = -1; return; }
+    dd.innerHTML = matches.map(n => `<div class="dd-item" data-key="${esc(n.key)}"><span class="dd-name">${esc(n.name).replace(new RegExp(`(${escRe(esc(qv))})`,'gi'),'<mark>$1</mark>')}</span><span class="dd-sub">${esc(n.sub||'')}</span>${sceneTags[kind].includes(n.key) ? '<span class="dd-already">Added</span>' : ''}</div>`).join('');
+    dd.querySelectorAll('.dd-item').forEach(it => it.addEventListener('mousedown', ev => { ev.preventDefault(); select(it.dataset.key); }));
+    dd.classList.add('open'); idx = -1;
+  };
+  input.addEventListener('input', () => { const v = input.value.trim().toLowerCase(); addBtn.disabled = !v; open(v); if (!sceneTags[kind].length) refilter(kind); });
+  input.addEventListener('keydown', ev => {
+    const items = dd.querySelectorAll('.dd-item');
+    if (ev.key === 'ArrowDown') { ev.preventDefault(); idx = Math.min(idx+1, items.length-1); }
+    else if (ev.key === 'ArrowUp') { ev.preventDefault(); idx = Math.max(idx-1, 0); }
+    else if (ev.key === 'Enter') { ev.preventDefault(); if (idx >= 0 && items[idx]) select(items[idx].dataset.key); else if (input.value.trim()) select(input.value.trim().toLowerCase()); return; }
+    else if (ev.key === 'Escape') { close(); return; }
+    else return;
+    items.forEach((el,i) => el.classList.toggle('dd-active', i === idx));
+    items[idx]?.scrollIntoView({ block:'nearest' });
+  });
+  input.addEventListener('blur', () => setTimeout(close, 150));
+  addBtn.addEventListener('click', () => { const v = input.value.trim().toLowerCase(); if (v) select(v); });
+  clearBtn.addEventListener('click', () => {
+    sceneTags[kind] = []; input.value = ''; addBtn.disabled = true;
+    if (kind === 'char') { sceneExcludes = []; currentSceneId = null; hideLoadedNotice(); renderSavedList(); }
+    renderTags(kind); refilter(kind);
+  });
+}
+function renderTags(kind){
+  const row = $('tags-'+kind); row.innerHTML = '';
+  const list = kind === 'char' ? S.chars.map(c=>({key:c.key,name:c.name})) : S.prons.map(p=>({key:p.key,name:p.word}));
+  sceneTags[kind].forEach(val => {
+    const label = list.find(n => n.key === val)?.name || val;
+    const tag = document.createElement('span'); tag.className = 'scene-tag';
+    tag.innerHTML = `${esc(label)}<button aria-label="Remove ${esc(label)}">✕</button>`;
+    tag.querySelector('button').addEventListener('click', () => { sceneTags[kind] = sceneTags[kind].filter(t => t !== val); renderTags(kind); refilter(kind); });
+    row.appendChild(tag);
+  });
+  $('clear-'+kind).classList.toggle('visible', sceneTags[kind].length > 0);
+}
+function excludeCard(key){
+  if (!sceneExcludes.includes(key)) { sceneExcludes.push(key); if (currentSceneId) persistExcludes(); refilterChar(); }
+}
+
+// ═══════════════════════════════════════════════════════════
+// SCENES (Characters) — saved per Sheet in this browser
+// ═══════════════════════════════════════════════════════════
+let currentSceneId = null;
+const scenesKey = () => 'prepsuite_scenes_' + S.sheetId;
+function migrateScenes(){
+  // Carry over scenes saved by Character Player (v6–v8) for the same Sheet.
+  try {
+    const cur = localStorage.getItem(scenesKey());
+    const old = localStorage.getItem('charplayer_scenes_sheet_' + S.sheetId);
+    if ((!cur || cur === '[]') && old && old !== '[]') localStorage.setItem(scenesKey(), old);
+  } catch(e){}
+}
+function loadScenes(){ try { return JSON.parse(localStorage.getItem(scenesKey()) || '[]'); } catch(e){ return []; } }
+function persistScenes(s){ localStorage.setItem(scenesKey(), JSON.stringify(s)); }
+function persistExcludes(){ const s = loadScenes(); const i = s.findIndex(x => x.id === currentSceneId); if (i > -1) { s[i].excludes = [...sceneExcludes]; persistScenes(s); } }
+function showLoadedNotice(name){ const n = $('loaded-notice'); n.textContent = 'Editing: ' + name; n.classList.add('visible'); $('update-scene-btn').classList.add('visible'); }
+function hideLoadedNotice(){ $('loaded-notice').classList.remove('visible'); $('update-scene-btn').classList.remove('visible'); }
+$('save-scene-btn').addEventListener('click', () => {
+  if (!sceneTags.char.length) { toast('Add some characters to the scene first.'); return; }
+  const inp = $('scene-name-inp'), s = loadScenes();
+  const name = inp.value.trim() || ('Scene ' + (s.length + 1)), id = Date.now().toString();
+  s.push({ id, name, chars:[...sceneTags.char], excludes:[...sceneExcludes] }); persistScenes(s);
+  currentSceneId = id; inp.value = ''; renderSavedList(); showLoadedNotice(name);
+});
+$('update-scene-btn').addEventListener('click', () => {
+  const s = loadScenes(), i = s.findIndex(x => x.id === currentSceneId); if (i < 0) return;
+  s[i].chars = [...sceneTags.char]; s[i].excludes = [...sceneExcludes]; persistScenes(s); renderSavedList(); toast('Scene updated');
+});
+function loadScene(id){
+  const sc = loadScenes().find(x => x.id === id); if (!sc) return;
+  sceneTags.char = [...sc.chars]; sceneExcludes = [...(sc.excludes||[])]; currentSceneId = id;
+  renderTags('char'); refilterChar(); renderSavedList(); showLoadedNotice(sc.name);
+}
+function deleteScene(id){
+  persistScenes(loadScenes().filter(x => x.id !== id));
+  if (currentSceneId === id) { currentSceneId = null; hideLoadedNotice(); }
+  renderSavedList();
+}
+let dragSrcId = null;
+function renderSavedList(){
+  const s = S.sheetId ? loadScenes() : [], list = $('saved-list');
+  $('scenes-count').textContent = s.length ? `(${s.length})` : '';
+  if (!s.length) { list.innerHTML = '<span class="saved-list-empty">No saved scenes yet</span>'; return; }
+  list.innerHTML = s.map(x => `<div class="scene-chip ${x.id === currentSceneId ? 'active' : ''}" data-id="${x.id}" draggable="true">
+    <span class="scene-chip-drag" title="Drag to reorder">☰</span>
+    <button class="scene-chip-load">${esc(x.name)}<span class="scene-chip-count">(${x.chars.length})</span></button>
+    <button class="scene-chip-del" title="Delete scene">✕</button></div>`).join('');
+  list.querySelectorAll('.scene-chip').forEach(chip => {
+    const id = chip.dataset.id;
+    chip.querySelector('.scene-chip-load').addEventListener('click', () => loadScene(id));
+    chip.querySelector('.scene-chip-del').addEventListener('click', () => deleteScene(id));
+    chip.addEventListener('dragstart', ev => { dragSrcId = id; chip.classList.add('dragging'); ev.dataTransfer.effectAllowed = 'move'; });
+    chip.addEventListener('dragend', () => { chip.classList.remove('dragging'); list.querySelectorAll('.scene-chip').forEach(c => c.classList.remove('drag-over')); });
+    chip.addEventListener('dragover', ev => { ev.preventDefault(); if (id !== dragSrcId) chip.classList.add('drag-over'); });
+    chip.addEventListener('dragleave', () => chip.classList.remove('drag-over'));
+    chip.addEventListener('drop', ev => {
+      ev.preventDefault(); chip.classList.remove('drag-over'); if (dragSrcId === id) return;
+      const sc = loadScenes(), a = sc.findIndex(x => x.id === dragSrcId), b = sc.findIndex(x => x.id === id);
+      if (a < 0 || b < 0) return; const [m] = sc.splice(a,1); sc.splice(b,0,m); persistScenes(sc); renderSavedList();
+    });
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// GOOGLE SIGN-IN (drive.file) + PICKER
+// ═══════════════════════════════════════════════════════════
+// drive.file only lets the suite write to Sheets it created, or Sheets the
+// user hands it once through Google's file picker. So "Enable editing" =
+// sign in, then (first time per Sheet) pick this Sheet in the picker.
+window.__gisLoaded = function(){
+  gisReady = true;
+  tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: CLIENT_ID, scope: SCOPE,
+    callback: resp => {
+      const w = tokenWaiter; tokenWaiter = null;
+      if (resp.error) { w && w.rej(resp); return; }
+      token = resp.access_token; tokenExpiry = Date.now() + ((resp.expires_in || 3600) - 60) * 1000;
+      fetchAccountEmail();
+      w && w.res(token);
+    },
+    error_callback: err => { const w = tokenWaiter; tokenWaiter = null; w && w.rej(err); }
+  });
+};
+function tokenValid(){ return !!token && Date.now() < tokenExpiry; }
+let accountEmail = '';
+async function fetchAccountEmail(){
+  try {
+    const r = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', { headers:{ Authorization:'Bearer '+token } });
+    accountEmail = r.ok ? ((await r.json()).email || '') : '';
+  } catch(e) { accountEmail = ''; }
+  updateEditUI();
+}
+// Must be called directly inside a click handler (before any await) so the popup isn't blocked.
+let pendingTokenP = null;
+function requestToken(prompt = ''){
+  if (prompt !== 'select_account' && tokenValid()) return Promise.resolve(token);
+  if (!gisReady) return Promise.reject(new Error('gis-not-ready'));
+  if (pendingTokenP) return pendingTokenP;   // a sign-in popup is already open
+  pendingTokenP = new Promise((res, rej) => { tokenWaiter = { res, rej }; tokenClient.requestAccessToken({ prompt }); })
+    .finally(() => { pendingTokenP = null; });
+  return pendingTokenP;
+}
+
+async function hasWriteAccess(){
+  const r = await fetch(`${SHEETS}${S.sheetId}?fields=spreadsheetId`, { headers:{ Authorization:'Bearer '+token } });
+  return r.ok;
+}
+let pickerLoaded = null;
+function loadPicker(){
+  if (pickerLoaded) return pickerLoaded;
+  pickerLoaded = new Promise((res, rej) => {
+    const s = document.createElement('script'); s.src = 'https://apis.google.com/js/api.js';
+    s.onload = () => gapi.load('picker', { callback: res, onerror: rej }); s.onerror = rej;
+    document.head.appendChild(s);
+  });
+  return pickerLoaded;
+}
+async function pickSheet(){
+  await loadPicker();
+  return new Promise(resolve => {
+    const view = new google.picker.DocsView(google.picker.ViewId.SPREADSHEETS).setMode(google.picker.DocsViewMode.LIST);
+    try { view.setFileIds(S.sheetId); } catch(e){}
+    new google.picker.PickerBuilder()
+      .addView(view).setOAuthToken(token).setDeveloperKey(API_KEY).setAppId(APP_ID)
+      .setTitle('Select "' + S.title + '" to allow editing')
+      .setCallback(d => {
+        if (d.action === google.picker.Action.PICKED) resolve(d.docs[0].id);
+        else if (d.action === google.picker.Action.CANCEL) resolve(null);
+      }).build().setVisible(true);
+  });
+}
+async function checkEditAccess(){
+  editAccess = false;
+  if (tokenValid()) { try { editAccess = await hasWriteAccess(); } catch(e){} }
+  updateEditUI();
+  if (editAccess) fillNotesBlanks();
+  return editAccess;
+}
+// Full flow. Returns true once the suite can write to the loaded Sheet.
+async function ensureEditAccess(tokenPromise){
+  if (RO) return false;
+  try { await tokenPromise; } catch(e) {
+    toast(e && e.message === 'gis-not-ready' ? 'Google sign-in is still loading — try again in a moment.' : 'Google sign-in was cancelled.', true);
+    return false;
+  }
+  if (await checkEditAccess()) return true;
+  const picked = await pickSheet();
+  if (!picked) { toast('Editing not enabled — the Sheet wasn\'t selected.', true); return false; }
+  if (picked !== S.sheetId) { toast('That was a different Sheet. Pick "' + S.title + '" to edit this project.', true); return false; }
+  if (await checkEditAccess()) { localStorage.setItem(WRITE_OK_KEY + S.sheetId, '1'); toast('Editing enabled for this Sheet'); return true; }
+  toast(`${accountEmail || 'This Google account'} can't edit that Sheet — click Switch account and choose the account that owns it.`, true);
+  return false;
+}
+function updateEditUI(){
+  const b = $('edit-btn');
+  b.classList.toggle('on', editAccess);
+  $('edit-btn-txt').textContent = editAccess ? 'Editing on' : 'Enable editing';
+  b.title = editAccess ? 'Signed in — add and edit entries in this Sheet' : 'Sign in with Google so the suite can add and edit entries in this Sheet';
+  const a = $('acct-btn');
+  a.textContent = accountEmail ? `${accountEmail} · Switch` : 'Switch account';
+  a.title = accountEmail ? `Signed in as ${accountEmail} — click to use a different Google account` : 'Sign in with a different Google account';
+}
+$('edit-btn').addEventListener('click', () => { if (!editAccess) ensureEditAccess(requestToken()); });
+// Forget the current Google account and choose another (e.g. the one that owns this Sheet)
+$('acct-btn').addEventListener('click', async () => {
+  const old = token;
+  token = null; tokenExpiry = 0; editAccess = false; accountEmail = ''; pendingTokenP = null;
+  updateEditUI();
+  const tp = requestToken('select_account');      // inside the click, so the popup isn't blocked
+  tp.catch(()=>{});
+  try { if (old && google?.accounts?.oauth2?.revoke) google.accounts.oauth2.revoke(old, () => {}); } catch(e) {}
+  if (await ensureEditAccess(tp)) toast('Editing on' + (accountEmail ? ' as ' + accountEmail : ''));
+});
+
+// ═══════════════════════════════════════════════════════════
+// CLIENT CONFIRMED — turns Characters column K green / back to red
+// ═══════════════════════════════════════════════════════════
+async function toggleConfirmed(e, btn){
+  if (RO || btn.classList.contains('busy')) return;
+  const tokenP = editAccess && tokenValid() ? Promise.resolve(token) : requestToken();   // inside the click
+  tokenP.catch(()=>{});
+  const next = !e.confirmed;
+  btn.classList.add('busy');
+  try {
+    if (!(await ensureEditAccess(tokenP))) return;
+    const t = q(S.charTab.title);
+    const cur = await readRange(`${t}!A${e.row}`);
+    if (((cur[0]||[])[0]||'').trim() !== e.name) { toast('That row changed in the Sheet since it loaded — reload and try again.', true); return; }
+    await setCellColour(e.row, COL_K, next ? GREEN : S.redColor);
+    e.confirmed = next;
+    btn.outerHTML = confBtnHtml(next);
+    e.card.querySelector('.conf-btn').addEventListener('click', ev => toggleConfirmed(e, ev.currentTarget));
+    toast(next ? `${e.name} — client confirmed` : `${e.name} — marked unconfirmed`);
+    updateUnconfCount(); if (unconfOn) refilterChar();
+  } catch(err) {
+    console.error(err);
+    if (err.status === 401) { token = null; toast('Your Google session expired — click again.', true); }
+    else toast("Couldn't update the Sheet — check your connection and try again.", true);
+  } finally { btn.classList?.remove('busy'); }
+}
+
+// ═══════════════════════════════════════════════════════════
+// WRITING
+// ═══════════════════════════════════════════════════════════
+async function sheetsWrite(valueInputOption, data){
+  const r = await fetch(`${SHEETS}${S.sheetId}/values:batchUpdate`, {
+    method:'POST', headers:{ Authorization:'Bearer '+token, 'Content-Type':'application/json' },
+    body: JSON.stringify({ valueInputOption, data })
+  });
+  if (!r.ok) { const e = new Error('write '+r.status); e.status = r.status; throw e; }
+}
+async function readRange(range){
+  const r = await fetch(`${SHEETS}${S.sheetId}/values/${encodeURIComponent(range)}`, { headers:{ Authorization:'Bearer '+token } });
+  if (!r.ok) { const e = new Error('read '+r.status); e.status = r.status; throw e; }
+  return (await r.json()).values || [];
+}
+const numOrText = v => /^\d+$/.test(v) ? Number(v) : v;
+
+// First row (below header) whose hand-typed columns are all empty. Formula-only
+// rows (e.g. FILTER results, name_0) count as free so new entries fill them.
+function firstFreeRow(raw, textCols){
+  for (let i = 1; i < raw.length; i++) {
+    const r = raw[i] || [];
+    if (textCols.every(c => !(r[c] || '').trim())) return i + 1;
+  }
+  return Math.max(raw.length, 1) + 1;
+}
+const CHAR_TEXT_COLS = [0,1,2,3,6,7,8,10];
+const PRON_TEXT_COLS = [0,1,2,3,4,5,6,7,8,9,10,11,12];
+
+function charFormulas(row){
+  const p = q(S.pronTab ? S.pronTab.title : 'Pronunciation');
+  return {
+    E: `=IF(A${row}="","",IFERROR(FILTER(${p}!F:F, ${p}!A:A=A${row}), "Not found"))`,
+    F: `=IF(A${row}="","",IFERROR(FILTER(${p}!I:I, ${p}!A:A=A${row}), "Not found"))`,
+    J: `=A${row}&"_0"`
+  };
+}
+
+async function saveChar(v, existing){
+  const t = q(S.charTab.title);
+  let row;
+  if (existing) {
+    row = existing.row;
+    const cur = await readRange(`${t}!A${row}`);
+    if (((cur[0]||[])[0]||'').trim() !== existing.name) throw Object.assign(new Error('moved'), { friendly:'That row has changed in the Sheet since it loaded. Reload and try again.' });
+  } else {
+    const fresh = await readRange(`${t}!A1:K`);
+    row = firstFreeRow(fresh, CHAR_TEXT_COLS);
+    if (fresh.slice(1).some(r => (r[0]||'').trim().toLowerCase() === v.name.toLowerCase()))
+      throw Object.assign(new Error('dupe'), { friendly:`"${v.name}" is already in the Characters tab.` });
+  }
+  const vocalRef = v.vocalRef.trim() || '*';
+  await sheetsWrite('RAW', [
+    { range:`${t}!A${row}:D${row}`, values:[[v.name, v.alias, v.page, numOrText(v.count)]] },
+    { range:`${t}!G${row}:I${row}`, values:[[v.notes, v.vocalNotes, vocalRef]] },
+    { range:`${t}!K${row}`, values:[[v.author]] }
+  ]);
+  if (!existing) {
+    const f = charFormulas(row);
+    await sheetsWrite('USER_ENTERED', [
+      { range:`${t}!E${row}:F${row}`, values:[[f.E, f.F]] },
+      { range:`${t}!J${row}`, values:[[f.J]] }
+    ]);
+    // New rows start red in J (to record) and K (unconfirmed)
+    try { await setCellColour(row, COL_J, isUrl(vocalRef) ? GREEN : S.redColor); await setCellColour(row, COL_K, S.redColor); } catch(e) { console.warn(e); }
+  } else if (isUrl(vocalRef) && !isUrl(existing.vocalRef)) {
+    try { await setCellColour(row, COL_J, GREEN); } catch(e) { console.warn(e); }
+  }
+}
+async function savePron(v, existing){
+  const t = q(S.pronTab.title);
+  let row;
+  if (existing) {
+    row = existing.row;
+    const cur = await readRange(`${t}!A${row}`);
+    if (((cur[0]||[])[0]||'').trim() !== existing.word) throw Object.assign(new Error('moved'), { friendly:'That row has changed in the Sheet since it loaded. Reload and try again.' });
+  } else {
+    const fresh = await readRange(`${t}!A1:M`);
+    row = firstFreeRow(fresh, PRON_TEXT_COLS);
+    if (fresh.slice(1).some(r => (r[0]||'').trim().toLowerCase() === v.word.toLowerCase()))
+      throw Object.assign(new Error('dupe'), { friendly:`"${v.word}" is already in the Pronunciation tab.` });
+  }
+  await sheetsWrite('RAW', [{ range:`${t}!A${row}:M${row}`, values:[[
+    v.word, v.cat, numOrText(v.count), v.page, v.inferred, v.rpIPA, v.natIPA, v.respell, v.s1, v.s2, v.s3, v.notes, v.author ]] }]);
+}
+
+// ═══════════════════════════════════════════════════════════
+// ADD / EDIT FORM
+// ═══════════════════════════════════════════════════════════
+const CHAR_FIELDS = [
+  { k:'name', label:'Character', req:true },
+  { k:'alias', label:'Alias' },
+  { k:'page', label:'Page', ph:'e.g. Bk 1 - p12' },
+  { k:'count', label:'Count' },
+  { k:'notes', label:'Character Notes', area:true, full:true, help:'Add a * anywhere if something is still unsure — it flags the card as In progress.' },
+  { k:'vocalNotes', label:'Vocal Notes', area:true, full:true },
+  { k:'vocalRef', label:'Vocal Ref', full:true, ph:'Drive link to the voice recording, or * if not recorded yet', help:'No link = flagged red as Record voice. Left blank, it is saved as *.' },
+  { k:'author', label:'Author Notes / Confirmed', area:true, full:true }
+];
+const PRON_FIELDS = [
+  { k:'word', label:'Word', req:true },
+  { k:'cat', label:'Category', list:'cat-list' },
+  { k:'count', label:'Count' },
+  { k:'page', label:'Book / First Page' },
+  { k:'inferred', label:'Inferred?', select:['','Yes','No'] },
+  { k:'rpIPA', label:'RP IPA' },
+  { k:'natIPA', label:'Native / Alt IPA' },
+  { k:'respell', label:'OED Respell' },
+  { k:'s1', label:'Source 1', full:true, help:'A Google Drive link in any Source makes the Play button work.' },
+  { k:'s2', label:'Source 2', full:true },
+  { k:'s3', label:'Source 3', full:true },
+  { k:'notes', label:'Notes', area:true, full:true, help:'Add a * to flag this word as In progress.' },
+  { k:'author', label:'Author / Publisher Notes', area:true, full:true }
+];
+let formCtx = null;
+
+function openForm(kind, existing){
+  if (RO) return;
+  if (kind === 'char' && !S.canWriteChar || kind === 'pron' && !S.canWritePron) {
+    toast("This tab's columns don't match the Prep Sheet template, so editing is off for safety.", true); return;
+  }
+  // Kick off sign-in inside the click so Google's popup isn't blocked.
+  const tokenP = editAccess && tokenValid() ? Promise.resolve(token) : requestToken();
+  tokenP.catch(()=>{});
+  formCtx = { kind, existing, tokenP };
+  const fields = kind === 'char' ? CHAR_FIELDS : PRON_FIELDS;
+  $('modal-title').textContent = (existing ? 'Edit ' : 'Add ') + (kind === 'char' ? 'Character' : 'Pronunciation');
+  $('modal-hint').textContent = existing
+    ? `Row ${existing.row} of the ${kind === 'char' ? S.charTab.title : S.pronTab.title} tab.`
+    : `Saves into the next empty row of the ${kind === 'char' ? S.charTab.title : S.pronTab.title} tab.`;
+  let html = '';
+  if (kind === 'pron') {
+    const cats = [...new Set(['Name','Place','Fashion','Historical','Academic','Foreign','Complex', ...S.prons.map(p => p.catRaw).filter(Boolean)])];
+    html += `<datalist id="cat-list">${cats.map(c => `<option value="${esc(c)}">`).join('')}</datalist>`;
+  }
+  fields.forEach(f => {
+    const val = existing ? ((f.k === 'cat' ? existing.catRaw : existing[f.k]) ?? '') : '';
+    let input;
+    if (f.area) input = `<textarea name="${f.k}">${esc(val)}</textarea>`;
+    else if (f.select) input = `<select name="${f.k}">${f.select.map(o => `<option${o.toLowerCase() === String(val).toLowerCase() ? ' selected' : ''}>${o}</option>`).join('')}</select>`;
+    else input = `<input name="${f.k}" value="${esc(val)}" ${f.ph ? `placeholder="${esc(f.ph)}"` : ''} ${f.list ? `list="${f.list}"` : ''}>`;
+    html += `<div class="fld${f.full ? ' full' : ''}"><label>${f.label}${f.req ? ' <span class="req">*</span>' : ''}</label>${input}${f.help ? `<div class="help">${f.help}</div>` : ''}</div>`;
+  });
+  if (kind === 'char') html += `<div class="auto-note">Pronunciation, Pronunciation Ref and the file name (column J) fill themselves from the Sheet's formulas — add the word to the Pronunciation tab to link it here.</div>`;
+  $('modal-form').innerHTML = html;
+  buildPasteRow(kind);
+  $('modal-delete').style.display = existing ? '' : 'none';
+  $('paste-panel').classList.remove('on'); $('paste-toggle').classList.remove('on');
+  setModalStatus('');
+  $('modal-overlay').classList.add('on');
+  $('modal-form').querySelector('input,textarea')?.focus();
+}
+// ── Paste Whole Entry: a one-row mini sheet mirroring the tab's columns ──
+const PASTE_COLS = {
+  char: [['A','Character','name'],['B','Alias','alias'],['C','Page','page'],['D','Count','count'],['E','Pronunciation',null],['F','Pron Ref',null],
+         ['G','Notes','notes'],['H','Vocal Notes','vocalNotes'],['I','Vocal Ref','vocalRef'],['J','File',null],['K','Author / Confirmed','author']],
+  pron: [['A','Word','word'],['B','Category','cat'],['C','Count','count'],['D','Book / First Page','page'],['E','Inferred?','inferred'],['F','RP IPA','rpIPA'],
+         ['G','Native / Alt IPA','natIPA'],['H','OED Respell','respell'],['I','Source 1','s1'],['J','Source 2','s2'],['K','Source 3','s3'],['L','Notes','notes'],['M','Author / Publisher','author']]
+};
+const isBlankCell = v => !v || /^[-–—]$/.test(v.trim());
+function buildPasteRow(kind){
+  const cols = PASTE_COLS[kind];
+  $('paste-row').innerHTML = `<tr>${cols.map(([l,h]) => `<th><span class="cl">${l}</span>${h}</th>`).join('')}</tr>
+    <tr>${cols.map(([l,,k], i) => k ? `<td><input data-i="${i}" data-k="${k}" spellcheck="false"></td>` : `<td class="auto">formula</td>`).join('')}</tr>`;
+  $('paste-status').textContent = '';
+  $('paste-row').querySelectorAll('input').forEach(inp => {
+    inp.addEventListener('paste', ev => {
+      const text = (ev.clipboardData || window.clipboardData)?.getData('text') || '';
+      if (!/[\t\n]/.test(text.replace(/\n+$/,''))) return;   // single value — normal paste
+      ev.preventDefault();
+      spreadPaste(kind, Number(inp.dataset.i), text);
+    });
+    inp.addEventListener('input', () => { inp._full = null; applyCell(inp); });
+  });
+}
+// Google Sheets copies cells containing line breaks as "quoted" text, with "" for a quote mark.
+function parseTSV(text){
+  const rows = []; let row = [], cur = '', inQ = false, fieldStart = true;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (inQ) {
+      if (c === '"') { if (text[i+1] === '"') { cur += '"'; i++; } else inQ = false; }
+      else cur += c;
+    } else if (c === '"' && fieldStart) { inQ = true; fieldStart = false; }
+    else if (c === '\t') { row.push(cur); cur = ''; fieldStart = true; }
+    else if (c === '\r') { /* skip */ }
+    else if (c === '\n') { row.push(cur); rows.push(row); row = []; cur = ''; fieldStart = true; }
+    else { cur += c; fieldStart = false; }
+  }
+  if (cur !== '' || row.length) { row.push(cur); rows.push(row); }
+  return rows.filter(r => r.some(v => v.trim()));
+}
+function spreadPaste(kind, startCol, text){
+  const lines = parseTSV(text);
+  // Skip a pasted header row if one came along
+  if (lines.length > 1 && /^(character|word)$/i.test((lines[0][0] || '').trim())) lines.shift();
+  const cells = lines[0] || [];
+  const cols = PASTE_COLS[kind];
+  let filled = 0;
+  cells.forEach((v, j) => {
+    const i = startCol + j; if (i >= cols.length) return;
+    const inp = $('paste-row').querySelector(`input[data-i="${i}"]`); if (!inp) return;
+    inp._full = v.trim();                       // keeps line breaks the one-line cell can't show
+    inp.value = inp._full.replace(/\s*\n\s*/g, ' ⏎ ');
+    if (applyCell(inp)) filled++;
+  });
+  const extra = lines.length > 1 ? ' Only the first row was used.' : '';
+  $('paste-status').textContent = filled ? `Filled ${filled} field${filled === 1 ? '' : 's'} below — check them, then Save to Sheet.${extra}` : 'Nothing to fill from that paste.';
+}
+// Copies one mini-sheet cell into its form field. Blank or "—" cells leave the field alone.
+function applyCell(inp){
+  const v = (inp._full != null ? inp._full : inp.value).trim();
+  inp.closest('td').classList.toggle('filled', !!v);
+  if (isBlankCell(v)) return false;
+  const el = $('modal-form').elements[inp.dataset.k]; if (!el) return false;
+  if (el.tagName === 'SELECT') {
+    const opt = [...el.options].find(o => o.value && o.value.toLowerCase()[0] === v.toLowerCase()[0]);
+    if (!opt) return false;
+    el.value = opt.value;
+  } else el.value = v;
+  const fld = el.closest('.fld'); fld.classList.add('just-filled'); setTimeout(() => fld.classList.remove('just-filled'), 1200);
+  return true;
+}
+$('paste-toggle').addEventListener('click', () => {
+  const on = !$('paste-panel').classList.contains('on');
+  $('paste-panel').classList.toggle('on', on); $('paste-toggle').classList.toggle('on', on);
+  if (on) $('paste-row').querySelector('input')?.focus();
+});
+
+// ═══════════════════════════════════════════════════════════
+// DELETE ENTRY — removes the Sheet row and moves its audio to Drive trash
+// ═══════════════════════════════════════════════════════════
+let delCtx = null;
+function entryAudio(kind, e){
+  const links = kind === 'char' ? [e.vocalRef] : [e.s1, e.s2, e.s3];
+  return [...new Set(links.filter(u => isUrl(u) && isDriveLink(u)).map(driveIdOf).filter(Boolean))];
+}
+function openDelete(){
+  if (!formCtx || !formCtx.existing) return;
+  const { kind, existing:e } = formCtx;
+  const tab = kind === 'char' ? S.charTab.title : S.pronTab.title;
+  const audio = entryAudio(kind, e);
+  delCtx = { kind, e, audio, tokenP: formCtx.tokenP };
+  $('del-name').textContent = kind === 'char' ? e.name : e.word;
+  $('del-list').innerHTML = `<li>Row ${e.row} is removed from the <b>${esc(tab)}</b> tab (rows below move up).</li>` +
+    (audio.length ? `<li>${audio.length === 1 ? 'Its audio file is' : `Its ${audio.length} audio files are`} moved to your Google Drive trash (recoverable for 30 days).</li>` : '<li>No recorded audio is linked to this entry.</li>') +
+    (kind === 'pron' ? '<li>Any character with this name will show "Not found" for its pronunciation.</li>' : '');
+  setDelStatus('');
+  $('del-confirm').disabled = false;
+  $('del-overlay').classList.add('on');
+}
+function closeDelete(){ $('del-overlay').classList.remove('on'); delCtx = null; }
+function setDelStatus(msg, err){ const s = $('del-status'); s.textContent = msg; s.className = err ? 'err' : ''; }
+$('modal-delete').addEventListener('click', openDelete);
+$('del-cancel').addEventListener('click', closeDelete);
+$('del-overlay').addEventListener('mousedown', ev => { if (ev.target === $('del-overlay')) closeDelete(); });
+$('del-confirm').addEventListener('click', async () => {
+  if (!delCtx) return;
+  const ctx = delCtx;
+  if (!tokenValid()) { ctx.tokenP = requestToken(); ctx.tokenP.catch(()=>{}); }   // inside the click
+  const btn = $('del-confirm'); btn.disabled = true;
+  setDelStatus('Connecting to Google…');
+  try {
+    if (!(await ensureEditAccess(ctx.tokenP))) { setDelStatus('Editing needs to be enabled for this Sheet first.', true); return; }
+    const tab = ctx.kind === 'char' ? S.charTab : S.pronTab;
+    const label = ctx.kind === 'char' ? ctx.e.name : ctx.e.word;
+    setDelStatus('Checking the Sheet…');
+    const cur = await readRange(`${q(tab.title)}!A${ctx.e.row}`);
+    if (((cur[0]||[])[0]||'').trim() !== label) { setDelStatus('That row has changed in the Sheet since it loaded. Reload and try again — nothing was deleted.', true); return; }
+    setDelStatus('Deleting from the Sheet…');
+    const r = await fetch(`${SHEETS}${S.sheetId}:batchUpdate`, {
+      method:'POST', headers:{ Authorization:'Bearer '+token, 'Content-Type':'application/json' },
+      body: JSON.stringify({ requests:[{ deleteDimension:{ range:{ sheetId:tab.sheetId, dimension:'ROWS', startIndex:ctx.e.row-1, endIndex:ctx.e.row } } }] })
+    });
+    if (!r.ok) { const e = new Error('delete '+r.status); e.status = r.status; throw e; }
+    let failed = 0;
+    if (ctx.audio.length) {
+      setDelStatus('Moving audio to Drive trash…');
+      for (const id of ctx.audio) {
+        try { await driveFetch(`${DRIVE}/${id}?fields=id`, { method:'PATCH', body: JSON.stringify({ trashed:true }) }); }
+        catch(e) { failed++; console.warn('trash failed', id, e); }
+      }
+    }
+    closeDelete(); closeForm();
+    toast(failed
+      ? `Deleted "${label}" — ${failed} audio file${failed === 1 ? '' : 's'} couldn't be removed (not created by the suite, or another account's). Delete ${failed === 1 ? 'it' : 'them'} in Drive.`
+      : `Deleted "${label}"${ctx.audio.length ? ' and its audio' : ''}`, !!failed);
+    await loadSheet(S.sheetId, { quiet:true });
+  } catch(e) {
+    console.error(e);
+    if (e.status === 401) { token = null; setDelStatus('Your Google session expired — click Yes, delete again.', true); }
+    else if (e.status === 403 || e.status === 404) setDelStatus(`${accountEmail || 'This account'} can't edit that Sheet — use Switch account.`, true);
+    else setDelStatus('Delete failed — check your connection and try again.', true);
+  } finally { btn.disabled = false; }
+});
+
+function closeForm(){ $('modal-overlay').classList.remove('on'); formCtx = null; }
+function setModalStatus(msg, err){ const s = $('modal-status'); s.textContent = msg; s.className = err ? 'err' : ''; }
+$('modal-cancel').addEventListener('click', closeForm);
+$('modal-overlay').addEventListener('mousedown', ev => { if (ev.target === $('modal-overlay')) closeForm(); });
+document.addEventListener('keydown', ev => { if (ev.key !== 'Escape') return; if (delCtx) closeDelete(); else if (formCtx) closeForm(); });
+$('new-char').addEventListener('click', () => openForm('char', null));
+$('new-pron').addEventListener('click', () => openForm('pron', null));
+
+$('modal-save').addEventListener('click', async () => {
+  if (!formCtx) return;
+  const ctx = formCtx;
+  const v = {}; new FormData($('modal-form')).forEach((val, k) => v[k] = String(val).trim());
+  const reqKey = ctx.kind === 'char' ? 'name' : 'word';
+  if (!v[reqKey]) { setModalStatus(`${ctx.kind === 'char' ? 'Character' : 'Word'} is required.`, true); return; }
+  // If the earlier sign-in was cancelled, ask again now (still inside this click).
+  if (!tokenValid()) { ctx.tokenP = requestToken(); ctx.tokenP.catch(()=>{}); }
+  const btn = $('modal-save'); btn.disabled = true;
+  setModalStatus('Connecting to Google…');
+  try {
+    if (!(await ensureEditAccess(ctx.tokenP))) { setModalStatus('Editing needs to be enabled for this Sheet first.', true); return; }
+    setModalStatus('Saving…');
+    if (ctx.kind === 'char') await saveChar(v, ctx.existing); else await savePron(v, ctx.existing);
+    closeForm();
+    toast(ctx.existing ? 'Saved changes' : `Added "${v[reqKey]}"`);
+    await loadSheet(S.sheetId, { quiet:true });
+  } catch (e) {
+    console.error(e);
+    if (e.friendly) setModalStatus(e.friendly, true);
+    else if (e.status === 401) { token = null; setModalStatus('Your Google session expired — click Save again to reconnect.', true); }
+    else if (e.status === 403 || e.status === 404) { editAccess = false; updateEditUI(); setModalStatus(`${accountEmail || 'This account'} can't edit that Sheet. Click Switch account (top right) and choose the account that owns it.`, true); }
+    else setModalStatus('Save failed — check your connection and try again.', true);
+  } finally { btn.disabled = false; }
+});
+
+// ═══════════════════════════════════════════════════════════
+// AUDIO FOLDERS — Audio (pronunciations) + Audio_0 (character voices)
+// ═══════════════════════════════════════════════════════════
+function setProjectInfo(sheetId, patch){
+  const cur = getProjectInfo(sheetId) || {};
+  localStorage.setItem(PROJECT_KEY + sheetId, JSON.stringify({ ...cur, ...patch }));
+}
+function audioFolders(){
+  const p = getProjectInfo(S.sheetId) || {};
+  return { pron: p.pronAudioId || p.audioFolderId || null, char: p.charAudioId || null, project: p.folderId || null };
+}
+// ── Notes/Qs!B2 = the folder that holds Audio + Audio_0 (shared across devices) ──
+const folderUrl = id => `https://drive.google.com/drive/folders/${id}`;
+async function listSubfolders(parentId){
+  const qs = encodeURIComponent(`'${parentId}' in parents and mimeType='${FOLDER_MIME}' and trashed=false`);
+  const base = `${DRIVE}?q=${qs}&fields=files(id,name)&pageSize=100&supportsAllDrives=true&includeItemsFromAllDrives=true`;
+  let found = [];
+  try { const r = await fetch(base + '&key=' + API_KEY); if (r.ok) found = (await r.json()).files || []; } catch(e) {}
+  if (tokenValid()) {
+    try { const r = await fetch(base, { headers:{ Authorization:'Bearer '+token } }); if (r.ok) found = found.concat((await r.json()).files || []); } catch(e) {}
+  }
+  return found;
+}
+function matchAudioFolders(files){
+  const pick = n => (files.find(f => f.name.trim() === n) || files.find(f => f.name.trim().toLowerCase() === n.toLowerCase()) || {}).id || null;
+  return { pron: pick('Audio'), char: pick('Audio_0') };
+}
+// On load: if B2 names a folder, look inside it for Audio / Audio_0 and use them.
+async function syncAudioFoldersFromSheet(){
+  const cur = getProjectInfo(S.sheetId) || {};
+  if (S.projectFolderId && cur.folderId !== S.projectFolderId) setProjectInfo(S.sheetId, { folderId:S.projectFolderId });
+  const pid = S.audioParentId; if (!pid) return;
+  if (cur.audioParentId === pid && (cur.pronAudioId || cur.charAudioId)) return;   // already resolved for this B2
+  const m = matchAudioFolders(await listSubfolders(pid));
+  // B2 changed since last time → don't keep recording into the old folders
+  const moved = cur.audioParentId && cur.audioParentId !== pid;
+  setProjectInfo(S.sheetId, { audioParentId:pid,
+    pronAudioId: m.pron || (moved ? null : cur.pronAudioId || cur.audioFolderId || null),
+    charAudioId: m.char || (moved ? null : cur.charAudioId || null),
+    ...(moved ? { audioFolderId:null } : {}), folderId: S.projectFolderId || cur.folderId || pid });
+}
+// ── Notes/Qs B1 (project folder) · B2 (audio folder) · B3 (read-only link) ──
+// A cell counts as filled only if it holds a link; existing links are always kept.
+// Links always point at the static address (tools.theaudiobookguy.co.uk/prep-suite.html),
+// so they keep working when a new version is uploaded over it.
+const STATIC_PATH = '/prep-suite.html';
+const appBase = () => /theaudiobookguy\.co\.uk$/i.test(location.hostname) ? location.origin + STATIC_PATH : location.origin + location.pathname;
+// Older read-only links pointed at a numbered file (prep-suite_7_2_web.html) — those get upgraded
+const isVersionedLink = u => /prep-suite_\d+_\d+_web\.html/i.test(u || '');
+const notesHas = k => k === 'b3' ? (isUrl(S.notes?.b3) && !isVersionedLink(S.notes.b3)) : !!parseFolderId(S.notes?.[k]);
+const roLinkGenerated = () => `${appBase()}?sheet=${S.sheetId}&view=1`;
+async function writeNotesCells(vals, force){
+  if (!S.notesTab || !tokenValid()) return false;
+  const rows = { b1:1, b2:2, b3:3 };
+  const data = Object.entries(vals).filter(([k, v]) => v && (force || !notesHas(k)))
+    .map(([k, v]) => ({ range:`${q(S.notesTab.title)}!B${rows[k]}`, values:[[v]] }));
+  if (!data.length) return false;
+  try {
+    await sheetsWrite('RAW', data);
+    data.forEach(d => { const k = 'b' + d.range.slice(-1); S.notes[k] = d.values[0][0]; });
+    return true;
+  } catch(e) { console.warn('Notes/Qs write failed', e); return false; }
+}
+// Writes the audio holding folder into B2 — only fills an empty cell unless force is set.
+async function writeAudioParent(pid, force){
+  if (!pid) return false;
+  if (parseFolderId(S.notes?.b2) === pid) return false;
+  const ok = await writeNotesCells({ b2: folderUrl(pid) }, force);
+  if (ok) { S.audioParentId = pid; setProjectInfo(S.sheetId, { audioParentId:pid }); }
+  return ok;
+}
+// Once per project load (with editing on): fill any empty B1/B2/B3 from what the suite knows.
+async function fillNotesBlanks(){
+  if (RO || S.notesFilled || !S.notesTab || !tokenValid()) return;
+  S.notesFilled = true;
+  const info = getProjectInfo(S.sheetId) || {};
+  const proj = S.projectFolderId || info.folderId || null;
+  const audio = parseFolderId(S.notes?.b2) || proj || info.audioParentId || null;
+  await writeNotesCells({ b1: proj && folderUrl(proj), b2: audio && folderUrl(audio), b3: roLinkGenerated() }, false);
+}
+async function pickAudioFolders(parentId){
+  await loadPicker();
+  return new Promise(resolve => {
+    const view = new google.picker.DocsView(google.picker.ViewId.FOLDERS).setIncludeFolders(true).setSelectFolderEnabled(true).setMimeTypes(FOLDER_MIME);
+    if (parentId) { try { view.setParent(parentId); } catch(e){} }
+    new google.picker.PickerBuilder()
+      .addView(view).enableFeature(google.picker.Feature.MULTISELECT_ENABLED)
+      .setOAuthToken(token).setDeveloperKey(API_KEY).setAppId(APP_ID)
+      .setTitle('Select the Audio and Audio_0 folders')
+      .setCallback(d => {
+        if (d.action === google.picker.Action.PICKED) resolve(d.docs.map(x => ({ id:x.id, name:x.name })));
+        else if (d.action === google.picker.Action.CANCEL) resolve(null);
+      }).build().setVisible(true);
+  });
+}
+
+const recOverlay = () => $('rec-overlay');
+function closeRecOverlay(){ stopRecording(true); recOverlay().classList.remove('on'); recCtx = null; }
+recOverlay && $('rec-overlay').addEventListener('mousedown', ev => { if (ev.target === $('rec-overlay') && !isRecording) closeRecOverlay(); });
+
+// thenRecord: optional {kind, entry} to continue into the recorder once folders are set.
+function openAudioFolders(thenRecord){
+  const f = audioFolders();
+  const fl = id => id ? `<a href="https://drive.google.com/drive/folders/${esc(id)}" target="_blank" rel="noopener">open</a>` : '<i>not set</i>';
+  $('rec-panel').innerHTML = `
+    <h3>Audio folders</h3>
+    <div class="rec-sub">Where this project's recordings are saved. Pronunciations go in <code>Audio</code>, character voices in <code>Audio_0</code>. The folder that holds them is kept in the Sheet's <code>${esc(S.notesTab ? S.notesTab.title : 'Notes/Qs')}</code> tab, cell B2, so it follows the project to any device.</div>
+    <div class="af-current">Project folder (B1): ${fl(S.projectFolderId)}<br>Holding folder (B2): ${fl(S.audioParentId)}${!notesHas('b2') && S.audioParentId ? ' <i>(same as B1)</i>' : ''}<br>Audio (pronunciations): ${fl(f.pron)}<br>Audio_0 (character voices): ${fl(f.char)}</div>
+    <div class="af-block">
+      <div class="ttl">Folder that holds Audio + Audio_0</div>
+      <input id="af-project" placeholder="Folder link (often the project folder)" value="${(S.audioParentId || f.project) ? folderUrl(esc(S.audioParentId || f.project)) : ''}" spellcheck="false">
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="pill-btn" id="af-find" type="button">Find Audio + Audio_0 here</button>
+        <button class="pill-btn ghost" id="af-create" type="button">Create them here</button>
+      </div>
+    </div>
+    <div class="af-block">
+      <div class="ttl">Or use folders you already have</div>
+      <input id="af-pron" placeholder="Audio folder link (pronunciations)" spellcheck="false">
+      <input id="af-char" placeholder="Audio_0 folder link (character voices)" spellcheck="false">
+      <button class="pill-btn dark" id="af-save" type="button">Use these folders</button>
+    </div>
+    <div id="rec-status"></div>
+    <div class="rec-actions"><button class="pill-btn ghost" id="af-close" type="button">Close</button></div>`;
+  recOverlay().classList.add('on');
+  const status = (m, cls) => { const s = $('rec-status'); s.textContent = m; s.className = cls || ''; };
+  const done = () => { status('Audio folders saved.', 'ok'); setTimeout(() => { if (thenRecord) openRecorder(thenRecord.kind, thenRecord.entry); else closeRecOverlay(); }, 600); };
+  $('af-close').addEventListener('click', closeRecOverlay);
+  $('af-find').addEventListener('click', async () => {
+    const pid = parseFolderId($('af-project').value);
+    if (!pid) { status('Paste the folder link from the Drive address bar.', 'err'); return; }
+    const tp = requestToken(); tp.catch(()=>{});   // inside the click
+    status('Looking for Audio and Audio_0…');
+    try {
+      await tp;
+      let m = matchAudioFolders(await listSubfolders(pid));
+      if (!m.pron || !m.char) {
+        status('Google needs you to point at them once — select both folders in the Google window.');
+        const picked = await pickAudioFolders(pid);
+        if (!picked) { status('No folders selected.', 'err'); return; }
+        const pm = matchAudioFolders(picked);
+        m = { pron: m.pron || pm.pron, char: m.char || pm.char };
+      }
+      if (!m.pron && !m.char) { status('No folders called Audio or Audio_0 there. Use "Create them here" instead.', 'err'); return; }
+      setProjectInfo(S.sheetId, { audioParentId:pid, ...(m.pron ? { pronAudioId:m.pron } : {}), ...(m.char ? { charAudioId:m.char } : {}) });
+      await writeAudioParent(pid, true);
+      const missing = [!m.pron && 'Audio', !m.char && 'Audio_0'].filter(Boolean);
+      if (missing.length) { status(`Found one — ${missing[0]} is missing there. Click "Create them here" to add it.`, 'err'); return; }
+      done();
+    } catch(e) { console.error(e); status('Sign-in was cancelled or the connection dropped.', 'err'); }
+  });
+  $('af-create').addEventListener('click', async () => {
+    const pid = parseFolderId($('af-project').value);
+    if (!pid) { status('Paste the folder link from the Drive address bar.', 'err'); return; }
+    const tp = requestToken(); tp.catch(()=>{});
+    status('Creating folders…');
+    try {
+      await tp;
+      const cur = audioFolders(), info = getProjectInfo(S.sheetId) || {};
+      const same = info.audioParentId === pid;
+      const a = same && cur.pron ? { id:cur.pron } : await createFolder('Audio', pid);
+      const a0 = same && cur.char ? { id:cur.char } : await createFolder('Audio_0', pid);
+      setProjectInfo(S.sheetId, { audioParentId:pid, pronAudioId:a.id, charAudioId:a0.id, ...(!info.folderId ? { folderId:pid } : {}) });
+      await writeAudioParent(pid, true);
+      showApp(); done();
+    } catch(e) { status(e.status === 404 || e.status === 403 ? "Couldn't create folders there — check you can edit that folder." : 'Sign-in was cancelled or the connection dropped.', 'err'); }
+  });
+  $('af-save').addEventListener('click', () => {
+    const a = parseFolderId($('af-pron').value), a0 = parseFolderId($('af-char').value);
+    if (!a && !a0) { status('Paste at least one folder link.', 'err'); return; }
+    if (a === undefined || a0 === undefined) { status("One of those doesn't look like a Drive folder link.", 'err'); return; }
+    setProjectInfo(S.sheetId, { ...(a ? { pronAudioId:a } : {}), ...(a0 ? { charAudioId:a0 } : {}) });
+    done();
+  });
+}
+$('audio-folders-btn').addEventListener('click', () => openAudioFolders(null));
+
+// ═══════════════════════════════════════════════════════════
+// RECORDER — record → listen → save MP3 to Drive → link into the Sheet
+// ═══════════════════════════════════════════════════════════
+let recCtx = null, recStream = null, mediaRecorder = null, recChunks = [], recBlob = null, recURL = null;
+let isRecording = false, recStart = 0, recTimerId = null, meterCtx = null, meterRAF = null;
+const REC_ICON = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="currentColor"/></svg>';
+const STOP_ICON = '<svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor"/></svg>';
+const fileSafe = n => n.replace(/[\\/:*?"<>|]/g, '').replace(/\s+/g, ' ').trim();
+const driveIdOf = url => { const m = (url||'').match(/[?&]id=([a-zA-Z0-9_-]+)/) || (url||'').match(/\/d\/([a-zA-Z0-9_-]+)/); return m ? m[1] : null; };
+
+function openRecorder(kind, entry){
+  if (RO) return;
+  if (kind === 'char' && !S.canWriteChar || kind === 'pron' && !S.canWritePron) { toast("This tab's columns don't match the template, so recording is off for safety.", true); return; }
+  stopCurrent();
+  const tokenP = editAccess && tokenValid() ? Promise.resolve(token) : requestToken();
+  tokenP.catch(()=>{});
+  const folders = audioFolders();
+  const folderId = kind === 'char' ? folders.char : folders.pron;
+  if (!folderId) { openAudioFolders({ kind, entry }); return; }
+  const label = kind === 'char' ? entry.name : entry.word;
+  const fileName = fileSafe(label) + (kind === 'char' ? '_0' : '') + '.mp3';
+  const existingLink = kind === 'char' ? (isDriveLink(entry.vocalRef) ? entry.vocalRef : null) : [entry.s1, entry.s2, entry.s3].find(isDriveLink) || null;
+  recCtx = { kind, entry, tokenP, folderId, fileName, existingLink };
+  recBlob = null;
+  $('rec-panel').innerHTML = `
+    <h3>${esc(label)}</h3>
+    <div class="rec-sub">${kind === 'char' ? 'Character voice' : 'Pronunciation'} · saves as <code>${esc(fileName)}</code> in <code>${kind === 'char' ? 'Audio_0' : 'Audio'}</code>${existingLink ? '<br>Replaces the current recording — same link.' : ''}</div>
+    <div class="rec-big-wrap"><div class="pulse-ring" id="rec-pulse"></div><button id="rec-big" type="button" title="Start recording">${REC_ICON}</button></div>
+    <div id="rec-timer">00:00</div>
+    <div id="rec-meter">${'<div class="meter-bar"></div>'.repeat(26)}</div>
+    <audio id="rec-playback" controls></audio>
+    <div class="rec-actions">
+      <button class="pill-btn ghost" id="rec-cancel" type="button">Cancel</button>
+      <button class="pill-btn" id="rec-save" type="button" disabled>Save to Drive &amp; Sheet</button>
+    </div>
+    <div id="rec-status">${hasMic() ? 'Tap the button to start recording.' : "This browser can't record audio — try Chrome or Edge."}</div>`;
+  recOverlay().classList.add('on');
+  $('rec-big').addEventListener('click', () => isRecording ? stopRecording() : startRecording());
+  $('rec-cancel').addEventListener('click', closeRecOverlay);
+  $('rec-save').addEventListener('click', saveRecording);
+}
+function hasMic(){ return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder); }
+function recStatus(m, cls){ const s = $('rec-status'); if (s) { s.textContent = m; s.className = cls || ''; } }
+
+async function startRecording(){
+  if (!hasMic()) return;
+  try { recStream = await navigator.mediaDevices.getUserMedia({ audio:true }); }
+  catch(e) { recStatus('Microphone access was blocked — allow it in the browser and try again.', 'err'); return; }
+  recChunks = [];
+  let mime = ''; for (const t of ['audio/webm;codecs=opus','audio/webm','audio/ogg;codecs=opus','audio/mp4']) { if (MediaRecorder.isTypeSupported(t)) { mime = t; break; } }
+  mediaRecorder = mime ? new MediaRecorder(recStream, { mimeType:mime }) : new MediaRecorder(recStream);
+  mediaRecorder.ondataavailable = ev => { if (ev.data && ev.data.size) recChunks.push(ev.data); };
+  mediaRecorder.onstop = () => {
+    if (!recCtx) return;
+    recBlob = new Blob(recChunks, { type: recChunks[0]?.type || 'audio/webm' });
+    if (recURL) URL.revokeObjectURL(recURL);
+    recURL = URL.createObjectURL(recBlob);
+    const pb = $('rec-playback'); pb.src = recURL; pb.style.display = 'block';
+    $('rec-save').disabled = false;
+    recStatus('Have a listen. Tap the button to record again, or save it.');
+  };
+  mediaRecorder.start();
+  isRecording = true; recStart = Date.now();
+  recTimerId = setInterval(() => { const t = Math.floor((Date.now() - recStart) / 1000); $('rec-timer').textContent = `${String(Math.floor(t/60)).padStart(2,'0')}:${String(t%60).padStart(2,'0')}`; }, 200);
+  $('rec-big').classList.add('recording'); $('rec-big').innerHTML = STOP_ICON; $('rec-big').title = 'Stop recording';
+  $('rec-pulse').classList.add('on'); $('rec-save').disabled = true; $('rec-playback').style.display = 'none';
+  recStatus('Recording…');
+  const AC = window.AudioContext || window.webkitAudioContext; meterCtx = new AC();
+  const an = meterCtx.createAnalyser(); an.fftSize = 256; meterCtx.createMediaStreamSource(recStream).connect(an);
+  const bars = [...document.querySelectorAll('#rec-meter .meter-bar')], data = new Uint8Array(an.frequencyBinCount);
+  const draw = () => { an.getByteFrequencyData(data); const step = Math.floor(data.length / bars.length) || 1;
+    bars.forEach((b,i) => { const v = data[i*step] || 0; b.style.height = Math.max(6, Math.round(v/255*30)) + 'px'; b.classList.toggle('active', v > 12); });
+    meterRAF = requestAnimationFrame(draw); };
+  draw();
+}
+function stopRecording(discard){
+  if (mediaRecorder && mediaRecorder.state !== 'inactive') { if (discard) mediaRecorder.onstop = null; mediaRecorder.stop(); }
+  if (recStream) recStream.getTracks().forEach(t => t.stop());
+  recStream = null; clearInterval(recTimerId); isRecording = false;
+  if (meterRAF) cancelAnimationFrame(meterRAF); if (meterCtx) { meterCtx.close(); meterCtx = null; }
+  const big = $('rec-big'); if (big) { big.classList.remove('recording'); big.innerHTML = REC_ICON; big.title = 'Record again'; }
+  $('rec-pulse')?.classList.remove('on');
+  document.querySelectorAll('#rec-meter .meter-bar').forEach(b => { b.style.height = '6px'; b.classList.remove('active'); });
+}
+
+async function encodeToMp3(blob){
+  const AC = window.AudioContext || window.webkitAudioContext, ctx = new AC();
+  const buf = await ctx.decodeAudioData(await blob.arrayBuffer());
+  let samples = buf.getChannelData(0);
+  if (buf.numberOfChannels > 1) { const r = buf.getChannelData(1), m = new Float32Array(samples.length); for (let i = 0; i < m.length; i++) m[i] = (samples[i] + r[i]) / 2; samples = m; }
+  const pcm = new Int16Array(samples.length);
+  for (let i = 0; i < samples.length; i++) { const v = Math.max(-1, Math.min(1, samples[i])); pcm[i] = v < 0 ? v * 0x8000 : v * 0x7FFF; }
+  const enc = new lamejs.Mp3Encoder(1, buf.sampleRate, 128), out = [];
+  for (let i = 0; i < pcm.length; i += 1152) { const b = enc.encodeBuffer(pcm.subarray(i, i + 1152)); if (b.length) out.push(new Int8Array(b)); }
+  const f = enc.flush(); if (f.length) out.push(new Int8Array(f));
+  ctx.close();
+  return new Blob(out, { type:'audio/mpeg' });
+}
+function blobToBase64(blob){ return new Promise((res, rej) => { const r = new FileReader(); r.onloadend = () => res(r.result.split(',')[1]); r.onerror = rej; r.readAsDataURL(blob); }); }
+
+async function uploadNew(blob, name, folderId){
+  const boundary = 'prepsuite-' + Date.now();
+  const body = `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify({ name, mimeType:'audio/mpeg', parents:[folderId] })}\r\n--${boundary}\r\nContent-Type: audio/mpeg\r\nContent-Transfer-Encoding: base64\r\n\r\n${await blobToBase64(blob)}\r\n--${boundary}--`;
+  const r = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id', { method:'POST', headers:{ Authorization:'Bearer '+token, 'Content-Type':`multipart/related; boundary=${boundary}` }, body });
+  if (!r.ok) { const e = new Error('upload ' + r.status); e.status = r.status; throw e; }
+  return (await r.json()).id;
+}
+// Overwrite an earlier suite recording in place (keeps the same link). Fails for files the suite didn't make.
+async function replaceExisting(fileId, blob){
+  const r = await fetch(`https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=media&fields=id`, { method:'PATCH', headers:{ Authorization:'Bearer '+token, 'Content-Type':'audio/mpeg' }, body: blob });
+  return r.ok;
+}
+
+async function saveRecording(){
+  if (!recCtx || !recBlob) return;
+  const ctx = recCtx;
+  if (!tokenValid()) { ctx.tokenP = requestToken(); ctx.tokenP.catch(()=>{}); }
+  $('rec-save').disabled = true; $('rec-big').disabled = true;
+  try {
+    recStatus('Connecting to Google…');
+    if (!(await ensureEditAccess(ctx.tokenP))) { recStatus('Editing needs to be enabled for this Sheet first.', 'err'); return; }
+    recStatus('Encoding MP3…');
+    const mp3 = await encodeToMp3(recBlob);
+    recStatus('Uploading to Drive…');
+    let link = null;
+    const oldId = driveIdOf(ctx.existingLink);
+    if (oldId && await replaceExisting(oldId, mp3)) link = ctx.existingLink;
+    if (!link) {
+      const id = await uploadNew(mp3, ctx.fileName, ctx.folderId);
+      try { await driveFetch(`${DRIVE}/${id}/permissions?fields=id`, { method:'POST', body: JSON.stringify({ role:'reader', type:'anyone' }) }); } catch(e) {}
+      link = (await driveFetch(`${DRIVE}/${id}?fields=webViewLink`)).webViewLink || `https://drive.google.com/file/d/${id}/view`;
+    }
+    if (link !== ctx.existingLink) { recStatus('Adding the link to the Sheet…'); await writeAudioLink(ctx.kind, ctx.entry, link); }
+    else if (ctx.kind === 'char') {
+      try { const cur = await readRange(`${q(S.charTab.title)}!A${ctx.entry.row}`); if (((cur[0]||[])[0]||'').trim() === ctx.entry.name) await setCellColour(ctx.entry.row, COL_J, GREEN); } catch(e) { console.warn(e); }
+    }
+    if (!notesHas('b2')) { const pi = getProjectInfo(S.sheetId) || {}; await writeAudioParent(pi.audioParentId || S.projectFolderId || pi.folderId, false); }
+    recStatus('Saved ✓', 'ok');
+    toast(`Saved ${ctx.fileName}`);
+    closeRecOverlay();
+    await loadSheet(S.sheetId, { quiet:true });
+  } catch(e) {
+    console.error(e);
+    if (e.friendly) recStatus(e.friendly, 'err');
+    else if (e.status === 404 && !e.sheet) recStatus("The audio folder couldn't be found — check it under Audio Folders.", 'err');
+    else if (e.status === 401) { token = null; recStatus('Your Google session expired — click Save again.', 'err'); }
+    else recStatus('Save failed — check your connection and try again. Your recording is still here.', 'err');
+  } finally { const s = $('rec-save'), b = $('rec-big'); if (s) s.disabled = false; if (b) b.disabled = false; }
+}
+
+// Characters → Vocal Ref (I). Pronunciations → Source 1 (I), which the Characters
+// tab's FILTER formula reads; any non-Drive sources shift along to Source 2/3.
+async function writeAudioLink(kind, entry, link){
+  const tab = kind === 'char' ? S.charTab : S.pronTab, t = q(tab.title), row = entry.row;
+  const cur = await readRange(`${t}!A${row}:K${row}`).catch(e => { e.sheet = true; throw e; });
+  const r = cur[0] || [];
+  if ((r[0]||'').trim() !== (kind === 'char' ? entry.name : entry.word)) throw Object.assign(new Error('moved'), { friendly:'That row changed in the Sheet since it loaded. The audio is saved in Drive — reload and re-record, or paste the link in by hand.' });
+  if (kind === 'char') {
+    await sheetsWrite('RAW', [{ range:`${t}!I${row}`, values:[[link]] }]);
+    try { await setCellColour(row, COL_J, GREEN); } catch(e) { console.warn('J colour', e); }
+    return;
+  }
+  const others = [r[8], r[9], r[10]].map(v => (v||'').trim()).filter(v => v && !isDriveLink(v));
+  if (others.length > 2 && !confirm(`Source 1–3 are full. Saving the recording into Source 1 will drop:\n${others[2]}\n\nContinue?`))
+    throw Object.assign(new Error('full'), { friendly:'Not saved to the Sheet — the recording is in Drive. Free up a Source column and try again.' });
+  const srcs = [link, ...others].slice(0, 3); while (srcs.length < 3) srcs.push('');
+  await sheetsWrite('RAW', [{ range:`${t}!I${row}:K${row}`, values:[srcs] }]);
+}
+
+// ═══════════════════════════════════════════════════════════
+// RECENT PROJECTS + PROJECT FOLDER INFO (this browser only)
+// ═══════════════════════════════════════════════════════════
+const RECENT_KEY = 'prepsuite_recent';
+const PROJECT_KEY = 'prepsuite_project_';
+function getRecent(){ try { return JSON.parse(localStorage.getItem(RECENT_KEY) || '[]'); } catch(e){ return []; } }
+function addRecent(id, title){
+  const list = getRecent().filter(r => r.id !== id);
+  list.unshift({ id, title, ts:Date.now() });
+  localStorage.setItem(RECENT_KEY, JSON.stringify(list.slice(0, 10)));
+}
+function renderRecent(){
+  const list = getRecent(), wrap = $('recent-wrap'), box = $('recent-list');
+  wrap.style.display = list.length ? '' : 'none';
+  box.innerHTML = list.map(r => `<div class="recent-row" data-id="${esc(r.id)}"><button class="recent-open" type="button" title="Open ${esc(r.title)}">${esc(r.title)}</button><button class="recent-del" type="button" title="Remove from this list (the Sheet isn't touched)">✕</button></div>`).join('');
+  box.querySelectorAll('.recent-row').forEach(row => {
+    row.querySelector('.recent-open').addEventListener('click', () => loadSheet(row.dataset.id));
+    row.querySelector('.recent-del').addEventListener('click', () => {
+      localStorage.setItem(RECENT_KEY, JSON.stringify(getRecent().filter(r => r.id !== row.dataset.id)));
+      renderRecent();
+    });
+  });
+}
+function getProjectInfo(sheetId){ try { return JSON.parse(localStorage.getItem(PROJECT_KEY + sheetId) || 'null'); } catch(e){ return null; } }
+
+// ═══════════════════════════════════════════════════════════
+// NEW PROJECT — folder + Audio subfolder + native copy of the template
+// ═══════════════════════════════════════════════════════════
+// drive.file can create folders anywhere the user owns, and can copy the
+// template once the user has selected it in the picker (one time only).
+// The copy is created by the suite, so it can write to it straight away.
+const TEMPLATE_ID = '12-HA-Qs9pVpD8NB9WW7xSboMvZ1j2drxMxYIy9zOAtM';
+const DRIVE = 'https://www.googleapis.com/drive/v3/files';
+const FOLDER_MIME = 'application/vnd.google-apps.folder';
+
+function parseFolderId(input){
+  const v = (input || '').trim(); if (!v) return null;
+  const m = v.match(/\/folders\/([a-zA-Z0-9_-]+)/); if (m) return m[1];
+  return /^[a-zA-Z0-9_-]{15,}$/.test(v) ? v : undefined;   // undefined = not a folder link
+}
+async function driveFetch(url, opts = {}){
+  const r = await fetch(url, { ...opts, headers:{ Authorization:'Bearer '+token, 'Content-Type':'application/json', ...(opts.headers||{}) } });
+  if (!r.ok) { const e = new Error('drive '+r.status); e.status = r.status; throw e; }
+  return r.json();
+}
+const createFolder = (name, parentId) => driveFetch(`${DRIVE}?fields=id,name`, { method:'POST', body: JSON.stringify({ name, mimeType:FOLDER_MIME, ...(parentId ? { parents:[parentId] } : {}) }) });
+const copyTemplate = (name, folderId) => driveFetch(`${DRIVE}/${TEMPLATE_ID}/copy?fields=id,name`, { method:'POST', body: JSON.stringify({ name, parents:[folderId] }) });
+
+async function pickTemplate(){
+  await loadPicker();
+  return new Promise(resolve => {
+    const view = new google.picker.DocsView(google.picker.ViewId.SPREADSHEETS).setMode(google.picker.DocsViewMode.LIST);
+    try { view.setFileIds(TEMPLATE_ID); } catch(e){}
+    new google.picker.PickerBuilder()
+      .addView(view).setOAuthToken(token).setDeveloperKey(API_KEY).setAppId(APP_ID)
+      .setTitle('One-time step: select your Prep Sheet template')
+      .setCallback(d => {
+        if (d.action === google.picker.Action.PICKED) resolve(d.docs[0].id);
+        else if (d.action === google.picker.Action.CANCEL) resolve(null);
+      }).build().setVisible(true);
+  });
+}
+
+const NP_STEPS = [
+  ['auth',   'Signing in to Google'],
+  ['folder', 'Creating the project folder'],
+  ['audio',  'Adding the Audio and Audio_0 folders'],
+  ['copy',   'Copying the Prep Sheet template'],
+  ['share',  'Setting the Sheet to "anyone with the link can view"'],
+  ['open',   'Opening the project']
+];
+function npStep(key, state, note){
+  const ul = $('np-progress');
+  if (!ul.children.length) ul.innerHTML = NP_STEPS.map(([k,l]) => `<li data-k="${k}"><span class="st">·</span><span class="lbl">${l}</span></li>`).join('');
+  const li = ul.querySelector(`[data-k="${key}"]`); if (!li) return;
+  li.className = state;
+  li.querySelector('.st').textContent = state === 'done' ? '✓' : state === 'fail' ? '✕' : state === 'active' ? '…' : '·';
+  li.querySelector('.lbl').textContent = NP_STEPS.find(s => s[0] === key)[1] + (note ? ' — ' + note : '');
+}
+function npError(msg){ const e = $('np-error'); e.textContent = msg; e.style.display = 'block'; }
+
+$('np-btn').addEventListener('click', async () => {
+  const name = $('np-name').value.trim();
+  const parentId = parseFolderId($('np-parent').value);
+  $('np-error').style.display = 'none'; $('np-progress').innerHTML = '';
+  if (!name) { npError('Give the project a name first.'); $('np-name').focus(); return; }
+  if (parentId === undefined) { npError("That doesn't look like a Drive folder link. Open the folder in Drive and copy the address from the browser bar — or leave it blank for My Drive."); return; }
+  const tokenP = requestToken();            // inside the click, so the popup isn't blocked
+  tokenP.catch(()=>{});
+  const btn = $('np-btn'); btn.disabled = true;
+  let step = 'auth';
+  try {
+    npStep('auth','active');
+    try { await tokenP; } catch(e) { throw Object.assign(new Error('auth'), { friendly: e && e.message === 'gis-not-ready' ? 'Google sign-in is still loading — try again in a moment.' : 'Google sign-in was cancelled.' }); }
+    npStep('auth','done');
+
+    step = 'folder'; npStep('folder','active');
+    let folder;
+    try { folder = await createFolder(name, parentId); }
+    catch(e) { if (parentId && (e.status === 404 || e.status === 403)) e.friendly = "Couldn't create the project inside that folder — check it's in your own Drive, or leave the link blank."; throw e; }
+    npStep('folder','done');
+
+    step = 'audio'; npStep('audio','active');
+    const audio = await createFolder('Audio', folder.id);
+    const audio0 = await createFolder('Audio_0', folder.id);
+    npStep('audio','done');
+
+    step = 'copy'; npStep('copy','active');
+    let sheet;
+    try { sheet = await copyTemplate(`${name} Prep`, folder.id); }
+    catch(e) {
+      if (e.status !== 404 && e.status !== 403) throw e;
+      npStep('copy','active','select the template in the Google window');
+      const picked = await pickTemplate();
+      if (!picked) throw Object.assign(new Error('nopick'), { friendly:'The template wasn\'t selected, so it couldn\'t be copied. The empty project folder is in Drive — delete it or click Create Project again.' });
+      if (picked !== TEMPLATE_ID) throw Object.assign(new Error('wrongpick'), { friendly:'That wasn\'t the Prep Sheet template. Click Create Project again and select "Template Prep Sheet".' });
+      sheet = await copyTemplate(`${name} Prep`, folder.id);
+    }
+    npStep('copy','done');
+
+    step = 'share'; npStep('share','active');
+    try {
+      await driveFetch(`${DRIVE}/${sheet.id}/permissions?fields=id`, { method:'POST', body: JSON.stringify({ role:'reader', type:'anyone' }) });
+      npStep('share','done');
+    } catch(e) { npStep('share','fail','skipped — share it from the Sheet if you need view links'); }
+
+    localStorage.setItem(PROJECT_KEY + sheet.id, JSON.stringify({ folderId:folder.id, audioParentId:folder.id, pronAudioId:audio.id, charAudioId:audio0.id, name }));
+    localStorage.setItem(WRITE_OK_KEY + sheet.id, '1');
+
+    step = 'open'; npStep('open','active');
+    const ok = await loadSheet(sheet.id);
+    if (!ok) throw Object.assign(new Error('open'), { friendly:'The project was created but couldn\'t be opened yet. Open it from Recent projects in a moment.' });
+    // Notes/Qs: B1 project folder, B2 audio folder (same), B3 read-only link — template links are kept
+    await writeNotesCells({ b1: folderUrl(folder.id), b2: folderUrl(folder.id), b3: roLinkGenerated() }, false);
+    S.notesFilled = true;
+    npStep('open','done');
+    $('np-name').value = ''; $('np-parent').value = '';
+    toast(`"${name}" is ready — editing is on`);
+  } catch(e) {
+    console.error(e);
+    npStep(step,'fail');
+    npError(e.friendly || (e.status === 401 ? 'Your Google session expired — click Create Project again.' : 'Something went wrong creating the project. Check your connection and try again.'));
+  } finally { btn.disabled = false; }
+});
+
+// ═══════════════════════════════════════════════════════════
+// LOAD / SHARE / SWITCH
+// ═══════════════════════════════════════════════════════════
+function loadFromInput(){
+  const id = parseSheetId($('sheet-url-input').value);
+  const err = $('sheet-error');
+  if (!id) { err.textContent = "Couldn't find a Sheet ID in that link. Paste the full Google Sheet URL."; err.style.display = 'block'; return; }
+  loadSheet(id);
+}
+$('load-btn').addEventListener('click', loadFromInput);
+$('sheet-url-input').addEventListener('keydown', ev => { if (ev.key === 'Enter') { ev.preventDefault(); loadFromInput(); } });
+async function copyLink(btnId, label, extra){
+  const url = `${appBase()}?sheet=${S.sheetId}${extra}`;
+  const b = $(btnId);
+  try { await navigator.clipboard.writeText(url); b.textContent = 'Link Copied!'; b.classList.add('copied'); setTimeout(() => { b.textContent = label; b.classList.remove('copied'); }, 1800); }
+  catch(e) { prompt('Copy this link:', url); }
+}
+$('share-btn').addEventListener('click', () => copyLink('share-btn', 'Share Link', ''));
+$('ro-btn').addEventListener('click', async () => {
+  if (notesHas('b3')) {   // Notes/Qs B3 already holds the read-only link — use it
+    const b = $('ro-btn'), url = S.notes.b3.trim();
+    try { await navigator.clipboard.writeText(url); b.textContent = 'Link Copied!'; b.classList.add('copied'); setTimeout(() => { b.textContent = 'Read-Only Link'; b.classList.remove('copied'); }, 1800); }
+    catch(e) { prompt('Copy this link:', url); }
+    return;
+  }
+  await copyLink('ro-btn', 'Read-Only Link', '&view=1');
+  if (editAccess) writeNotesCells({ b3: roLinkGenerated() }, false);
+});
+$('switch-btn').addEventListener('click', () => {
+  stopCurrent();
+  ['grid-char','grid-pron','ctrl-char','ctrl-pron','tabs'].forEach(id => $(id).classList.remove('on'));
+  ['edit-btn','acct-btn','open-sheet-btn','share-btn','ro-btn','switch-btn','open-folder-btn','audio-folders-btn'].forEach(id => $(id).style.display = 'none');
+  $('hd-book').innerHTML = ''; $('load').style.display = '';
+  $('sheet-error').style.display = 'none'; $('np-error').style.display = 'none'; $('np-progress').innerHTML = '';
+  renderRecent();
+});
+
+(async function init(){
+  S.tab = localStorage.getItem(TAB_KEY) === 'pron' ? 'pron' : 'char';
+  const p = new URLSearchParams(location.search);
+  const shared = p.get('sheet');
+  const tabParam = p.get('tab');
+  if (tabParam === 'pron' || tabParam === 'char') S.tab = tabParam;
+  const id = shared || localStorage.getItem(LAST_KEY);
+  renderRecent();
+  if (id) await loadSheet(id);
+})();
+</script>
+<div id="tool-version">v7.3</div>
+<div id="tag-footer"></div>
+<script src="/partials/inject-brand.js"></script>
+</body>
+</html>
