@@ -64,7 +64,51 @@
   }
 
   #timer { font-family: 'Raleway', sans-serif; font-size: 1.9rem; font-weight: 800; letter-spacing: 0.02em; margin-bottom: 4px; font-variant-numeric: tabular-nums; }
-  #status-text { font-size: 0.85rem; color: var(--mid); margin-bottom: 18px; }
+  #status-text { font-size: 0.85rem; color: var(--mid); margin-bottom: 14px; }
+
+  /* ── PUNCH & ROLL OPTIONS ── */
+  #rec-options { display: none; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; margin: 0 0 14px; font-size: 0.76rem; color: var(--mid); }
+  #rec-options.on { display: flex; }
+  .switch-lbl {
+    display: inline-flex; align-items: center; gap: 7px; cursor: pointer; position: relative;
+    font-family: 'Raleway', sans-serif; font-weight: 700; font-size: 0.7rem; letter-spacing: 0.05em;
+    text-transform: uppercase; color: var(--ink); user-select: none;
+  }
+  .switch-lbl input { position: absolute; opacity: 0; width: 0; height: 0; }
+  .switch { width: 30px; height: 17px; border-radius: 9px; background: #d1d5db; position: relative; transition: background 0.15s; flex-shrink: 0; }
+  .switch::after { content: ''; position: absolute; top: 2px; left: 2px; width: 13px; height: 13px; border-radius: 50%; background: #fff; transition: transform 0.15s; box-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+  .switch-lbl input:checked + .switch { background: var(--accent); }
+  .switch-lbl input:checked + .switch::after { transform: translateX(13px); }
+  .switch-lbl input:focus-visible + .switch { outline: 2px solid var(--accent-brd); outline-offset: 2px; }
+  .preroll-secs-wrap { display: inline-flex; align-items: center; gap: 5px; }
+  #preroll-secs {
+    width: 58px; padding: 5px 6px; border: 1.5px solid var(--rule); border-radius: 6px;
+    font-family: 'Open Sans', sans-serif; font-size: 0.78rem; color: var(--ink); text-align: center; outline: none;
+  }
+  #preroll-secs:focus { border-color: var(--accent); }
+  #preroll-secs:disabled { color: #c9c9c9; background: #fafafa; }
+  #punch-at { width: 100%; font-size: 0.72rem; color: var(--light); font-variant-numeric: tabular-nums; }
+
+  .keys-link {
+    background: none; border: none; color: var(--light); cursor: pointer; margin: 0 0 16px;
+    font-family: 'Raleway', sans-serif; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.04em;
+    transition: color 0.15s;
+  }
+  .keys-link:hover { color: var(--accent); }
+
+  .file-links { display: flex; align-items: center; justify-content: center; gap: 4px; flex-wrap: wrap; margin: 0 0 16px; }
+  .file-links .keys-link { margin: 0; }
+  .file-links .dot { color: var(--rule); font-size: 0.8rem; }
+  .drop-hint { width: 100%; font-size: 0.7rem; color: var(--light); margin-top: 2px; }
+  .rec-card { position: relative; }
+  .rec-card.drag-over::after {
+    content: 'Drop your audio file to open it'; position: absolute; inset: 0; z-index: 50;
+    display: flex; align-items: center; justify-content: center; border-radius: var(--radius);
+    border: 2px dashed var(--accent); background: rgba(255,243,237,0.92); color: var(--accent);
+    font-family: 'Raleway', sans-serif; font-weight: 800; font-size: 1rem; letter-spacing: 0.02em; pointer-events: none;
+  }
+
+  .rec-card.drag-append { outline: 2px dashed var(--accent); outline-offset: 6px; }
 
   /* level meter */
   #meter-wrap { height: 34px; margin: 0 auto 22px; display: flex; align-items: center; justify-content: center; gap: 3px; }
@@ -101,7 +145,7 @@
   .tb-btn.icon { font-size: 0.95rem; padding: 2px 8px; line-height: 1; }
   .tb-btn:hover:not(:disabled) { border-color: var(--accent); background: var(--accent-bg); }
   .tb-btn:disabled { color: #c9c9c9; cursor: not-allowed; background: #fff; }
-  #delete-btn:not(:disabled) { border-color: var(--accent-brd); color: var(--accent); }
+  #delete-btn:not(:disabled), #ripple-btn:not(:disabled) { border-color: var(--accent-brd); color: var(--accent); }
   #edit-readout { font-size: 0.72rem; color: var(--mid); margin-top: 8px; text-align: center; font-variant-numeric: tabular-nums; min-height: 16px; }
   .playback-hint { font-size: 0.72rem; color: var(--light); line-height: 1.5; text-align: center; margin-top: 2px; }
 
@@ -129,7 +173,8 @@
   .btn-primary:hover:not(:disabled) { background: #c44e00; }
   .btn-primary:disabled { background: #d1d5db; cursor: not-allowed; }
   .btn-secondary { background: transparent; color: var(--mid); border: 1.5px solid var(--rule); }
-  .btn-secondary:hover { border-color: var(--ink); color: var(--ink); }
+  .btn-secondary:hover:not(:disabled) { border-color: var(--ink); color: var(--ink); }
+  .btn-secondary:disabled { color: #c9c9c9; cursor: not-allowed; }
 
   #encode-status { font-size: 0.78rem; color: var(--mid); text-align: center; min-height: 18px; }
   #encode-status.err { color: var(--red); }
@@ -174,16 +219,17 @@
   #copy-link-btn:hover { background: var(--accent); }
   #copy-link-btn.copied { background: #15803d; }
 
-  /* ── FOLDER MODAL ── */
-  #folder-modal-overlay {
+  /* ── MODALS (folders + shortcuts) ── */
+  .modal-overlay {
     display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45);
     align-items: center; justify-content: center; z-index: 500; padding: 20px;
   }
-  #folder-modal-overlay.on { display: flex; }
-  #folder-modal {
+  .modal-overlay.on { display: flex; }
+  #folder-modal, #keys-modal {
     background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow-md);
     padding: 28px 26px; width: 100%; max-width: 380px; text-align: left;
   }
+  #keys-modal { max-width: 540px; max-height: 86vh; overflow-y: auto; }
   .folder-modal-title { font-family: 'Raleway', sans-serif; font-weight: 800; font-size: 1.05rem; margin-bottom: 8px; }
   .folder-modal-hint { font-size: 0.76rem; color: var(--mid); line-height: 1.55; margin-bottom: 16px; }
 
@@ -236,6 +282,23 @@
   #folder-modal-status { font-size: 0.74rem; color: var(--mid); min-height: 16px; margin-top: 10px; line-height: 1.5; }
   #folder-modal-status.err { color: var(--red); }
 
+  /* ── SHORTCUT KEYS ── */
+  .keys-group h4 {
+    font-family: 'Raleway', sans-serif; font-weight: 700; font-size: 0.7rem; letter-spacing: 0.06em;
+    text-transform: uppercase; color: var(--accent); margin: 18px 0 4px;
+  }
+  .key-row { display: flex; justify-content: space-between; align-items: baseline; gap: 14px; padding: 7px 0; border-bottom: 1px solid var(--rule); font-size: 0.8rem; color: var(--mid); line-height: 1.45; }
+  .key-row:last-child { border-bottom: none; }
+  .key-row .combo { flex-shrink: 0; text-align: right; white-space: nowrap; }
+  kbd {
+    display: inline-block; font-family: 'Open Sans', sans-serif; font-size: 0.7rem; font-weight: 600; color: var(--ink);
+    background: var(--bg); border: 1px solid #d4d4d4; border-bottom-width: 2px; border-radius: 4px;
+    padding: 1px 6px; min-width: 20px; text-align: center;
+  }
+  .combo .plus { color: var(--light); font-size: 0.68rem; margin: 0 2px; }
+  .combo .or { color: var(--light); font-size: 0.68rem; margin: 0 6px; font-style: italic; }
+  .keys-note { font-size: 0.72rem; color: var(--light); line-height: 1.55; margin-top: 16px; }
+
   /* ── VERSION TAG ── */
   #tool-version {
     text-align: center; padding: 10px 0 22px; font-family: 'Raleway', sans-serif;
@@ -254,6 +317,7 @@
   .howto-card li { font-size: 0.86rem; line-height: 1.65; color: var(--mid); margin-bottom: 8px; }
   .howto-card b { color: var(--ink); font-weight: 700; }
   .howto-divider { border: none; border-top: 1px solid var(--rule); margin: 24px 0; }
+  .howto-card .keys-link { margin: 0; padding: 0; font-size: 0.86rem; color: var(--accent); text-decoration: underline; }
 
   /* ── NO SUPPORT ── */
   #no-support { display: none; background: var(--red-bg); border: 1px solid #fecaca; border-radius: 6px; padding: 14px 16px; font-size: 0.82rem; color: #991b1b; margin-bottom: 20px; text-align: left; line-height: 1.6; }
@@ -290,6 +354,27 @@
     <div id="timer">00:00</div>
     <div id="status-text">Tap to start recording</div>
 
+    <div id="rec-options">
+      <label class="switch-lbl" title="Play back a few seconds before the punch-in point, then start recording">
+        <input type="checkbox" id="preroll-toggle">
+        <span class="switch"></span>
+        Pre-roll
+      </label>
+      <span class="preroll-secs-wrap">
+        <input type="number" id="preroll-secs" min="0.5" max="30" step="0.5" value="2" aria-label="Pre-roll length in seconds">
+        <span>sec</span>
+      </span>
+      <div id="punch-at"></div>
+    </div>
+
+    <div class="file-links">
+      <button class="keys-link" id="open-file-btn" type="button" title="Open an MP3 (or WAV, M4A…) to edit">⤒ Open an MP3 to edit</button>
+      <span class="dot">·</span>
+      <button class="keys-link" id="keys-link" type="button">⌨ Keyboard shortcuts</button>
+      <div class="drop-hint" id="drop-hint">or drag and drop an audio file onto this card</div>
+    </div>
+    <input type="file" id="file-input" accept="audio/*,.mp3,.wav,.m4a,.aac,.ogg,.flac,.webm" hidden>
+
     <div id="meter-wrap"></div>
 
     <div id="post-rec">
@@ -299,7 +384,8 @@
         <div class="edit-toolbar">
           <button id="play-pause-btn" title="Play / Stop (Space)" disabled>▶</button>
           <div class="tb-group">
-            <button class="tb-btn" id="delete-btn" title="Delete the selection and close the gap (Delete)" disabled>Delete</button>
+            <button class="tb-btn" id="delete-btn" title="Delete the selection, leaving a gap (Delete)" disabled>Delete</button>
+            <button class="tb-btn" id="ripple-btn" title="Delete the selection and join the two sides with a crossfade (Alt/Opt + Shift + D or Alt/Opt + Delete)" disabled>Delete &amp; Join</button>
             <button class="tb-btn" id="split-btn" title="Split at the playhead (S)" disabled>Split</button>
             <button class="tb-btn icon" id="undo-btn" title="Undo (Ctrl/Cmd + Z)" disabled>↶</button>
             <button class="tb-btn icon" id="redo-btn" title="Redo (Ctrl/Cmd + Shift + Z)" disabled>↷</button>
@@ -309,10 +395,11 @@
             <button class="tb-btn icon" id="zoom-in-btn" title="Zoom in (+)" disabled>+</button>
             <button class="tb-btn" id="zoom-fit-btn" title="Fit the whole recording" disabled>Fit</button>
             <button class="tb-btn" id="expand-btn" title="Make the editor bigger for detailed editing">⤢ Expand</button>
+            <button class="tb-btn icon" id="keys-btn" title="Keyboard shortcuts (?)">⌨</button>
           </div>
         </div>
         <div id="edit-readout"></div>
-        <div class="playback-hint">Drag across the waveform to select · Delete cuts it · Drag an item's top bar to slide it · Drag an item's edge to reveal or hide audio</div>
+        <div class="playback-hint">Drag across the waveform to select · Delete removes it, leaving a gap · Delete &amp; Join closes the gap · Drag an item's top bar to slide it · Drag an item's edge to reveal or hide audio · <span id="slip-hint">Alt</span>-drag slides the audio inside an item</div>
       </div>
 
       <div class="post-fields">
@@ -324,7 +411,7 @@
         <button id="upload-btn" class="btn-primary">Upload to Drive</button>
       </div>
       <div class="action-row">
-        <button id="rerecord-btn" class="btn-secondary" style="flex:1;">Record Again</button>
+        <button id="fresh-btn" class="btn-secondary" style="flex:1;" title="Delete everything and start a brand new recording">Record Fresh</button>
       </div>
       <div id="encode-status"></div>
 
@@ -363,7 +450,7 @@
       <div id="drive-status"></div>
     </div>
 
-    <div id="folder-modal-overlay">
+    <div id="folder-modal-overlay" class="modal-overlay">
       <div id="folder-modal">
         <div class="folder-modal-title">Recording folders</div>
         <div class="folder-modal-hint">Pick where recordings are saved — including My Drive root, so you can go back to saving at the top level any time. Add any folder from your Drive by pasting its link — open the folder in Drive and copy the address from the browser bar.</div>
@@ -389,6 +476,16 @@
       </div>
     </div>
 
+    <div id="keys-overlay" class="modal-overlay">
+      <div id="keys-modal" role="dialog" aria-labelledby="keys-title">
+        <div class="folder-modal-title" id="keys-title">Keyboard shortcuts</div>
+        <div class="folder-modal-hint">Reaper-style keys for recording and editing. Press <kbd>?</kbd> any time to open this list.</div>
+        <div id="keys-list"></div>
+        <p class="keys-note">Shortcuts don't fire while you're typing in a text box. If your browser keeps one for itself (some browsers reserve <span class="mod-name">Ctrl</span> + R or <span class="mod-name">Ctrl</span> + [ ), use the alternative — Shift + Space always records.</p>
+        <button id="keys-close" class="btn-secondary" style="width:100%; margin-top:16px;">Done</button>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -399,26 +496,48 @@
 
     <h3>The basics</h3>
     <ol>
-      <li><b>Hit Record</b> — it starts capturing from your microphone.</li>
+      <li><b>Hit Record</b> — it starts capturing from your microphone. Already have a file? Click <b>Open an MP3 to edit</b>, or drag and drop it onto the recorder — it opens in the editor just like a recording, and you can punch in on it too. Once there's audio in the editor, a new file is <b>added after it</b> instead (see Adding more audio below).</li>
       <li><b>Hit it again to stop</b> — your recording appears as a waveform, ready to edit.</li>
       <li><b>Edit it</b> (see below), press <b>▶</b> or the <b>Space bar</b> to listen back.</li>
       <li><b>Download MP3</b> saves your edited version straight to your computer.</li>
-      <li>Not quite right? Hit <b>Record Again</b>.</li>
+      <li>Want to start over completely? <b>Record Fresh</b> deletes everything and starts a brand new recording.</li>
     </ol>
 
-    <h3>Editing — like Reaper</h3>
-    <p>Editing is <b>non-destructive</b>: your original take is always kept underneath, so nothing is ever lost until you save.</p>
+    <h3>Punch &amp; roll</h3>
+    <p>Once you have a recording, the Record button <b>punches in</b> — just like punch &amp; roll in Reaper.</p>
+    <ul>
+      <li><b>Place the playhead</b> where you want to pick up from (click on the waveform), then hit <b>Record</b> (or <b>Ctrl/Cmd + R</b> or <b>Shift + Space</b>).</li>
+      <li>Everything <b>after</b> the playhead is replaced by your new take, joined with a short crossfade. Everything before it stays exactly as it was.</li>
+      <li><b>Pre-roll</b> — switch it on and set how many seconds you'd like. It plays back that much of what's already there before the punch point, so you can match your pace and tone, then starts recording right at the punch point.</li>
+      <li>Wear <b>headphones</b> for pre-roll, so the playback doesn't bleed into your mic.</li>
+      <li>Stop during the pre-roll and nothing changes. Changed your mind after a punch? <b>Undo</b> brings the old take back.</li>
+      <li>If a join sits a fraction early or late, <b>Alt/Opt + drag</b> the new item to nudge its audio into place.</li>
+    </ul>
+
+    <h3>Adding more audio</h3>
+    <ul>
+      <li>With audio already in the editor, <b>Add an MP3 after this audio</b> puts the file on the timeline as a new item, straight after what's there.</li>
+      <li><b>Drag a file onto the waveform</b> and it appears just after the current audio — keep dragging to slide it wherever you want, even over the existing audio, then let go. Where it overlaps, the two crossfade.</li>
+      <li>Want a blank slate instead? Hit <b>Record Fresh</b> first, then open your file.</li>
+    </ul>
+
+    <h3>Editing</h3>
+    <p>Editing is <b>non-destructive</b>: your original takes are always kept underneath, so nothing is ever lost until you save.</p>
     <ul>
       <li><b>Select</b> — click and drag across the waveform. Drag either edge of the grey selection to fine-tune it. Click anywhere to clear it and move the playhead.</li>
-      <li><b>Delete</b> — press <b>Delete</b> (or the Delete button) to cut the selection out. The gap closes up, and the two pieces either side become separate <b>items</b> with a short crossfade (the little X) so the join is smooth. The playhead jumps to a second before the join so you can hit Play and hear it.</li>
+      <li><b>Delete</b> — press <b>Delete</b> (or the Delete button) to remove the selection. Everything else stays exactly where it is, so you're left with a gap of silence and separate <b>items</b> either side.</li>
+      <li><b>Delete &amp; Join</b> — press <b>Alt/Opt + Shift + D</b> or <b>Alt/Opt + Delete</b> (or the Delete &amp; Join button). The selection is removed, the gap closes up, and the two items either side are joined with a short crossfade (the little X) so the join is smooth. The playhead jumps to a second before the join so you can hit Play and hear it.</li>
+      <li><b>Delete space between items</b> — <b>Alt/Opt + Shift + Space</b> closes every gap so the items sit back to back.</li>
       <li><b>Adjust the crossfade</b> — drag an item by its <b>orange top bar</b> to slide it. Overlap it more for a longer crossfade, pull it away for a gap.</li>
       <li><b>Reveal or hide audio</b> — drag the <b>left or right edge</b> of any item. Drag outwards and the original audio comes back.</li>
+      <li><b>Slide audio inside an item</b> — hold <b>Alt/Opt</b> and drag. The item stays put; the recording moves within its boundaries.</li>
       <li><b>Split</b> — press <b>S</b> to split the item under the playhead into two.</li>
       <li><b>Undo / Redo</b> — <b>Ctrl/Cmd + Z</b> and <b>Ctrl/Cmd + Shift + Z</b>.</li>
       <li><b>Zoom</b> — use <b>+ / −</b>, <b>Fit</b>, or Ctrl/Cmd + scroll over the waveform. Shift + scroll (or a sideways trackpad swipe) moves along it.</li>
       <li><b>⤢ Expand</b> — makes the editor much bigger for detailed work (and a plain scroll wheel zooms). It remembers your choice next time.</li>
     </ul>
-    <p>Like Reaper, stopping playback returns the playhead to where you pressed Play.</p>
+    <p>Like Reaper, stopping playback with <b>Space</b> returns the playhead to where you pressed Play — press <b>Enter</b> instead to pause right where you are. <b>[</b> and <b>]</b> jump to the start or end of everything, and <b>Ctrl/Cmd + [</b> or <b>]</b> hops to the nearest item edge.</p>
+    <p>See every key: <button class="keys-link" id="keys-link-howto" type="button">⌨ Keyboard shortcuts</button></p>
 
     <hr class="howto-divider">
 
@@ -454,20 +573,23 @@ if (!hasSupport) {
   document.getElementById('rec-btn').disabled = true;
 }
 
+const IS_MAC  = /Mac|iPhone|iPad|iPod/i.test(navigator.platform || navigator.userAgent || '');
+const MOD_KEY = IS_MAC ? 'Cmd' : 'Ctrl';
+const ALT_KEY = IS_MAC ? 'Opt' : 'Alt';
+
 // ── STATE ──────────────────────────────────────────────────
 let stream = null;
 let mediaRecorder = null;
 let chunks = [];
 let isRecording = false;
-let startTime = 0;
+let recStarting = false;
 let timerId = null;
-let recordedBlob = null;
+let recordedBlob = null;     // the first (fresh) take, kept as a fallback for export
 let audioCtx = null;
 let analyser = null;
 let meterRAF = null;
-
-// waveform / editor state lives in the EDITOR section below
-let decodedBuffer = null;   // kept for compatibility; editor uses srcMono
+let rec = null;              // details of the take in progress (fresh or punch-in)
+let recRAF = null;
 
 // ── ELEMENTS ───────────────────────────────────────────────
 const recBtn        = document.getElementById('rec-btn');
@@ -475,10 +597,14 @@ const recIcon       = document.getElementById('rec-icon');
 const pulseRing     = document.getElementById('pulse-ring');
 const timerEl       = document.getElementById('timer');
 const statusEl      = document.getElementById('status-text');
+const recOptions    = document.getElementById('rec-options');
+const prerollToggle = document.getElementById('preroll-toggle');
+const prerollSecs   = document.getElementById('preroll-secs');
+const punchAtEl     = document.getElementById('punch-at');
 const postRec       = document.getElementById('post-rec');
 const filenameInput = document.getElementById('filename-input');
 const downloadBtn   = document.getElementById('download-btn');
-const rerecordBtn   = document.getElementById('rerecord-btn');
+const freshBtn      = document.getElementById('fresh-btn');
 const encodeStatus  = document.getElementById('encode-status');
 const meterWrap     = document.getElementById('meter-wrap');
 const waveformCanvas = document.getElementById('waveform-canvas');
@@ -486,6 +612,7 @@ const waveformCtx    = waveformCanvas.getContext('2d');
 const editReadout    = document.getElementById('edit-readout');
 const viewScroll     = document.getElementById('view-scroll');
 const deleteBtn      = document.getElementById('delete-btn');
+const rippleBtn      = document.getElementById('ripple-btn');
 const splitBtn       = document.getElementById('split-btn');
 const undoBtn        = document.getElementById('undo-btn');
 const redoBtn        = document.getElementById('redo-btn');
@@ -494,6 +621,8 @@ const zoomOutBtn     = document.getElementById('zoom-out-btn');
 const zoomFitBtn     = document.getElementById('zoom-fit-btn');
 const expandBtn      = document.getElementById('expand-btn');
 const playPauseBtn   = document.getElementById('play-pause-btn');
+const keysOverlay    = document.getElementById('keys-overlay');
+const keysList       = document.getElementById('keys-list');
 const uploadBtn        = document.getElementById('upload-btn');
 const shareBox          = document.getElementById('share-box');
 const shareLinkInput    = document.getElementById('share-link');
@@ -515,6 +644,9 @@ const folderLabelInput   = document.getElementById('folder-label');
 const addFolderBtn       = document.getElementById('add-folder-btn');
 const folderModalStatus  = document.getElementById('folder-modal-status');
 
+document.getElementById('slip-hint').textContent = ALT_KEY;
+document.querySelectorAll('.mod-name').forEach(el => { el.textContent = MOD_KEY; });
+
 // build meter bars
 const METER_BARS = 28;
 for (let i = 0; i < METER_BARS; i++) {
@@ -528,22 +660,88 @@ const meterBars = [...meterWrap.querySelectorAll('.meter-bar')];
 const MIC_ICON  = '<circle cx="12" cy="12" r="9" fill="currentColor"/>';
 const STOP_ICON = '<rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor"/>';
 
-// ── RECORD TOGGLE ──────────────────────────────────────────
-recBtn.addEventListener('click', async () => {
-  if (!isRecording) {
-    await startRecording();
-  } else {
-    stopRecording();
-  }
+// ── PRE-ROLL SETTINGS (remembered) ─────────────────────────
+const PREROLL_KEY = 'audiobookguy.audioRecorder.preroll.v1';
+function loadPreroll() {
+  try {
+    const p = JSON.parse(localStorage.getItem(PREROLL_KEY) || 'null');
+    if (p && typeof p.secs === 'number') return { on: !!p.on, secs: p.secs };
+  } catch (e) { /* storage blocked — use defaults */ }
+  return { on: true, secs: 2 };
+}
+function savePreroll() {
+  try { localStorage.setItem(PREROLL_KEY, JSON.stringify(preroll)); } catch (e) { /* fine */ }
+}
+const preroll = loadPreroll();
+prerollToggle.checked = preroll.on;
+prerollSecs.value = String(preroll.secs);
+prerollSecs.disabled = !preroll.on;
+prerollToggle.addEventListener('change', () => {
+  preroll.on = prerollToggle.checked;
+  prerollSecs.disabled = !preroll.on;
+  savePreroll();
+  updatePunchInfo();
+});
+prerollSecs.addEventListener('change', () => {
+  let v = parseFloat(prerollSecs.value);
+  if (!isFinite(v)) v = 2;
+  v = Math.round(clamp(v, 0.5, 30) * 10) / 10;
+  prerollSecs.value = String(v);
+  preroll.secs = v;
+  savePreroll();
+  updatePunchInfo();
 });
 
-async function startRecording() {
+// ═══════════════════════════════════════════════════════════
+// RECORDING — fresh takes and punch & roll
+// ═══════════════════════════════════════════════════════════
+// With nothing recorded, Record makes a fresh take. Once there's audio,
+// Record punches in at the playhead: everything after that point is
+// replaced by the new take. With pre-roll on, the existing audio plays from
+// a few seconds before the punch point while the mic is already rolling;
+// the pre-roll part of the take is trimmed off (but stays recoverable by
+// dragging the new item's left edge, like any other item).
+
+recBtn.addEventListener('click', toggleRecord);
+
+function toggleRecord() {
+  if (isRecording) stopRecording();
+  else beginRecording(hasAudio() ? 'punch' : 'fresh');
+}
+
+function punchPoint() {
+  return selection ? selection.a : playhead;
+}
+
+async function beginRecording(mode) {
+  if (isRecording || recStarting || !hasSupport) return;
+  recStarting = true;
+  stopPlayback(false);
+
   try {
-    stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    // Processing off: auto-gain / noise suppression would make punch-ins
+    // sound different from the take they're joining.
+    stream = await navigator.mediaDevices.getUserMedia({
+      audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false }
+    });
   } catch (e) {
-    statusEl.textContent = 'Microphone access denied — check browser permissions.';
-    return;
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    } catch (e2) {
+      statusEl.textContent = 'Microphone access denied — check browser permissions.';
+      recStarting = false;
+      return;
+    }
   }
+
+  const at = mode === 'punch' ? clamp(punchPoint(), 0, timelineEnd()) : 0;
+  const pre = (mode === 'punch' && preroll.on) ? Math.min(preroll.secs, at) : 0;
+  rec = {
+    mode, at, pre,
+    prerollFrom: at - pre,
+    recStartPerf: null, punchPerf: null, prerollStartPerf: null,
+    node: null, stopPerf: null, live: false
+  };
 
   chunks = [];
   let mimeType = '';
@@ -551,60 +749,325 @@ async function startRecording() {
     if (MediaRecorder.isTypeSupported(t)) { mimeType = t; break; }
   }
   mediaRecorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
-
+  const thisRec = rec;
   mediaRecorder.ondataavailable = e => { if (e.data && e.data.size > 0) chunks.push(e.data); };
-  mediaRecorder.onstop = handleStop;
+  mediaRecorder.onstop = () => handleStop(thisRec);
+  mediaRecorder.onstart = () => {
+    if (rec !== thisRec || !isRecording) return;
+    thisRec.recStartPerf = performance.now();
+    if (thisRec.pre > 0.01) startPreroll(thisRec);
+    else { thisRec.punchPerf = thisRec.recStartPerf; thisRec.live = true; }
+  };
   mediaRecorder.start();
 
   isRecording = true;
-  startTime = Date.now();
-  timerId = setInterval(updateTimer, 200);
-  updateTimer();
+  recStarting = false;
 
-  recBtn.classList.add('recording');
-  recBtn.title = 'Stop recording';
-  recIcon.innerHTML = STOP_ICON;
-  pulseRing.classList.add('on');
-  statusEl.textContent = 'Recording…';
-  postRec.classList.remove('on');
+  if (mode === 'fresh') {
+    postRec.classList.remove('on');
+    recOptions.classList.remove('on');
+    recordedBlob = null;
+    resetEditor();
+    shareBox.classList.remove('on');
+  } else {
+    selection = null;
+    playhead = at;
+    setEditorEnabled(false);
+  }
+  setActionsEnabled(false);
   encodeStatus.textContent = '';
   encodeStatus.className = '';
 
+  recBtn.classList.add('recording');
+  recBtn.title = 'Stop recording (Space)';
+  recIcon.innerHTML = STOP_ICON;
+  pulseRing.classList.add('on');
+  statusEl.textContent = pre > 0.01 ? 'Pre-roll…' : (mode === 'punch' ? `Punched in at ${fmtTenths(at)} — recording…` : 'Recording…');
+  timerEl.textContent = '00:00';
+  timerId = setInterval(updateTimer, 100);
+
   setupMeter(stream);
+  if (mode === 'punch') recRAF = requestAnimationFrame(recTick);
+}
+
+function startPreroll(r) {
+  const buf = getPlayBuffer();
+  const node = playCtx.createBufferSource();
+  node.buffer = buf;
+  node.connect(playCtx.destination);
+  const from = clamp(r.prerollFrom, 0, Math.max(0, buf.duration - 0.001));
+  node.start(0, from, r.pre);
+  r.node = node;
+  r.prerollStartPerf = performance.now();
+  r.punchPerf = r.prerollStartPerf + r.pre * 1000;
+  node.onended = () => { if (r.node === node) r.node = null; };
 }
 
 function stopRecording() {
+  if (!isRecording) return;
+  if (rec) {
+    rec.stopPerf = performance.now();
+    if (rec.node) { try { rec.node.stop(); } catch (e) { /* already ended */ } rec.node = null; }
+  }
   if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
   if (stream) stream.getTracks().forEach(t => t.stop());
   clearInterval(timerId);
+  if (recRAF) cancelAnimationFrame(recRAF);
+  recRAF = null;
   isRecording = false;
 
   recBtn.classList.remove('recording');
-  recBtn.title = 'Start recording';
   recIcon.innerHTML = MIC_ICON;
   pulseRing.classList.remove('on');
+  updateRecTitle();
 
   stopMeter();
 }
 
-async function handleStop() {
+async function handleStop(r) {
   const type = chunks[0] && chunks[0].type ? chunks[0].type : 'audio/webm';
-  recordedBlob = new Blob(chunks, { type });
+  const blob = new Blob(chunks, { type });
+  if (rec === r) rec = null;
 
-  statusEl.textContent = 'Recording complete';
-  filenameInput.value = defaultFilename();
+  if (!r || r.mode === 'fresh') {
+    recordedBlob = blob;
+    statusEl.textContent = 'Recording complete';
+    filenameInput.value = defaultFilename();
+    postRec.classList.add('on');
+    setActionsEnabled(true);
+    await buildEditor(blob);
+    return;
+  }
+
+  // ── punch-in ──
+  setActionsEnabled(true);
+  const reached = r.punchPerf && r.stopPerf && (r.stopPerf - r.punchPerf) > 60;
+  if (!reached) {
+    statusEl.textContent = 'Punch-in cancelled — nothing was changed';
+    playhead = r.at;
+    setEditorEnabled(true);
+    clampView();
+    refresh();
+    return;
+  }
+  statusEl.textContent = 'Adding your punch-in…';
+  try {
+    const buf = await decodeAtRate(blob, srcRate);
+    const id = addSource(audioBufferToMono(buf), srcRate);
+    const S = sources[id];
+    const trim = clamp((r.punchPerf - r.recStartPerf) / 1000, 0, Math.max(0, S.dur - MIN_ITEM));
+    applyPunch(r.at, id, trim);
+    statusEl.textContent = `Punched in at ${fmtTenths(r.at)}`;
+  } catch (err) {
+    console.error(err);
+    statusEl.textContent = 'Couldn\'t read that take — nothing was changed';
+    playhead = r.at;
+  }
+  setEditorEnabled(true);
+  clampView();
+  refresh();
+}
+
+function setActionsEnabled(on) {
+  [downloadBtn, uploadBtn, freshBtn].forEach(b => { b.disabled = !on; });
+}
+
+function updateRecTitle() {
+  if (isRecording) return;
+  recBtn.title = hasAudio()
+    ? `Punch in at the playhead (${MOD_KEY} + R or Shift + Space)`
+    : `Start recording (${MOD_KEY} + R or Shift + Space)`;
+}
+
+// Live view while a punch-in is rolling
+function recTick() {
+  if (!isRecording || !rec) return;
+  const now = performance.now();
+  if (rec.punchPerf && now >= rec.punchPerf) {
+    rec.live = true;
+    playhead = rec.at + (now - rec.punchPerf) / 1000;
+  } else if (rec.prerollStartPerf) {
+    playhead = rec.prerollFrom + (now - rec.prerollStartPerf) / 1000;
+  } else {
+    playhead = rec.at;
+  }
+  if (timeToX(playhead) > cssW * 0.92) {
+    viewStart = playhead - viewDur * 0.5;
+    clampView();
+  }
+  syncScroll();
+  draw();
+  updateReadout();
+  recRAF = requestAnimationFrame(recTick);
+}
+
+// ── RECORD FRESH ───────────────────────────────────────────
+freshBtn.addEventListener('click', () => {
+  if (isRecording) return;
+  if (hasAudio() && !confirm('Delete everything recorded so far and start a fresh recording?')) return;
+  beginRecording('fresh');
+});
+
+// ── OPEN / DROP AN AUDIO FILE ──────────────────────────────
+// Any file the browser can decode (MP3, WAV, M4A…) can come in. With an
+// empty editor it opens like a fresh recording. With audio already there it
+// is added as a new item after the current audio — or, when dragged over the
+// waveform, wherever you let go (like dragging a file into Reaper). Where it
+// overlaps existing audio, the two crossfade like any other items.
+const fileInput   = document.getElementById('file-input');
+const recCard     = document.querySelector('.rec-card');
+const openFileBtn = document.getElementById('open-file-btn');
+const dropHint    = document.getElementById('drop-hint');
+const AUDIO_EXT   = /\.(mp3|wav|wave|m4a|aac|ogg|oga|opus|flac|webm|aif|aiff)$/i;
+
+let ghost = null;   // file being dragged over the waveform: { anchorPos, anchorX, pos, over }
+
+openFileBtn.addEventListener('click', () => {
+  if (isRecording) return;
+  fileInput.value = '';
+  fileInput.click();
+});
+fileInput.addEventListener('change', () => {
+  if (fileInput.files && fileInput.files[0]) openAudioFile(fileInput.files[0]);
+});
+
+function updateFileLinks() {
+  const on = hasAudio();
+  openFileBtn.textContent = on ? '⤒ Add an MP3 after this audio' : '⤒ Open an MP3 to edit';
+  openFileBtn.title = on ? 'Add an audio file as a new item after the current audio' : 'Open an MP3 (or WAV, M4A…) to edit';
+  dropHint.textContent = on
+    ? 'or drag an audio file onto the waveform and place it where you like'
+    : 'or drag and drop an audio file onto this card';
+}
+
+const isFileDrag = e => e.dataTransfer && [...(e.dataTransfer.types || [])].includes('Files');
+let dragDepth = 0;
+
+function canvasX(e) {
+  return e.clientX - waveformCanvas.getBoundingClientRect().left;
+}
+
+recCard.addEventListener('dragenter', (e) => {
+  if (!isFileDrag(e) || isRecording) return;
+  e.preventDefault();
+  dragDepth++;
+  recCard.classList.add(hasAudio() ? 'drag-append' : 'drag-over');
+});
+recCard.addEventListener('dragover', (e) => {
+  if (!isFileDrag(e) || isRecording) return;
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'copy';
+  if (!hasAudio()) return;
+  const overCanvas = e.target === waveformCanvas;
+  if (overCanvas) {
+    const x = canvasX(e);
+    if (!ghost) {
+      // it starts life just after the current audio, then follows the mouse
+      ghost = { anchorPos: timelineEnd(), anchorX: x, pos: timelineEnd(), over: true };
+      const keepStart = viewStart;
+      viewDur = Math.max(viewDur, Math.min(contentMax(), viewDur));
+      clampView();
+      viewStart = keepStart;
+      ensureVisible(ghost.pos);
+    }
+    ghost.pos = Math.max(0, ghost.anchorPos + (x - ghost.anchorX) * (viewDur / cssW));
+    ghost.over = true;
+  } else if (ghost) {
+    ghost.over = false;
+  }
+  syncScroll();
+  draw();
+});
+recCard.addEventListener('dragleave', () => {
+  dragDepth = Math.max(0, dragDepth - 1);
+  if (!dragDepth) endFileDrag();
+});
+recCard.addEventListener('drop', (e) => {
+  if (!isFileDrag(e)) return;
+  e.preventDefault();
+  const pos = (ghost && ghost.over) ? ghost.pos : null;
+  endFileDrag();
+  if (isRecording) return;
+  const file = [...e.dataTransfer.files].find(f => (f.type && f.type.startsWith('audio/')) || AUDIO_EXT.test(f.name));
+  if (!file) { statusEl.textContent = 'That isn\'t an audio file — try an MP3, WAV or M4A.'; return; }
+  openAudioFile(file, pos);
+});
+
+function endFileDrag() {
+  dragDepth = 0;
+  recCard.classList.remove('drag-over', 'drag-append');
+  if (ghost) {
+    ghost = null;
+    if (hasAudio()) { clampView(); refresh(); }
+  }
+}
+
+// a file dropped just outside the card shouldn't make the browser navigate away
+window.addEventListener('dragover', (e) => { if (isFileDrag(e)) e.preventDefault(); });
+window.addEventListener('drop', (e) => { if (isFileDrag(e)) e.preventDefault(); });
+
+async function openAudioFile(file, pos) {
+  if (isRecording) return;
+  stopPlayback(false);
+  encodeStatus.textContent = '';
+  encodeStatus.className = '';
+
+  if (hasAudio()) {
+    statusEl.textContent = `Adding "${file.name}"…`;
+    try {
+      const buf = await decodeAtRate(file, srcRate);
+      const id = addSource(audioBufferToMono(buf), srcRate);
+      const at = (pos == null) ? timelineEnd() : Math.max(0, pos);
+      pushHistory();
+      const it = newItem(id, 0, sources[id].dur, at);
+      items.push(it);
+      selection = null;
+      playhead = at;
+      markEdited();
+      clampView();
+      ensureVisible(at);
+      refresh();
+      statusEl.textContent = `Added "${file.name}" at ${fmtTenths(at)}`;
+    } catch (err) {
+      console.error(err);
+      statusEl.textContent = `Couldn't read "${file.name}" — try an MP3, WAV or M4A.`;
+    }
+    return;
+  }
+
+  statusEl.textContent = `Opening "${file.name}"…`;
+  shareBox.classList.remove('on');
+  recordedBlob = file;
+  filenameInput.value = file.name.replace(/\.[^.]+$/, '') || defaultFilename();
   postRec.classList.add('on');
-
-  await buildEditor();
+  setActionsEnabled(true);
+  await buildEditor(file);
+  if (hasAudio()) {
+    const total = Math.floor(timelineEnd());
+    timerEl.textContent = `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`;
+    statusEl.textContent = `Opened "${file.name}"`;
+  } else {
+    postRec.classList.remove('on');
+    recordedBlob = null;
+    statusEl.textContent = `Couldn't read "${file.name}" — try an MP3, WAV or M4A.`;
+  }
 }
 
 // ── TIMER ──────────────────────────────────────────────────
 function updateTimer() {
-  const elapsed = Date.now() - startTime;
-  const totalSec = Math.floor(elapsed / 1000);
-  const mm = String(Math.floor(totalSec / 60)).padStart(2, '0');
-  const ss = String(totalSec % 60).padStart(2, '0');
-  timerEl.textContent = `${mm}:${ss}`;
+  if (!rec) return;
+  const now = performance.now();
+  if (rec.punchPerf && now >= rec.punchPerf) {
+    if (rec.pre > 0.01 && statusEl.textContent === 'Pre-roll…') {
+      statusEl.textContent = `Punched in at ${fmtTenths(rec.at)} — recording…`;
+    }
+    const totalSec = Math.floor((now - rec.punchPerf) / 1000);
+    const mm = String(Math.floor(totalSec / 60)).padStart(2, '0');
+    const ss = String(totalSec % 60).padStart(2, '0');
+    timerEl.textContent = `${mm}:${ss}`;
+  } else if (rec.punchPerf) {
+    timerEl.textContent = '−' + ((rec.punchPerf - now) / 1000).toFixed(1);
+  }
 }
 
 // ── LEVEL METER ────────────────────────────────────────────
@@ -637,18 +1100,6 @@ function stopMeter() {
   if (audioCtx) { audioCtx.close(); audioCtx = null; }
 }
 
-// ── RE-RECORD ──────────────────────────────────────────────
-rerecordBtn.addEventListener('click', () => {
-  postRec.classList.remove('on');
-  recordedBlob = null;
-  resetEditor();
-  timerEl.textContent = '00:00';
-  statusEl.textContent = 'Tap to start recording';
-  encodeStatus.textContent = '';
-  encodeStatus.className = '';
-  shareBox.classList.remove('on');
-});
-
 // ── FILENAME HELPERS ───────────────────────────────────────
 function defaultFilename() {
   const d = new Date();
@@ -659,7 +1110,7 @@ function sanitizeFilename(name) {
   return name.replace(/[\\/:*?"<>|]/g, '').trim() || defaultFilename();
 }
 
-// ── MP3 ENCODING (lamejs) ──────────────────────────────────
+// ── DECODING + MP3 ENCODING (lamejs) ───────────────────────
 async function decodeForWaveform(blob) {
   const arrayBuffer = await blob.arrayBuffer();
   const AC = window.AudioContext || window.webkitAudioContext;
@@ -667,6 +1118,27 @@ async function decodeForWaveform(blob) {
   const buffer = await ctx.decodeAudioData(arrayBuffer);
   ctx.close();
   return buffer;
+}
+
+// Punch-in takes are decoded at the project's sample rate so every item
+// lines up sample-for-sample with the first take.
+async function decodeAtRate(blob, rate) {
+  const OAC = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+  if (OAC) {
+    try {
+      const ab = await blob.arrayBuffer();
+      const ctx = new OAC(1, 1, rate);
+      return await ctx.decodeAudioData(ab);
+    } catch (e) { /* fall through to a normal decode + resample */ }
+  }
+  const buf = await decodeForWaveform(blob);
+  if (buf.sampleRate === rate || !OAC) return buf;
+  const off = new OAC(1, Math.ceil(buf.duration * rate), rate);
+  const src = off.createBufferSource();
+  src.buffer = buf;
+  src.connect(off.destination);
+  src.start();
+  return await off.startRendering();
 }
 
 function audioBufferToMono(buffer) {
@@ -694,10 +1166,10 @@ function encodeSamplesToMp3(samples, sampleRate) {
 }
 
 // Renders the edited timeline (all items, with their crossfades) and encodes
-// it. The original recording is never touched. Falls back to a fresh decode
-// of the full recording if the waveform decode failed earlier.
+// it. The original takes are never touched. Falls back to a fresh decode of
+// the first recording if the waveform decode failed earlier.
 async function encodeEditedToMp3() {
-  if (!srcMono) {
+  if (!hasAudio()) {
     const buf = await decodeForWaveform(recordedBlob);
     return encodeSamplesToMp3(audioBufferToMono(buf), buf.sampleRate);
   }
@@ -716,16 +1188,16 @@ function floatTo16BitPCM(floatSamples) {
 // ═══════════════════════════════════════════════════════════
 // EDITOR — non-destructive items, ripple delete, crossfades
 // ═══════════════════════════════════════════════════════════
-// The decoded recording (srcMono) is never modified. The timeline is a list
-// of "items", each a window onto the original audio:
-//   { id, srcStart, srcEnd, pos }   (seconds)
-// srcStart/srcEnd = which part of the original it plays, pos = where it sits
-// on the timeline. Deleting a selection splits items and closes the gap;
-// the two new edges are extended slightly so they overlap, and wherever two
-// items overlap they're crossfaded (equal power). Dragging an item's edge
-// just changes srcStart/srcEnd, so the original audio is always recoverable.
+// Every take (the first recording or opened file, and each punch-in) is kept
+// untouched in `sources`. The timeline is a list of "items", each a window
+// onto one source:
+//   { id, src, srcStart, srcEnd, pos }   (seconds)
+// src = which source, srcStart/srcEnd = which part of it plays, pos = where
+// it sits on the timeline. Wherever two items overlap they're crossfaded
+// (equal power). Edge drags and Alt-drags only change srcStart/srcEnd, so the
+// original audio is always recoverable.
 
-const XFADE      = 0.010;  // crossfade created by a delete/split (seconds)
+const XFADE      = 0.010;  // crossfade created by a delete/split/punch (seconds)
 const EDGE_FADE  = 0.004;  // tiny anti-click fade on un-overlapped edges
 const MIN_ITEM   = 0.02;   // shortest an item can be trimmed to
 const HIT_PX     = 7;      // grab distance for edges
@@ -733,7 +1205,8 @@ const PEAK_BLOCK = 128;    // samples per peak bucket
 const RULER_H    = 18;
 const EXPANDED_KEY = 'audiobookguy.audioRecorder.editorExpanded.v1';
 
-let srcMono = null, srcRate = 44100, srcDur = 0, peakTable = null;
+let sources = [];                // [{ mono, rate, dur, peaks }]
+let srcRate = 44100;             // project sample rate (set by the first take)
 let items = [], nextItemId = 1;
 let selection = null;            // { a, b } timeline seconds
 let playhead = 0;
@@ -744,24 +1217,28 @@ let editVersion = 0, renderCache = null, playBufCache = null;
 let playCtx = null, playSrc = null, playT0 = 0, playFrom = 0, isPlaying = false, playRAF = null;
 let cssW = 1, cssH = 1;
 
+const hasAudio = () => sources.length > 0 && items.length > 0;
 const itemLen = it => it.srcEnd - it.srcStart;
 const itemEnd = it => it.pos + itemLen(it);
 const sortedItems = () => items.slice().sort((a, b) => a.pos - b.pos || a.id - b.id);
 const timelineEnd = () => items.reduce((m, it) => Math.max(m, itemEnd(it)), 0);
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
-const newItem = (srcStart, srcEnd, pos) => ({ id: nextItemId++, srcStart, srcEnd, pos });
+const newItem = (src, srcStart, srcEnd, pos) => ({ id: nextItemId++, src, srcStart, srcEnd, pos });
+
+function addSource(mono, rate) {
+  sources.push({ mono, rate, dur: mono.length / rate, peaks: buildPeaks(mono) });
+  return sources.length - 1;
+}
 
 // ── BUILD / RESET ──────────────────────────────────────────
-async function buildEditor() {
+async function buildEditor(blob) {
   resetEditor();
   editReadout.textContent = 'Loading waveform…';
   try {
-    const buf = await decodeForWaveform(recordedBlob);
-    srcMono = audioBufferToMono(buf);
+    const buf = await decodeForWaveform(blob);
     srcRate = buf.sampleRate;
-    srcDur = buf.duration;
-    buildPeaks();
-    items = [newItem(0, srcDur, 0)];
+    const id = addSource(audioBufferToMono(buf), srcRate);
+    items = [newItem(id, 0, sources[id].dur, 0)];
     markEdited();
     applyExpanded(loadExpanded());
     fitView();
@@ -769,33 +1246,50 @@ async function buildEditor() {
     updateReadout();
   } catch (err) {
     console.error(err);
-    srcMono = null;
+    sources = []; items = [];
     editReadout.textContent = 'Waveform unavailable — full recording will be used.';
   }
+  updateRecTitle();
+  updatePunchInfo();
+  updateFileLinks();
 }
 
 function resetEditor() {
   stopPlayback(false);
-  srcMono = null; peakTable = null; items = []; selection = null; playhead = 0;
+  sources = []; items = []; selection = null; playhead = 0;
   undoStack = []; redoStack = []; drag = null;
   renderCache = null; playBufCache = null;
   waveformCtx.clearRect(0, 0, waveformCanvas.width, waveformCanvas.height);
   editReadout.textContent = '';
   viewScroll.style.visibility = 'hidden';
   setEditorEnabled(false);
+  updateRecTitle();
+  updatePunchInfo();
+  updateFileLinks();
 }
 
 function setEditorEnabled(on) {
-  [playPauseBtn, deleteBtn, splitBtn, undoBtn, redoBtn, zoomInBtn, zoomOutBtn, zoomFitBtn].forEach(b => b.disabled = !on);
+  [playPauseBtn, deleteBtn, rippleBtn, splitBtn, undoBtn, redoBtn, zoomInBtn, zoomOutBtn, zoomFitBtn].forEach(b => b.disabled = !on);
   if (on) updateButtons();
 }
 
 function updateButtons() {
-  if (!srcMono) return;
+  if (!hasAudio() || isRecording) return;
   deleteBtn.disabled = !selection;
+  rippleBtn.disabled = !selection;
   undoBtn.disabled = !undoStack.length;
   redoBtn.disabled = !redoStack.length;
   splitBtn.disabled = !items.some(it => playhead > it.pos + MIN_ITEM && playhead < itemEnd(it) - MIN_ITEM);
+}
+
+function updatePunchInfo() {
+  const on = hasAudio();
+  recOptions.classList.toggle('on', on);
+  if (!on) return;
+  if (isRecording) return;
+  const at = punchPoint();
+  const pre = preroll.on ? Math.min(preroll.secs, at) : 0;
+  punchAtEl.textContent = `Record punches in at ${fmtTenths(at)}` + (pre > 0.01 ? ` · plays from ${fmtTenths(at - pre)}` : '');
 }
 
 function markEdited() {
@@ -804,35 +1298,37 @@ function markEdited() {
 }
 
 // ── PEAKS ──────────────────────────────────────────────────
-function buildPeaks() {
-  const n = Math.ceil(srcMono.length / PEAK_BLOCK);
-  peakTable = new Float32Array(n * 2);
+function buildPeaks(mono) {
+  const n = Math.ceil(mono.length / PEAK_BLOCK);
+  const peaks = new Float32Array(n * 2);
   for (let b = 0; b < n; b++) {
     let mn = 0, mx = 0;
-    const end = Math.min(srcMono.length, (b + 1) * PEAK_BLOCK);
+    const end = Math.min(mono.length, (b + 1) * PEAK_BLOCK);
     for (let j = b * PEAK_BLOCK; j < end; j++) {
-      const v = srcMono[j];
+      const v = mono[j];
       if (v < mn) mn = v; else if (v > mx) mx = v;
     }
-    peakTable[b * 2] = mn; peakTable[b * 2 + 1] = mx;
+    peaks[b * 2] = mn; peaks[b * 2 + 1] = mx;
   }
+  return peaks;
 }
 
-// min/max of the original audio between two sample positions
-function srcMinMax(s0, s1) {
+// min/max of a source between two sample positions
+function srcMinMax(S, s0, s1) {
+  const mono = S.mono, peaks = S.peaks;
   s0 = Math.max(0, Math.floor(s0));
-  s1 = Math.min(srcMono.length, Math.max(s0 + 1, Math.ceil(s1)));
+  s1 = Math.min(mono.length, Math.max(s0 + 1, Math.ceil(s1)));
   if (s1 <= s0) return null;
   let mn = 0, mx = 0;
-  const scanRaw = (a, b) => { for (let j = a; j < b; j++) { const v = srcMono[j]; if (v < mn) mn = v; if (v > mx) mx = v; } };
+  const scanRaw = (a, b) => { for (let j = a; j < b; j++) { const v = mono[j]; if (v < mn) mn = v; if (v > mx) mx = v; } };
   if (s1 - s0 <= PEAK_BLOCK * 3) {
     scanRaw(s0, s1);
   } else {
     const b0 = Math.ceil(s0 / PEAK_BLOCK), b1 = Math.floor(s1 / PEAK_BLOCK);
     scanRaw(s0, b0 * PEAK_BLOCK);
     for (let b = b0; b < b1; b++) {
-      if (peakTable[b * 2] < mn) mn = peakTable[b * 2];
-      if (peakTable[b * 2 + 1] > mx) mx = peakTable[b * 2 + 1];
+      if (peaks[b * 2] < mn) mn = peaks[b * 2];
+      if (peaks[b * 2 + 1] > mx) mx = peaks[b * 2 + 1];
     }
     scanRaw(b1 * PEAK_BLOCK, s1);
   }
@@ -840,49 +1336,58 @@ function srcMinMax(s0, s1) {
 }
 
 // ── FADES + RENDER ─────────────────────────────────────────
-function computeFades(sorted) {
+function computeFades(sorted, edgeFade) {
   const fades = new Map();
   sorted.forEach((it, i) => {
     const len = itemLen(it);
     const prev = sorted[i - 1], next = sorted[i + 1];
-    let fi = (prev && itemEnd(prev) > it.pos) ? Math.min(itemEnd(prev) - it.pos, len) : EDGE_FADE;
-    let fo = (next && itemEnd(it) > next.pos) ? Math.min(itemEnd(it) - next.pos, len) : EDGE_FADE;
+    let fi = (prev && itemEnd(prev) > it.pos) ? Math.min(itemEnd(prev) - it.pos, len) : edgeFade;
+    let fo = (next && itemEnd(it) > next.pos) ? Math.min(itemEnd(it) - next.pos, len) : edgeFade;
     if (fi + fo > len) { const k = len / (fi + fo); fi *= k; fo *= k; }
     fades.set(it.id, { fi, fo });
   });
   return fades;
 }
 
-function renderTimeline() {
-  if (renderCache && renderCache.version === editVersion) return renderCache.samples;
-  const sorted = sortedItems();
-  const fades = computeFades(sorted);
-  const total = Math.max(1, Math.ceil(timelineEnd() * srcRate));
+// Mixes a set of items into one buffer covering [start, end) seconds.
+function renderMix(list, start, end, edgeFade) {
+  const sorted = list.slice().sort((a, b) => a.pos - b.pos || a.id - b.id);
+  const fades = computeFades(sorted, edgeFade);
+  const total = Math.max(1, Math.ceil((end - start) * srcRate));
   const out = new Float32Array(total);
   const HALF_PI = Math.PI / 2;
   for (const it of sorted) {
+    const mono = sources[it.src].mono;
     const s0 = Math.round(it.srcStart * srcRate);
-    const o0 = Math.round(it.pos * srcRate);
+    const o0 = Math.round((it.pos - start) * srcRate);
     const n  = Math.round(itemLen(it) * srcRate);
     const f  = fades.get(it.id);
-    const fi = Math.max(1, Math.round(f.fi * srcRate));
-    const fo = Math.max(1, Math.round(f.fo * srcRate));
+    const fi = Math.round(f.fi * srcRate);
+    const fo = Math.round(f.fo * srcRate);
     for (let i = 0; i < n; i++) {
       const si = s0 + i, oi = o0 + i;
-      if (si >= srcMono.length || oi >= total) break;
+      if (si >= mono.length || oi >= total) break;
       if (si < 0 || oi < 0) continue;
       let g = 1;
-      if (i < fi) g *= Math.sin((i / fi) * HALF_PI);
+      if (fi > 0 && i < fi) g *= Math.sin((i / fi) * HALF_PI);
       const r = n - 1 - i;
-      if (r < fo) g *= Math.sin((r / fo) * HALF_PI);
-      out[oi] += srcMono[si] * g;
+      if (fo > 0 && r < fo) g *= Math.sin((r / fo) * HALF_PI);
+      out[oi] += mono[si] * g;
     }
   }
+  return out;
+}
+
+function renderTimeline() {
+  if (renderCache && renderCache.version === editVersion) return renderCache.samples;
+  const out = renderMix(items, 0, timelineEnd(), EDGE_FADE);
   renderCache = { version: editVersion, samples: out };
   return out;
 }
 
 // ── HISTORY ────────────────────────────────────────────────
+// Sources are only ever added, so a snapshot of the items is all an undo
+// needs — undoing a punch-in brings the old take straight back.
 function snapshot() {
   return JSON.stringify({ items, nextItemId, selection });
 }
@@ -915,14 +1420,37 @@ function redo() {
 function crossfadeJunction(left, right) {
   if (!left || !right) return;
   const half = XFADE / 2;
-  const hl = Math.max(0, Math.min(half, srcDur - left.srcEnd));
+  const hl = Math.max(0, Math.min(half, sources[left.src].dur - left.srcEnd));
   const hr = Math.max(0, Math.min(half, right.srcStart, right.pos));
   left.srcEnd += hl;
   right.srcStart -= hr;
   right.pos -= hr;
 }
 
-function deleteSelection() {
+// Delete — removes the selection and leaves everything else where it is,
+// so a gap of silence is left with separate items either side.
+function deleteSelectionGap() {
+  if (!selection || selection.b - selection.a < 0.001) return;
+  pushHistory();
+  const { a, b } = selection;
+  const next = [];
+  for (const it of items) {
+    const p = it.pos, e = itemEnd(it);
+    if (e <= a || p >= b) { next.push(it); continue; }
+    if (p < a) next.push(newItem(it.src, it.srcStart, it.srcStart + (a - p), p));
+    if (e > b) next.push(newItem(it.src, it.srcStart + (b - p), it.srcEnd, b));
+  }
+  items = next.filter(it => itemLen(it) >= 0.001);
+  selection = null;
+  playhead = a;
+  markEdited();
+  clampView();
+  refresh();
+}
+
+// Delete & Join (Alt+Shift+D or Alt+Delete) — ripple-deletes the selection:
+// the gap closes and the two pieces either side are crossfaded at the join.
+function deleteSelectionJoin() {
   if (!selection || selection.b - selection.a < 0.001) return;
   pushHistory();
   const { a, b } = selection;
@@ -934,17 +1462,19 @@ function deleteSelection() {
     if (e <= a) { next.push(it); continue; }
     if (p >= b) { it.pos -= L; next.push(it); continue; }
     if (p < a) {
-      const lp = newItem(it.srcStart, it.srcStart + (a - p), p);
+      const lp = newItem(it.src, it.srcStart, it.srcStart + (a - p), p);
       next.push(lp);
       if (!leftPiece || itemEnd(lp) > itemEnd(leftPiece)) leftPiece = lp;
     }
     if (e > b) {
-      const rp = newItem(it.srcStart + (b - p), it.srcEnd, a);
+      const rp = newItem(it.src, it.srcStart + (b - p), it.srcEnd, a);
       next.push(rp);
       if (!rightPiece) rightPiece = rp;
     }
   }
   items = next.filter(it => itemLen(it) >= 0.001);
+  if (leftPiece && !items.includes(leftPiece)) leftPiece = null;
+  if (rightPiece && !items.includes(rightPiece)) rightPiece = null;
   crossfadeJunction(leftPiece, rightPiece);
   selection = null;
   playhead = Math.max(0, a - 1);   // pre-roll, so Play lets you hear the join
@@ -959,7 +1489,7 @@ function splitAtPlayhead() {
   if (!targets.length) return;
   pushHistory();
   for (const it of targets) {
-    const right = newItem(it.srcStart + (t - it.pos), it.srcEnd, t);
+    const right = newItem(it.src, it.srcStart + (t - it.pos), it.srcEnd, t);
     it.srcEnd = it.srcStart + (t - it.pos);
     items.push(right);
     crossfadeJunction(it, right);
@@ -968,8 +1498,87 @@ function splitAtPlayhead() {
   refresh();
 }
 
+// Punch & roll: everything from `at` onwards is replaced by the new take.
+function applyPunch(at, srcId, trim) {
+  pushHistory();
+  const next = [];
+  let left = null;
+  for (const it of items) {
+    if (it.pos >= at - 1e-6) continue;                     // starts after the punch — replaced
+    if (itemEnd(it) > at) it.srcEnd = it.srcStart + (at - it.pos);
+    if (itemLen(it) < 0.001) continue;
+    next.push(it);
+    if (Math.abs(itemEnd(it) - at) < 1e-4 && (!left || it.pos > left.pos)) left = it;
+  }
+  const take = newItem(srcId, trim, sources[srcId].dur, at);
+  next.push(take);
+  items = next;
+  crossfadeJunction(left, take);
+  selection = null;
+  playhead = itemEnd(take);
+  markEdited();
+}
+
+// Alt+Shift+Space — slide items left so there's no silence between them.
+function removeGaps() {
+  const before = snapshot();
+  const sorted = sortedItems();
+  let shift = 0, cursor = null;
+  for (const it of sorted) {
+    it.pos -= shift;
+    if (cursor !== null && it.pos > cursor + 1e-6) {
+      const gap = it.pos - cursor;
+      shift += gap;
+      it.pos -= gap;
+    }
+    cursor = cursor === null ? itemEnd(it) : Math.max(cursor, itemEnd(it));
+  }
+  if (snapshot() === before) return;
+  pushHistory(before);
+  playhead = clamp(playhead, 0, timelineEnd());
+  markEdited();
+  clampView();
+  refresh();
+}
+
+// ── NAVIGATION ─────────────────────────────────────────────
+function seekTo(t) {
+  playhead = clamp(t, 0, timelineEnd());
+  if (isPlaying) startPlayback(playhead);
+  ensureVisible(playhead);
+  refresh();
+}
+
+function ensureVisible(t) {
+  const x = timeToX(t);
+  if (x < 0 || x > cssW) {
+    viewStart = t - viewDur * 0.1;
+    clampView();
+  }
+}
+
+// Ctrl/Cmd + [ or ] — hop to the nearest item edge before/after the playhead
+function jumpToEdge(dir) {
+  const edges = [0];
+  items.forEach(it => { edges.push(it.pos, itemEnd(it)); });
+  const eps = 1e-3;
+  let target = null;
+  if (dir < 0) {
+    edges.forEach(e => { if (e < playhead - eps && (target === null || e > target)) target = e; });
+    if (target === null) target = 0;
+  } else {
+    edges.forEach(e => { if (e > playhead + eps && (target === null || e < target)) target = e; });
+    if (target === null) return;
+  }
+  seekTo(target);
+}
+
 // ── VIEW (zoom / scroll) ───────────────────────────────────
-function contentMax() { return Math.max(timelineEnd(), 0.5) * 1.03; }
+function contentMax() {
+  const live = (isRecording && rec && rec.live) ? playhead : 0;
+  const drop = ghost ? ghost.pos + Math.max(2, timelineEnd() * 0.25) : 0;
+  return Math.max(timelineEnd(), live, drop, 0.5) * 1.03;
+}
 
 function fitView() {
   fitCanvas();
@@ -985,7 +1594,7 @@ function clampView() {
 }
 
 function zoomAt(factor, anchorX) {
-  if (!srcMono) return;
+  if (!hasAudio()) return;
   const t = xToTime(anchorX);
   viewDur = viewDur * factor;
   clampView();
@@ -996,7 +1605,7 @@ function zoomAt(factor, anchorX) {
 
 function syncScroll() {
   const cm = contentMax();
-  if (!srcMono || viewDur >= cm - 1e-6) { viewScroll.style.visibility = 'hidden'; return; }
+  if (!hasAudio() || viewDur >= cm - 1e-6) { viewScroll.style.visibility = 'hidden'; return; }
   viewScroll.style.visibility = 'visible';
   viewScroll.value = String(Math.round((viewStart / (cm - viewDur)) * 1000));
 }
@@ -1020,7 +1629,7 @@ expandBtn.addEventListener('click', () => {
   const on = !document.body.classList.contains('editor-expanded');
   applyExpanded(on);
   try { localStorage.setItem(EXPANDED_KEY, on ? '1' : '0'); } catch (e) { /* storage blocked — fine */ }
-  if (srcMono) {
+  if (hasAudio()) {
     const keepStart = viewStart, keepDur = viewDur;
     fitCanvas();
     viewStart = keepStart; viewDur = keepDur;
@@ -1049,7 +1658,7 @@ function laneGeom() {
 
 // ── DRAWING ────────────────────────────────────────────────
 function draw() {
-  if (!srcMono) return;
+  if (!hasAudio()) return;
   const g = waveformCtx, W = cssW, H = cssH;
   const L = laneGeom();
   g.clearRect(0, 0, W, H);
@@ -1070,13 +1679,14 @@ function draw() {
   g.globalAlpha = sorted.length > 1 ? 0.85 : 1;
   g.fillStyle = '#e05a00';
   for (const it of visible) {
+    const S = sources[it.src];
     const x0 = Math.max(0, Math.floor(timeToX(it.pos)));
     const x1 = Math.min(W, Math.ceil(timeToX(itemEnd(it))));
     for (let px = x0; px < x1; px++) {
       const t0 = Math.max(it.pos, xToTime(px));
       const t1 = Math.min(itemEnd(it), t0 + secPerPx);
       if (t1 <= t0) continue;
-      const mm = srcMinMax((it.srcStart + t0 - it.pos) * srcRate, (it.srcStart + t1 - it.pos) * srcRate);
+      const mm = srcMinMax(S, (it.srcStart + t0 - it.pos) * srcRate, (it.srcStart + t1 - it.pos) * srcRate);
       if (!mm) continue;
       const y1 = mid - mm[1] * amp, y2 = mid - mm[0] * amp;
       g.fillRect(px, y1, 1, Math.max(1, y2 - y1));
@@ -1113,6 +1723,42 @@ function draw() {
     g.stroke();
   }
 
+  // punch-in in progress — fade out what's being replaced, show the new take growing
+  if (isRecording && rec && rec.mode === 'punch') {
+    const xa = timeToX(rec.at);
+    const xs = Math.max(0, xa);
+    if (xs < W) {
+      g.fillStyle = 'rgba(242,242,242,0.78)';
+      g.fillRect(xs, L.top, W - xs, L.bottom - L.top);
+    }
+    if (rec.live) {
+      const xb = timeToX(playhead);
+      g.fillStyle = 'rgba(220,38,38,0.14)';
+      g.fillRect(xa, L.top, xb - xa, L.bottom - L.top);
+      g.fillStyle = '#dc2626';
+      g.fillRect(xa, L.top + 1, xb - xa, L.headH);
+    }
+    g.fillStyle = '#dc2626';
+    g.fillRect(xa - 1, 0, 2, H - RULER_H);
+  }
+
+  // a file being dragged over the waveform — where it'll land
+  if (ghost && ghost.over) {
+    const gx = timeToX(ghost.pos);
+    g.fillStyle = 'rgba(224,90,0,0.10)';
+    g.fillRect(gx, L.top, W - gx, L.bottom - L.top);
+    g.save();
+    g.setLineDash([5, 4]);
+    g.strokeStyle = '#e05a00';
+    g.lineWidth = 1.5;
+    g.strokeRect(gx + 0.75, L.top + 0.75, W - gx + 4, L.bottom - L.top - 1.5);
+    g.restore();
+    g.fillStyle = '#e05a00';
+    g.font = '700 10.5px "Raleway", sans-serif';
+    g.textBaseline = 'top';
+    g.fillText(`Drop at ${fmtTenths(ghost.pos)}`, gx + 6, L.top + L.headH + 6);
+  }
+
   // time selection
   if (selection) {
     const x0 = timeToX(selection.a), x1 = timeToX(selection.b);
@@ -1130,10 +1776,11 @@ function draw() {
   // playhead
   const xp = timeToX(playhead);
   if (xp >= -2 && xp <= W + 2) {
-    g.strokeStyle = '#222222';
+    const col = isRecording ? '#dc2626' : '#222222';
+    g.strokeStyle = col;
     g.lineWidth = 1.5;
     g.beginPath(); g.moveTo(xp, 0); g.lineTo(xp, H); g.stroke();
-    g.fillStyle = '#222222';
+    g.fillStyle = col;
     g.beginPath(); g.moveTo(xp - 5, H); g.lineTo(xp + 5, H); g.lineTo(xp, H - 6); g.closePath(); g.fill();
   }
 }
@@ -1166,14 +1813,20 @@ function fmtTime(sec, precise) {
   if (precise) return `${m}:${s.toFixed(2).padStart(5, '0')}`;
   return `${m}:${String(Math.floor(s)).padStart(2, '0')}`;
 }
-const fmtTenths = sec => {
+function fmtTenths(sec) {
   sec = Math.max(0, sec || 0);
   const m = Math.floor(sec / 60);
   return `${m}:${(sec - m * 60).toFixed(1).padStart(4, '0')}`;
-};
+}
 
 function updateReadout() {
-  if (!srcMono) return;
+  if (!hasAudio()) return;
+  if (isRecording && rec) {
+    editReadout.textContent = rec.live
+      ? `Recording from ${fmtTenths(rec.at)}  ·  ${fmtTenths(playhead)}`
+      : `Pre-roll from ${fmtTenths(rec.prerollFrom)}  ·  punch-in at ${fmtTenths(rec.at)}`;
+    return;
+  }
   const parts = [`Length ${fmtTenths(timelineEnd())}`];
   if (items.length > 1) parts.push(`${items.length} items`);
   if (selection) parts.push(`Selection ${fmtTenths(selection.a)} → ${fmtTenths(selection.b)} (${(selection.b - selection.a).toFixed(2)} s)`);
@@ -1186,9 +1839,11 @@ function refresh() {
   draw();
   updateReadout();
   updateButtons();
+  updatePunchInfo();
+  updateFileLinks();
 }
 
-// ── POINTER: select / slide / resize ───────────────────────
+// ── POINTER: select / slide / resize / slip ────────────────
 function hitTest(x, y) {
   const L = laneGeom();
   const t = xToTime(x);
@@ -1210,42 +1865,64 @@ function hitTest(x, y) {
     }
     if (best) return best;
     if (y <= L.top + L.headH + 1) {
-      const sorted = sortedItems();
-      for (let i = sorted.length - 1; i >= 0; i--) {
-        const it = sorted[i];
-        if (t >= it.pos && t <= itemEnd(it)) return { type: 'move', it };
-      }
+      const it = itemAt(t);
+      if (it) return { type: 'move', it };
     }
   }
   return { type: 'body' };
 }
 
-const CURSORS = { sel: 'ew-resize', edge: 'ew-resize', move: 'grab', body: 'text' };
+// topmost item under a timeline position
+function itemAt(t) {
+  const sorted = sortedItems();
+  for (let i = sorted.length - 1; i >= 0; i--) {
+    const it = sorted[i];
+    if (t >= it.pos && t <= itemEnd(it)) return it;
+  }
+  return null;
+}
+
+const CURSORS = { sel: 'ew-resize', edge: 'ew-resize', move: 'grab', body: 'text', slip: 'move' };
+
+function cursorFor(x, y, altKey) {
+  const L = laneGeom();
+  if (altKey && y >= L.top && y <= L.bottom && itemAt(xToTime(x))) return CURSORS.slip;
+  return CURSORS[hitTest(x, y).type];
+}
 
 waveformCanvas.addEventListener('pointerdown', (e) => {
-  if (!srcMono || e.button > 0) return;
+  if (!hasAudio() || isRecording || e.button > 0) return;
   const rect = waveformCanvas.getBoundingClientRect();
   const x = e.clientX - rect.left, y = e.clientY - rect.top;
-  const hit = hitTest(x, y);
-  if (hit.type === 'sel') {
-    drag = { type: 'sel', which: hit.which };
-  } else if (hit.type === 'edge' || hit.type === 'move') {
+  const L = laneGeom();
+  const slipItem = (e.altKey && y >= L.top && y <= L.bottom) ? itemAt(xToTime(x)) : null;
+  if (slipItem) {
+    e.preventDefault();
     stopPlayback(false);
-    drag = { type: hit.type, it: hit.it, edge: hit.edge, startX: x, orig: { ...hit.it }, before: snapshot() };
-    if (hit.type === 'move') waveformCanvas.style.cursor = 'grabbing';
+    drag = { type: 'slip', it: slipItem, startX: x, orig: { ...slipItem }, before: snapshot() };
+    waveformCanvas.style.cursor = 'grabbing';
   } else {
-    drag = { type: 'new', startX: x, startT: clamp(xToTime(x), 0, timelineEnd()), moved: false };
+    const hit = hitTest(x, y);
+    if (hit.type === 'sel') {
+      drag = { type: 'sel', which: hit.which };
+    } else if (hit.type === 'edge' || hit.type === 'move') {
+      stopPlayback(false);
+      drag = { type: hit.type, it: hit.it, edge: hit.edge, startX: x, orig: { ...hit.it }, before: snapshot() };
+      if (hit.type === 'move') waveformCanvas.style.cursor = 'grabbing';
+    } else {
+      drag = { type: 'new', startX: x, startT: clamp(xToTime(x), 0, timelineEnd()), moved: false };
+    }
   }
   waveformCanvas.setPointerCapture(e.pointerId);
   draw();
 });
 
 waveformCanvas.addEventListener('pointermove', (e) => {
-  if (!srcMono) return;
+  if (!hasAudio() || isRecording) return;
   const rect = waveformCanvas.getBoundingClientRect();
   const x = e.clientX - rect.left, y = e.clientY - rect.top;
   if (!drag) {
-    waveformCanvas.style.cursor = CURSORS[hitTest(x, y).type];
+    waveformCanvas.style.cursor = cursorFor(x, y, e.altKey);
     return;
   }
   const t = xToTime(x);
@@ -1265,8 +1942,14 @@ waveformCanvas.addEventListener('pointermove', (e) => {
   } else {
     const dt = (x - drag.startX) * (viewDur / cssW);
     const it = drag.it, o = drag.orig;
+    const S = sources[it.src];
     if (drag.type === 'move') {
       it.pos = Math.max(0, o.pos + dt);
+    } else if (drag.type === 'slip') {
+      // the item stays put; the audio slides inside it (drag right = audio moves right)
+      const d = clamp(-dt, -o.srcStart, S.dur - o.srcEnd);
+      it.srcStart = o.srcStart + d;
+      it.srcEnd = o.srcEnd + d;
     } else if (drag.edge === 'L') {
       // moving the left edge reveals/hides audio but keeps it in place
       let d = clamp(dt, -o.srcStart, itemLen(o) - MIN_ITEM);
@@ -1274,7 +1957,7 @@ waveformCanvas.addEventListener('pointermove', (e) => {
       it.srcStart = o.srcStart + d;
       it.pos = o.pos + d;
     } else {
-      it.srcEnd = clamp(o.srcEnd + dt, o.srcStart + MIN_ITEM, srcDur);
+      it.srcEnd = clamp(o.srcEnd + dt, o.srcStart + MIN_ITEM, S.dur);
     }
     markEdited();
   }
@@ -1300,7 +1983,7 @@ function endDrag(e) {
   drag = null;
   if (e && e.pointerId != null) {
     const rect = waveformCanvas.getBoundingClientRect();
-    waveformCanvas.style.cursor = CURSORS[hitTest(e.clientX - rect.left, e.clientY - rect.top).type];
+    waveformCanvas.style.cursor = cursorFor(e.clientX - rect.left, e.clientY - rect.top, e.altKey);
   }
   refresh();
 }
@@ -1311,7 +1994,7 @@ waveformCanvas.addEventListener('pointercancel', endDrag);
 // a plain wheel only zooms when the editor is expanded, so it never hijacks
 // page scrolling in the compact view.
 waveformCanvas.addEventListener('wheel', (e) => {
-  if (!srcMono) return;
+  if (!hasAudio()) return;
   const rect = waveformCanvas.getBoundingClientRect();
   const x = e.clientX - rect.left;
   const horizontal = e.shiftKey || Math.abs(e.deltaX) > Math.abs(e.deltaY);
@@ -1330,14 +2013,15 @@ waveformCanvas.addEventListener('wheel', (e) => {
 }, { passive: false });
 
 window.addEventListener('resize', () => {
-  if (!srcMono) return;
+  if (!hasAudio()) return;
   fitCanvas();
   clampView();
   refresh();
 });
 
 // ── TOOLBAR ────────────────────────────────────────────────
-deleteBtn.addEventListener('click', deleteSelection);
+deleteBtn.addEventListener('click', deleteSelectionGap);
+rippleBtn.addEventListener('click', deleteSelectionJoin);
 splitBtn.addEventListener('click', splitAtPlayhead);
 undoBtn.addEventListener('click', undo);
 redoBtn.addEventListener('click', redo);
@@ -1345,45 +2029,159 @@ zoomInBtn.addEventListener('click', () => zoomAt(0.5, Math.max(0, Math.min(cssW,
 zoomOutBtn.addEventListener('click', () => zoomAt(2, Math.max(0, Math.min(cssW, timeToX(playhead)))));
 zoomFitBtn.addEventListener('click', fitView);
 
+// ── SHORTCUT KEY PANEL ─────────────────────────────────────
+// Each row: [what it does, [combo, combo…]] — a combo is a list of keys.
+const SHORTCUTS = [
+  { group: 'Recording', rows: [
+    ['Record — or punch in at the playhead once there\'s audio', [[MOD_KEY, 'R'], ['Shift', 'Space']]],
+    ['Stop recording', [['Space'], [MOD_KEY, 'R'], ['Shift', 'Space']]],
+  ]},
+  { group: 'Playback & moving around', rows: [
+    ['Play / stop (stop returns to where you pressed play)', [['Space']]],
+    ['Pause — leaves the playhead where it is', [['Enter']]],
+    ['Go to the start of all items', [['[']]],
+    ['Go to the end of all items', [[']']]],
+    ['Playhead to the previous item edge', [[MOD_KEY, '[']]],
+    ['Playhead to the next item edge', [[MOD_KEY, ']']]],
+  ]},
+  { group: 'Editing', rows: [
+    ['Delete the selection — leaves a gap, everything else stays put', [['Delete'], ['Backspace']]],
+    ['Delete the selection and join the two sides with a crossfade', [[ALT_KEY, 'Shift', 'D'], [ALT_KEY, 'Delete']]],
+    ['Delete space between items', [[ALT_KEY, 'Shift', 'Space']]],
+    ['Move the recording within the item boundaries', [[ALT_KEY, 'Drag']]],
+    ['Split at the playhead', [['S']]],
+    ['Undo', [[MOD_KEY, 'Z']]],
+    ['Redo', [[MOD_KEY, 'Shift', 'Z'], [MOD_KEY, 'Y']]],
+    ['Clear the selection', [['Esc']]],
+  ]},
+  { group: 'View', rows: [
+    ['Zoom in / out', [['+'], ['−']]],
+    ['Zoom around the mouse', [[MOD_KEY, 'Scroll']]],
+    ['Scroll along the waveform', [['Shift', 'Scroll']]],
+    ['Show this list', [['?']]],
+  ]},
+];
+
+function renderShortcuts() {
+  keysList.innerHTML = '';
+  for (const grp of SHORTCUTS) {
+    const wrap = document.createElement('div');
+    wrap.className = 'keys-group';
+    const h = document.createElement('h4');
+    h.textContent = grp.group;
+    wrap.appendChild(h);
+    for (const [label, combos] of grp.rows) {
+      const row = document.createElement('div');
+      row.className = 'key-row';
+      const what = document.createElement('span');
+      what.textContent = label;
+      const combo = document.createElement('span');
+      combo.className = 'combo';
+      combos.forEach((keys, ci) => {
+        if (ci) { const or = document.createElement('span'); or.className = 'or'; or.textContent = 'or'; combo.appendChild(or); }
+        keys.forEach((k, ki) => {
+          if (ki) { const p = document.createElement('span'); p.className = 'plus'; p.textContent = '+'; combo.appendChild(p); }
+          const kbd = document.createElement('kbd');
+          kbd.textContent = k;
+          combo.appendChild(kbd);
+        });
+      });
+      row.appendChild(what);
+      row.appendChild(combo);
+      wrap.appendChild(row);
+    }
+    keysList.appendChild(wrap);
+  }
+}
+renderShortcuts();
+
+function openKeys() { keysOverlay.classList.add('on'); }
+function closeKeys() { keysOverlay.classList.remove('on'); }
+document.getElementById('keys-link').addEventListener('click', openKeys);
+document.getElementById('keys-link-howto').addEventListener('click', openKeys);
+document.getElementById('keys-btn').addEventListener('click', openKeys);
+document.getElementById('keys-close').addEventListener('click', closeKeys);
+keysOverlay.addEventListener('click', (e) => { if (e.target === keysOverlay) closeKeys(); });
+
 // ── KEYBOARD SHORTCUTS (Reaper-style) ──────────────────────
 document.addEventListener('keydown', (e) => {
-  if (!srcMono || !postRec.classList.contains('on')) return;
   const tag = (e.target && e.target.tagName) || '';
   if (/^(INPUT|TEXTAREA|SELECT)$/.test(tag) || (e.target && e.target.isContentEditable)) return;
+  if (keysOverlay.classList.contains('on')) {
+    if (e.key === 'Escape' || e.key === '?') { e.preventDefault(); closeKeys(); }
+    return;
+  }
   if (folderModalOverlay.classList.contains('on')) return;
+
   const mod = e.ctrlKey || e.metaKey;
+  const alt = e.altKey, shift = e.shiftKey;
+  const code = e.code;
+  const blurButton = () => { if (tag === 'BUTTON') e.target.blur(); };
+
+  // Record / stop — Ctrl/Cmd+R or Shift+Space
+  if ((mod && !alt && !shift && code === 'KeyR') || (shift && !alt && !mod && code === 'Space')) {
+    e.preventDefault(); blurButton(); toggleRecord(); return;
+  }
+  if (e.key === '?' && !mod) { e.preventDefault(); openKeys(); return; }
+
+  if (isRecording) {
+    if (code === 'Space' || e.key === 'Escape') { e.preventDefault(); blurButton(); stopRecording(); }
+    return;
+  }
+  if (!hasAudio() || !postRec.classList.contains('on')) return;
+
   const k = e.key.toLowerCase();
-  if (e.code === 'Space') { e.preventDefault(); if (tag === 'BUTTON') e.target.blur(); togglePlayback(); }
-  else if (e.key === 'Delete' || e.key === 'Backspace') { if (selection) { e.preventDefault(); deleteSelection(); } }
-  else if (mod && k === 'z') { e.preventDefault(); e.shiftKey ? redo() : undo(); }
+  if (alt && shift && !mod && code === 'Space') { e.preventDefault(); removeGaps(); }
+  else if (alt && shift && !mod && code === 'KeyD') { e.preventDefault(); deleteSelectionJoin(); }
+  else if (alt && !mod && (e.key === 'Delete' || e.key === 'Backspace')) { if (selection) { e.preventDefault(); deleteSelectionJoin(); } }
+  else if (code === 'Space' && !mod && !alt) { e.preventDefault(); blurButton(); togglePlayback(); }
+  else if (e.key === 'Enter' && !mod && !alt) { e.preventDefault(); blurButton(); pauseToggle(); }
+  else if ((code === 'BracketLeft' || e.key === '[') && !alt) { e.preventDefault(); mod ? jumpToEdge(-1) : seekTo(0); }
+  else if ((code === 'BracketRight' || e.key === ']') && !alt) { e.preventDefault(); mod ? jumpToEdge(1) : seekTo(timelineEnd()); }
+  else if ((e.key === 'Delete' || e.key === 'Backspace') && !alt) { if (selection) { e.preventDefault(); deleteSelectionGap(); } }
+  else if (mod && k === 'z') { e.preventDefault(); shift ? redo() : undo(); }
   else if (mod && k === 'y') { e.preventDefault(); redo(); }
-  else if (!mod && k === 's') { e.preventDefault(); splitAtPlayhead(); }
+  else if (!mod && !alt && k === 's') { e.preventDefault(); splitAtPlayhead(); }
   else if (e.key === 'Escape') { selection = null; refresh(); }
-  else if (!mod && (e.key === '=' || e.key === '+')) zoomAt(0.5, timeToX(playhead));
-  else if (!mod && (e.key === '-' || e.key === '_')) zoomAt(2, timeToX(playhead));
+  else if (!mod && !alt && (e.key === '=' || e.key === '+')) zoomAt(0.5, timeToX(playhead));
+  else if (!mod && !alt && (e.key === '-' || e.key === '_')) zoomAt(2, timeToX(playhead));
 });
 
 // ── PLAYBACK (renders the edited timeline) ─────────────────
-// Like Reaper, stopping returns the playhead to where playback started.
-function togglePlayback() {
-  if (!srcMono) return;
-  if (isPlaying) stopPlayback(true);
-  else startPlayback(playhead);
+// Like Reaper, stopping returns the playhead to where playback started;
+// pausing (Enter) leaves it where it is.
+function ensurePlayCtx() {
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if (!playCtx) playCtx = new AC({ latencyHint: 'interactive' });
+  if (playCtx.state === 'suspended') playCtx.resume();
 }
 
-function startPlayback(from) {
-  stopPlayback(false);
-  const AC = window.AudioContext || window.webkitAudioContext;
-  if (!playCtx) playCtx = new AC();
-  if (playCtx.state === 'suspended') playCtx.resume();
-
+function getPlayBuffer() {
+  ensurePlayCtx();
   if (!playBufCache || playBufCache.version !== editVersion) {
     const samples = renderTimeline();
     const buf = playCtx.createBuffer(1, samples.length, srcRate);
     if (buf.copyToChannel) buf.copyToChannel(samples, 0); else buf.getChannelData(0).set(samples);
     playBufCache = { version: editVersion, buf };
   }
-  const buf = playBufCache.buf;
+  return playBufCache.buf;
+}
+
+function togglePlayback() {
+  if (!hasAudio() || isRecording) return;
+  if (isPlaying) stopPlayback(true);
+  else startPlayback(playhead);
+}
+
+function pauseToggle() {
+  if (!hasAudio() || isRecording) return;
+  if (isPlaying) stopPlayback(false);
+  else startPlayback(playhead);
+}
+
+function startPlayback(from) {
+  stopPlayback(false);
+  const buf = getPlayBuffer();
   if (from >= buf.duration - 0.02) from = 0;
 
   const src = playCtx.createBufferSource();
@@ -1401,7 +2199,7 @@ function startPlayback(from) {
   playhead = from;
   isPlaying = true;
   playPauseBtn.textContent = '■';
-  playPauseBtn.title = 'Stop (Space)';
+  playPauseBtn.title = 'Stop (Space) · Pause (Enter)';
   const tick = () => {
     if (!isPlaying) return;
     playhead = playFrom + (playCtx.currentTime - playT0);
@@ -1418,6 +2216,9 @@ function startPlayback(from) {
 }
 
 function stopPlayback(returnToStart) {
+  if (isPlaying && !returnToStart && playCtx) {
+    playhead = clamp(playFrom + (playCtx.currentTime - playT0), 0, timelineEnd());
+  }
   if (playSrc) {
     playSrc.onended = null;
     try { playSrc.stop(); } catch (e) { /* already stopped */ }
@@ -1433,14 +2234,14 @@ function finishPlayback(returnToStart) {
   if (returnToStart) playhead = playFrom;
   playPauseBtn.textContent = '▶';
   playPauseBtn.title = 'Play / Stop (Space)';
-  if (srcMono) refresh();
+  if (hasAudio()) refresh();
 }
 
 playPauseBtn.addEventListener('click', togglePlayback);
 
 // ── DOWNLOAD ───────────────────────────────────────────────
 downloadBtn.addEventListener('click', async () => {
-  if (!recordedBlob) return;
+  if (!hasAudio() && !recordedBlob) return;
   downloadBtn.disabled = true;
   encodeStatus.className = '';
   encodeStatus.textContent = 'Encoding MP3…';
@@ -1803,10 +2604,11 @@ function renderFolderInfo() {
   }
 }
 renderFolderInfo(); // show remembered folder immediately, even before sign-in
+updateRecTitle();
 
 // ── UPLOAD TO DRIVE ────────────────────────────────────────
 uploadBtn.addEventListener('click', async () => {
-  if (!recordedBlob) return;
+  if (!hasAudio() && !recordedBlob) return;
 
   if (!accessToken) {
     driveStatus.className = '';
@@ -1940,7 +2742,7 @@ copyLinkBtn.addEventListener('click', async () => {
   }
 });
 </script>
-<div id="tool-version">v8.0</div>
+<div id="tool-version">v11.0</div>
 <div id="tag-footer"></div>
 <script src="/partials/inject-brand.js"></script>
 </body>
