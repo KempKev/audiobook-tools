@@ -384,8 +384,8 @@
         <div class="edit-toolbar">
           <button id="play-pause-btn" title="Play / Stop (Space)" disabled>▶</button>
           <div class="tb-group">
-            <button class="tb-btn" id="delete-btn" title="Delete the selection, leaving a gap (Delete)" disabled>Delete</button>
-            <button class="tb-btn" id="ripple-btn" title="Delete the selection and join the two sides with a crossfade (Alt/Opt + Shift + D or Alt/Opt + Delete)" disabled>Delete &amp; Join</button>
+            <button class="tb-btn" id="delete-btn" title="Delete the time selection or selected item, leaving a gap (Delete or Shift + D)" disabled>Delete</button>
+            <button class="tb-btn" id="ripple-btn" title="Delete the time selection or selected item and move the items together, crossfaded (Alt/Opt + Shift + D or Alt/Opt + Delete)" disabled>Delete &amp; Join</button>
             <button class="tb-btn" id="split-btn" title="Split at the playhead (S)" disabled>Split</button>
             <button class="tb-btn icon" id="undo-btn" title="Undo (Ctrl/Cmd + Z)" disabled>↶</button>
             <button class="tb-btn icon" id="redo-btn" title="Redo (Ctrl/Cmd + Shift + Z)" disabled>↷</button>
@@ -399,7 +399,7 @@
           </div>
         </div>
         <div id="edit-readout"></div>
-        <div class="playback-hint">Drag across the waveform to select · Delete removes it, leaving a gap · Delete &amp; Join closes the gap · Drag an item's top bar to slide it · Drag an item's edge to reveal or hide audio · <span id="slip-hint">Alt</span>-drag slides the audio inside an item</div>
+        <div class="playback-hint">Drag across the waveform to select, or click an item · Delete removes it, leaving a gap · Delete &amp; Join closes the gap · Drag an item's top bar to slide it · Drag an item's edge to reveal or hide audio · <span id="slip-hint">Alt</span>-drag slides the audio inside an item</div>
       </div>
 
       <div class="post-fields">
@@ -479,7 +479,7 @@
     <div id="keys-overlay" class="modal-overlay">
       <div id="keys-modal" role="dialog" aria-labelledby="keys-title">
         <div class="folder-modal-title" id="keys-title">Keyboard shortcuts</div>
-        <div class="folder-modal-hint">Reaper-style keys for recording and editing. Press <kbd>?</kbd> any time to open this list.</div>
+        <div class="folder-modal-hint">Keys for recording and editing. Press <kbd>?</kbd> any time to open this list.</div>
         <div id="keys-list"></div>
         <p class="keys-note">Shortcuts don't fire while you're typing in a text box. If your browser keeps one for itself (some browsers reserve <span class="mod-name">Ctrl</span> + R or <span class="mod-name">Ctrl</span> + [ ), use the alternative — Shift + Space always records.</p>
         <button id="keys-close" class="btn-secondary" style="width:100%; margin-top:16px;">Done</button>
@@ -504,14 +504,14 @@
     </ol>
 
     <h3>Punch &amp; roll</h3>
-    <p>Once you have a recording, the Record button <b>punches in</b> — just like punch &amp; roll in Reaper.</p>
+    <p>Once you have a recording, the Record button <b>punches in</b>.</p>
     <ul>
       <li><b>Place the playhead</b> where you want to pick up from (click on the waveform), then hit <b>Record</b> (or <b>Ctrl/Cmd + R</b> or <b>Shift + Space</b>).</li>
-      <li>Everything <b>after</b> the playhead is replaced by your new take, joined with a short crossfade. Everything before it stays exactly as it was.</li>
+      <li>Your new take replaces only the audio <b>underneath it</b> — from the punch point to where you stop. Anything before it, and anything still left after it, stays exactly as it was, joined to the new take with short crossfades. So you can re-record just a few words in the middle of a take.</li>
       <li><b>Pre-roll</b> — switch it on and set how many seconds you'd like. It plays back that much of what's already there before the punch point, so you can match your pace and tone, then starts recording right at the punch point.</li>
       <li>Wear <b>headphones</b> for pre-roll, so the playback doesn't bleed into your mic.</li>
       <li>Stop during the pre-roll and nothing changes. Changed your mind after a punch? <b>Undo</b> brings the old take back.</li>
-      <li>If a join sits a fraction early or late, <b>Alt/Opt + drag</b> the new item to nudge its audio into place.</li>
+      <li>If a join sits a fraction early or late, <b>Alt/Opt + drag</b> the audio within the item to nudge its audio into place.</li>
     </ul>
 
     <h3>Adding more audio</h3>
@@ -524,19 +524,20 @@
     <h3>Editing</h3>
     <p>Editing is <b>non-destructive</b>: your original takes are always kept underneath, so nothing is ever lost until you save.</p>
     <ul>
-      <li><b>Select</b> — click and drag across the waveform. Drag either edge of the grey selection to fine-tune it. Click anywhere to clear it and move the playhead.</li>
-      <li><b>Delete</b> — press <b>Delete</b> (or the Delete button) to remove the selection. Everything else stays exactly where it is, so you're left with a gap of silence and separate <b>items</b> either side.</li>
-      <li><b>Delete &amp; Join</b> — press <b>Alt/Opt + Shift + D</b> or <b>Alt/Opt + Delete</b> (or the Delete &amp; Join button). The selection is removed, the gap closes up, and the two items either side are joined with a short crossfade (the little X) so the join is smooth. The playhead jumps to a second before the join so you can hit Play and hear it.</li>
+      <li><b>Select</b> — click and drag across the waveform to make a time selection. Drag either edge of the grey selection to fine-tune it.</li>
+      <li><b>Select an item</b> — click on an item. It gets an orange outline, and the playhead moves to where you clicked. Click an empty spot or press <b>Esc</b> to deselect.</li>
+      <li><b>Delete</b> — press <b>Delete</b> or <b>Shift + D</b> (or the Delete button) to remove the time selection, or the selected item if there's no time selection. Everything else stays exactly where it is, so you're left with a gap of silence and separate <b>items</b> either side.</li>
+      <li><b>Delete &amp; Join</b> — press <b>Alt/Opt + Shift + D</b> or <b>Alt/Opt + Delete</b> (or the Delete &amp; Join button). The time selection (or selected item) is removed, the gap closes up, and the two items either side are joined with a short crossfade (the little X) so the join is smooth. The playhead jumps to a second before the join so you can hit Play and hear it.</li>
       <li><b>Delete space between items</b> — <b>Alt/Opt + Shift + Space</b> closes every gap so the items sit back to back.</li>
       <li><b>Adjust the crossfade</b> — drag an item by its <b>orange top bar</b> to slide it. Overlap it more for a longer crossfade, pull it away for a gap.</li>
       <li><b>Reveal or hide audio</b> — drag the <b>left or right edge</b> of any item. Drag outwards and the original audio comes back.</li>
-      <li><b>Slide audio inside an item</b> — hold <b>Alt/Opt</b> and drag. The item stays put; the recording moves within its boundaries.</li>
+      <li><b>Slide audio inside an item</b> — hold <b>Alt/Opt</b> and drag, either way. The item stays put; the recording moves within its boundaries (silence fills any space past the ends of the recording).</li>
       <li><b>Split</b> — press <b>S</b> to split the item under the playhead into two.</li>
       <li><b>Undo / Redo</b> — <b>Ctrl/Cmd + Z</b> and <b>Ctrl/Cmd + Shift + Z</b>.</li>
       <li><b>Zoom</b> — use <b>+ / −</b>, <b>Fit</b>, or Ctrl/Cmd + scroll over the waveform. Shift + scroll (or a sideways trackpad swipe) moves along it.</li>
       <li><b>⤢ Expand</b> — makes the editor much bigger for detailed work (and a plain scroll wheel zooms). It remembers your choice next time.</li>
     </ul>
-    <p>Like Reaper, stopping playback with <b>Space</b> returns the playhead to where you pressed Play — press <b>Enter</b> instead to pause right where you are. <b>[</b> and <b>]</b> jump to the start or end of everything, and <b>Ctrl/Cmd + [</b> or <b>]</b> hops to the nearest item edge.</p>
+    <p>Stopping playback with <b>Space</b> returns the playhead to where you pressed Play — press <b>Enter</b> instead to pause right where you are. <b>[</b> and <b>]</b> jump to the start or end of everything, and <b>Ctrl/Cmd + [</b> or <b>]</b> hops to the nearest item edge.</p>
     <p>See every key: <button class="keys-link" id="keys-link-howto" type="button">⌨ Keyboard shortcuts</button></p>
 
     <hr class="howto-divider">
@@ -912,7 +913,7 @@ freshBtn.addEventListener('click', () => {
 // Any file the browser can decode (MP3, WAV, M4A…) can come in. With an
 // empty editor it opens like a fresh recording. With audio already there it
 // is added as a new item after the current audio — or, when dragged over the
-// waveform, wherever you let go (like dragging a file into Reaper). Where it
+// waveform, wherever you let go. Where it
 // overlaps existing audio, the two crossfade like any other items.
 const fileInput   = document.getElementById('file-input');
 const recCard     = document.querySelector('.rec-card');
@@ -1209,6 +1210,7 @@ let sources = [];                // [{ mono, rate, dur, peaks }]
 let srcRate = 44100;             // project sample rate (set by the first take)
 let items = [], nextItemId = 1;
 let selection = null;            // { a, b } timeline seconds
+let selItemId = null;            // the item selected by clicking it
 let playhead = 0;
 let viewStart = 0, viewDur = 1;
 let undoStack = [], redoStack = [];
@@ -1218,6 +1220,7 @@ let playCtx = null, playSrc = null, playT0 = 0, playFrom = 0, isPlaying = false,
 let cssW = 1, cssH = 1;
 
 const hasAudio = () => sources.length > 0 && items.length > 0;
+const selectedItem = () => (selItemId == null ? null : items.find(it => it.id === selItemId) || null);
 const itemLen = it => it.srcEnd - it.srcStart;
 const itemEnd = it => it.pos + itemLen(it);
 const sortedItems = () => items.slice().sort((a, b) => a.pos - b.pos || a.id - b.id);
@@ -1256,7 +1259,7 @@ async function buildEditor(blob) {
 
 function resetEditor() {
   stopPlayback(false);
-  sources = []; items = []; selection = null; playhead = 0;
+  sources = []; items = []; selection = null; selItemId = null; playhead = 0;
   undoStack = []; redoStack = []; drag = null;
   renderCache = null; playBufCache = null;
   waveformCtx.clearRect(0, 0, waveformCanvas.width, waveformCanvas.height);
@@ -1275,8 +1278,10 @@ function setEditorEnabled(on) {
 
 function updateButtons() {
   if (!hasAudio() || isRecording) return;
-  deleteBtn.disabled = !selection;
-  rippleBtn.disabled = !selection;
+  if (selItemId != null && !selectedItem()) selItemId = null;
+  const canDelete = !!selection || selItemId != null;
+  deleteBtn.disabled = !canDelete;
+  rippleBtn.disabled = !canDelete;
   undoBtn.disabled = !undoStack.length;
   redoBtn.disabled = !redoStack.length;
   splitBtn.disabled = !items.some(it => playhead > it.pos + MIN_ITEM && playhead < itemEnd(it) - MIN_ITEM);
@@ -1316,6 +1321,7 @@ function buildPeaks(mono) {
 // min/max of a source between two sample positions
 function srcMinMax(S, s0, s1) {
   const mono = S.mono, peaks = S.peaks;
+  if (s1 <= 0 || s0 >= mono.length) return null;     // silence outside the recording
   s0 = Math.max(0, Math.floor(s0));
   s1 = Math.min(mono.length, Math.max(s0 + 1, Math.ceil(s1)));
   if (s1 <= s0) return null;
@@ -1427,6 +1433,51 @@ function crossfadeJunction(left, right) {
   right.pos -= hr;
 }
 
+// Delete with an item selected (and no time selection) — the item goes,
+// everything else stays where it is.
+function deleteItemGap(it) {
+  pushHistory();
+  items = items.filter(x => x !== it);
+  selItemId = null;
+  playhead = clamp(it.pos, 0, timelineEnd());
+  markEdited();
+  clampView();
+  refresh();
+}
+
+// Delete & Join with an item selected — the item goes and everything after
+// it moves up to close its space; the neighbours are crossfaded together.
+function deleteItemJoin(it) {
+  pushHistory();
+  const p = it.pos, L = itemLen(it);
+  items = items.filter(x => x !== it);
+  let left = null, right = null;
+  for (const x of items) {
+    if (x.pos >= p - 1e-6) x.pos -= L;
+  }
+  for (const x of items) {
+    if (x.pos < p - 1e-6 && Math.abs(itemEnd(x) - p) < 1e-4 && (!left || x.pos > left.pos)) left = x;
+    if (Math.abs(x.pos - p) < 1e-4 && (!right || x.pos < right.pos)) right = x;
+  }
+  crossfadeJunction(left, right);
+  selItemId = null;
+  playhead = Math.max(0, p - 1);
+  markEdited();
+  clampView();
+  refresh();
+}
+
+function deleteGap() {
+  if (selection) return deleteSelectionGap();
+  const it = selectedItem();
+  if (it) deleteItemGap(it);
+}
+function deleteJoin() {
+  if (selection) return deleteSelectionJoin();
+  const it = selectedItem();
+  if (it) deleteItemJoin(it);
+}
+
 // Delete — removes the selection and leaves everything else where it is,
 // so a gap of silence is left with separate items either side.
 function deleteSelectionGap() {
@@ -1498,23 +1549,40 @@ function splitAtPlayhead() {
   refresh();
 }
 
-// Punch & roll: everything from `at` onwards is replaced by the new take.
+// Punch & roll: the new take replaces only the audio underneath it, from the
+// punch point to where you stopped. Anything after that stays, crossfaded
+// onto the end of the new take, so a short section can be fixed mid-take.
 function applyPunch(at, srcId, trim) {
   pushHistory();
+  const end = at + (sources[srcId].dur - trim);
   const next = [];
-  let left = null;
+  let left = null, right = null;
   for (const it of items) {
-    if (it.pos >= at - 1e-6) continue;                     // starts after the punch — replaced
-    if (itemEnd(it) > at) it.srcEnd = it.srcStart + (at - it.pos);
-    if (itemLen(it) < 0.001) continue;
-    next.push(it);
-    if (Math.abs(itemEnd(it) - at) < 1e-4 && (!left || it.pos > left.pos)) left = it;
+    const p = it.pos, e = itemEnd(it);
+    if (e <= at + 1e-6 || p >= end - 1e-6) {                 // not under the new take
+      next.push(it);
+      if (Math.abs(e - at) < 1e-4 && (!left || p > left.pos)) left = it;
+      if (Math.abs(p - end) < 1e-4 && (!right || p < right.pos)) right = it;
+      continue;
+    }
+    if (p < at) {                                            // keep the part before the punch
+      const lp = newItem(it.src, it.srcStart, it.srcStart + (at - p), p);
+      next.push(lp);
+      if (!left || lp.pos > left.pos) left = lp;
+    }
+    if (e > end) {                                           // keep the part after the new take
+      const rp = newItem(it.src, it.srcStart + (end - p), it.srcEnd, end);
+      next.push(rp);
+      if (!right || rp.pos < right.pos) right = rp;
+    }
   }
   const take = newItem(srcId, trim, sources[srcId].dur, at);
   next.push(take);
-  items = next;
+  items = next.filter(it => itemLen(it) >= 0.001);
   crossfadeJunction(left, take);
+  crossfadeJunction(take, right);
   selection = null;
+  selItemId = null;
   playhead = itemEnd(take);
   markEdited();
 }
@@ -1698,10 +1766,13 @@ function draw() {
   for (const it of visible) {
     const x0 = timeToX(it.pos), x1 = timeToX(itemEnd(it));
     const active = drag && drag.it === it;
-    g.strokeStyle = active ? '#e05a00' : '#cfcfcf';
+    const picked = it.id === selItemId;
+    g.strokeStyle = (active || picked) ? '#e05a00' : '#cfcfcf';
+    g.lineWidth = picked ? 2 : 1;
+    if (picked) g.strokeRect(x0 + 1, L.top + 1, Math.max(1, x1 - x0 - 2), L.bottom - L.top - 2);
+    else g.strokeRect(x0 + 0.5, L.top + 0.5, Math.max(1, x1 - x0 - 1), L.bottom - L.top - 1);
     g.lineWidth = 1;
-    g.strokeRect(x0 + 0.5, L.top + 0.5, Math.max(1, x1 - x0 - 1), L.bottom - L.top - 1);
-    g.fillStyle = active ? '#e05a00' : '#f5c9ae';
+    g.fillStyle = (active || picked) ? '#e05a00' : '#f5c9ae';
     g.fillRect(x0 + 1, L.top + 1, Math.max(1, x1 - x0 - 2), L.headH);
   }
 
@@ -1723,17 +1794,14 @@ function draw() {
     g.stroke();
   }
 
-  // punch-in in progress — fade out what's being replaced, show the new take growing
+  // punch-in in progress — show the new take growing over what it replaces
   if (isRecording && rec && rec.mode === 'punch') {
     const xa = timeToX(rec.at);
-    const xs = Math.max(0, xa);
-    if (xs < W) {
-      g.fillStyle = 'rgba(242,242,242,0.78)';
-      g.fillRect(xs, L.top, W - xs, L.bottom - L.top);
-    }
     if (rec.live) {
       const xb = timeToX(playhead);
-      g.fillStyle = 'rgba(220,38,38,0.14)';
+      g.fillStyle = 'rgba(242,242,242,0.7)';
+      g.fillRect(xa, L.top, xb - xa, L.bottom - L.top);
+      g.fillStyle = 'rgba(220,38,38,0.16)';
       g.fillRect(xa, L.top, xb - xa, L.bottom - L.top);
       g.fillStyle = '#dc2626';
       g.fillRect(xa, L.top + 1, xb - xa, L.headH);
@@ -1910,7 +1978,7 @@ waveformCanvas.addEventListener('pointerdown', (e) => {
       drag = { type: hit.type, it: hit.it, edge: hit.edge, startX: x, orig: { ...hit.it }, before: snapshot() };
       if (hit.type === 'move') waveformCanvas.style.cursor = 'grabbing';
     } else {
-      drag = { type: 'new', startX: x, startT: clamp(xToTime(x), 0, timelineEnd()), moved: false };
+      drag = { type: 'new', startX: x, startY: y, startT: clamp(xToTime(x), 0, timelineEnd()), moved: false };
     }
   }
   waveformCanvas.setPointerCapture(e.pointerId);
@@ -1932,6 +2000,7 @@ waveformCanvas.addEventListener('pointermove', (e) => {
     if (drag.moved) {
       const tt = clamp(t, 0, end);
       selection = { a: Math.min(drag.startT, tt), b: Math.max(drag.startT, tt) };
+      selItemId = null;
     }
   } else if (drag.type === 'sel') {
     selection[drag.which] = clamp(t, 0, end);
@@ -1947,17 +2016,19 @@ waveformCanvas.addEventListener('pointermove', (e) => {
       it.pos = Math.max(0, o.pos + dt);
     } else if (drag.type === 'slip') {
       // the item stays put; the audio slides inside it (drag right = audio moves right)
-      const d = clamp(-dt, -o.srcStart, S.dur - o.srcEnd);
+      // it can slide past either end of the recording (silence fills in),
+      // as long as some audio stays inside the item
+      const d = clamp(-dt, MIN_ITEM - o.srcEnd, S.dur - MIN_ITEM - o.srcStart);
       it.srcStart = o.srcStart + d;
       it.srcEnd = o.srcEnd + d;
     } else if (drag.edge === 'L') {
       // moving the left edge reveals/hides audio but keeps it in place
-      let d = clamp(dt, -o.srcStart, itemLen(o) - MIN_ITEM);
+      let d = clamp(dt, -Math.max(0, o.srcStart), itemLen(o) - MIN_ITEM);
       if (o.pos + d < 0) d = -o.pos;
       it.srcStart = o.srcStart + d;
       it.pos = o.pos + d;
     } else {
-      it.srcEnd = clamp(o.srcEnd + dt, o.srcStart + MIN_ITEM, S.dur);
+      it.srcEnd = clamp(o.srcEnd + dt, o.srcStart + MIN_ITEM, Math.max(S.dur, o.srcEnd));
     }
     markEdited();
   }
@@ -1969,8 +2040,11 @@ waveformCanvas.addEventListener('pointermove', (e) => {
 function endDrag(e) {
   if (!drag) return;
   if (drag.type === 'new' && !drag.moved) {
-    // a click: drop the selection and move the playhead
+    // a click: drop the time selection, move the playhead and select the item clicked
     selection = null;
+    const Lg = laneGeom();
+    const hitIt = (drag.startY >= Lg.top && drag.startY <= Lg.bottom) ? itemAt(drag.startT) : null;
+    selItemId = hitIt ? hitIt.id : null;
     playhead = clamp(drag.startT, 0, timelineEnd());
     if (isPlaying) startPlayback(playhead);
   } else if (drag.type === 'new' || drag.type === 'sel') {
@@ -1978,6 +2052,11 @@ function endDrag(e) {
     if (selection && !isPlaying) playhead = selection.a;
   } else {
     if (snapshot() !== drag.before) pushHistory(drag.before);
+    selection = null;
+    selItemId = drag.it.id;
+    if (Math.abs(drag.it.pos - drag.orig.pos) < 1e-9 && drag.type === 'move' && !isPlaying) {
+      playhead = clamp(xToTime(drag.startX), 0, timelineEnd());   // a click on the top bar
+    }
     clampView();
   }
   drag = null;
@@ -2020,8 +2099,8 @@ window.addEventListener('resize', () => {
 });
 
 // ── TOOLBAR ────────────────────────────────────────────────
-deleteBtn.addEventListener('click', deleteSelectionGap);
-rippleBtn.addEventListener('click', deleteSelectionJoin);
+deleteBtn.addEventListener('click', deleteGap);
+rippleBtn.addEventListener('click', deleteJoin);
 splitBtn.addEventListener('click', splitAtPlayhead);
 undoBtn.addEventListener('click', undo);
 redoBtn.addEventListener('click', redo);
@@ -2045,8 +2124,9 @@ const SHORTCUTS = [
     ['Playhead to the next item edge', [[MOD_KEY, ']']]],
   ]},
   { group: 'Editing', rows: [
-    ['Delete the selection — leaves a gap, everything else stays put', [['Delete'], ['Backspace']]],
-    ['Delete the selection and join the two sides with a crossfade', [[ALT_KEY, 'Shift', 'D'], [ALT_KEY, 'Delete']]],
+    ['Delete the time selection or selected item — leaves a gap, everything else stays put', [['Delete'], ['Backspace'], ['Shift', 'D']]],
+    ['Delete the time selection or selected item and move the items together, crossfaded', [[ALT_KEY, 'Shift', 'D'], [ALT_KEY, 'Delete']]],
+    ['Select an item (and move the playhead there)', [['Click']]],
     ['Delete space between items', [[ALT_KEY, 'Shift', 'Space']]],
     ['Move the recording within the item boundaries', [[ALT_KEY, 'Drag']]],
     ['Split at the playhead', [['S']]],
@@ -2103,7 +2183,7 @@ document.getElementById('keys-btn').addEventListener('click', openKeys);
 document.getElementById('keys-close').addEventListener('click', closeKeys);
 keysOverlay.addEventListener('click', (e) => { if (e.target === keysOverlay) closeKeys(); });
 
-// ── KEYBOARD SHORTCUTS (Reaper-style) ──────────────────────
+// ── KEYBOARD SHORTCUTS ────────────────────────────────────
 document.addEventListener('keydown', (e) => {
   const tag = (e.target && e.target.tagName) || '';
   if (/^(INPUT|TEXTAREA|SELECT)$/.test(tag) || (e.target && e.target.isContentEditable)) return;
@@ -2132,23 +2212,24 @@ document.addEventListener('keydown', (e) => {
 
   const k = e.key.toLowerCase();
   if (alt && shift && !mod && code === 'Space') { e.preventDefault(); removeGaps(); }
-  else if (alt && shift && !mod && code === 'KeyD') { e.preventDefault(); deleteSelectionJoin(); }
-  else if (alt && !mod && (e.key === 'Delete' || e.key === 'Backspace')) { if (selection) { e.preventDefault(); deleteSelectionJoin(); } }
+  else if (shift && alt && !mod && code === 'KeyD') { e.preventDefault(); deleteJoin(); }
+  else if (shift && !alt && !mod && code === 'KeyD') { if (selection || selItemId != null) { e.preventDefault(); deleteGap(); } }
+  else if (alt && !mod && (e.key === 'Delete' || e.key === 'Backspace')) { e.preventDefault(); deleteJoin(); }
   else if (code === 'Space' && !mod && !alt) { e.preventDefault(); blurButton(); togglePlayback(); }
   else if (e.key === 'Enter' && !mod && !alt) { e.preventDefault(); blurButton(); pauseToggle(); }
   else if ((code === 'BracketLeft' || e.key === '[') && !alt) { e.preventDefault(); mod ? jumpToEdge(-1) : seekTo(0); }
   else if ((code === 'BracketRight' || e.key === ']') && !alt) { e.preventDefault(); mod ? jumpToEdge(1) : seekTo(timelineEnd()); }
-  else if ((e.key === 'Delete' || e.key === 'Backspace') && !alt) { if (selection) { e.preventDefault(); deleteSelectionGap(); } }
+  else if ((e.key === 'Delete' || e.key === 'Backspace') && !alt) { if (selection || selItemId != null) { e.preventDefault(); deleteGap(); } }
   else if (mod && k === 'z') { e.preventDefault(); shift ? redo() : undo(); }
   else if (mod && k === 'y') { e.preventDefault(); redo(); }
   else if (!mod && !alt && k === 's') { e.preventDefault(); splitAtPlayhead(); }
-  else if (e.key === 'Escape') { selection = null; refresh(); }
+  else if (e.key === 'Escape') { selection = null; selItemId = null; refresh(); }
   else if (!mod && !alt && (e.key === '=' || e.key === '+')) zoomAt(0.5, timeToX(playhead));
   else if (!mod && !alt && (e.key === '-' || e.key === '_')) zoomAt(2, timeToX(playhead));
 });
 
 // ── PLAYBACK (renders the edited timeline) ─────────────────
-// Like Reaper, stopping returns the playhead to where playback started;
+// Stopping returns the playhead to where playback started;
 // pausing (Enter) leaves it where it is.
 function ensurePlayCtx() {
   const AC = window.AudioContext || window.webkitAudioContext;
@@ -2742,7 +2823,7 @@ copyLinkBtn.addEventListener('click', async () => {
   }
 });
 </script>
-<div id="tool-version">v11.0</div>
+<div id="tool-version">v11.2</div>
 <div id="tag-footer"></div>
 <script src="/partials/inject-brand.js"></script>
 </body>
