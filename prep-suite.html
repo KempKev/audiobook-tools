@@ -637,6 +637,19 @@ async function setCellColour(row, col, colour){
   if (!r.ok) { const e = new Error('format '+r.status); e.status = r.status; throw e; }
 }
 const COL_J = 9, COL_K = 10;
+const YELLOW = { red:0xff/255, green:0xf2/255, blue:0xcc/255 }; // #fff2cc
+// Colour several column spans of one row in a single request.
+// spans: [{ from, to, colour }] with 0-based, inclusive column indexes
+async function colourRow(tabSheetId, row, spans){
+  const requests = spans.map(sp => ({ repeatCell:{
+    range:{ sheetId:tabSheetId, startRowIndex:row-1, endRowIndex:row, startColumnIndex:sp.from, endColumnIndex:sp.to+1 },
+    cell:{ userEnteredFormat:{ backgroundColor:sp.colour } }, fields:'userEnteredFormat.backgroundColor' } }));
+  const r = await fetch(`${SHEETS}${S.sheetId}:batchUpdate`, {
+    method:'POST', headers:{ Authorization:'Bearer '+token, 'Content-Type':'application/json' },
+    body: JSON.stringify({ requests })
+  });
+  if (!r.ok) { const e = new Error('format '+r.status); e.status = r.status; throw e; }
+}
 
 async function loadSheet(sheetId, opts = {}){
   const errEl = $('sheet-error'), loadingEl = $('sheet-loading');
@@ -1277,8 +1290,11 @@ async function saveChar(v, existing){
       { range:`${t}!E${row}:F${row}`, values:[[f.E, f.F]] },
       { range:`${t}!J${row}`, values:[[f.J]] }
     ]);
-    // New rows start red in J (to record) and K (unconfirmed)
-    try { await setCellColour(row, COL_J, isUrl(vocalRef) ? GREEN : S.redColor); await setCellColour(row, COL_K, S.redColor); } catch(e) { console.warn(e); }
+    // New rows: A–I yellow, J red (to record) or green, K red (unconfirmed)
+    try { await colourRow(S.charTab.sheetId, row, [
+      { from:0, to:8, colour:YELLOW },
+      { from:COL_J, to:COL_J, colour:isUrl(vocalRef) ? GREEN : S.redColor },
+      { from:COL_K, to:COL_K, colour:S.redColor } ]); } catch(e) { console.warn(e); }
   } else if (isUrl(vocalRef) && !isUrl(existing.vocalRef)) {
     try { await setCellColour(row, COL_J, GREEN); } catch(e) { console.warn(e); }
   }
@@ -1298,6 +1314,8 @@ async function savePron(v, existing){
   }
   await sheetsWrite('RAW', [{ range:`${t}!A${row}:M${row}`, values:[[
     v.word, v.cat, numOrText(v.count), v.page, v.inferred, v.rpIPA, v.natIPA, v.respell, v.s1, v.s2, v.s3, v.notes, v.author ]] }]);
+  // New rows: A–M yellow to match the rest of the tab
+  if (!existing) { try { await colourRow(S.pronTab.sheetId, row, [{ from:0, to:12, colour:YELLOW }]); } catch(e) { console.warn(e); } }
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -2083,7 +2101,7 @@ $('switch-btn').addEventListener('click', () => {
   if (id) await loadSheet(id);
 })();
 </script>
-<div id="tool-version">v7.3</div>
+<div id="tool-version">v7.4</div>
 <div id="tag-footer"></div>
 <script src="/partials/inject-brand.js"></script>
 </body>
