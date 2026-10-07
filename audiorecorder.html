@@ -426,7 +426,8 @@
     </div>
 
     <div id="drive-panel">
-      <div class="drive-title">Google Drive</div>
+      <div class="drive-title">Google Drive <span style="text-transform:none;letter-spacing:0;font-weight:600;">— optional</span></div>
+      <div style="font-size:0.74rem;color:var(--mid);line-height:1.5;margin:-4px 0 10px;">Only needed if you want recordings saved to Drive. Recording and Download MP3 never ask you to sign in.</div>
 
       <button id="drive-connect-btn" class="drive-connect-btn">
         <svg viewBox="0 0 24 24" fill="none"><path d="M8.05 3l7.9 0 4.65 8.05-3.95 6.85-7.9 0-3.95-6.85z" fill="currentColor" opacity="0.15"/><path d="M8.05 3h7.9l4.65 8.05M8.05 3L3.4 11.05m4.65-8.05l3.95 6.85m8.6 1.2l-3.95 6.85m3.95-6.85h-7.9m-4.65 6.85l3.95-6.85m-3.95 6.85h7.9m-7.9 0L3.4 11.05m0 0l4.65 6.85" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
@@ -543,8 +544,9 @@
     <hr class="howto-divider">
 
     <h3>Saving to Google Drive</h3>
-    <p>Click <b>Connect Google Drive</b> and sign in with the account you'd like recordings to land in. Once you're in, you'll see your email shown as <b>"[email] - connected"</b>, so you always know which account is active.</p>
-    <p>Note: every so often Google asks for a quick click to confirm it's really you, even if you've connected before — just connect again if Google asks!</p>
+    <p>This part is <b>optional</b> — you never need a Google account to record, edit or download your MP3. Google only asks you to sign in when you choose to save to Drive.</p>
+    <p>Hit <b>Upload to Drive</b> and, if you're not signed in yet, Google's sign-in window opens — pick your account and the upload carries on by itself. Or click <b>Connect Google Drive</b> and sign in with the account you'd like recordings to land in. Once you're in, you'll see your email shown as <b>"[email] - connected"</b>, so you always know which account is active.</p>
+    <p>Note: for your privacy the recorder doesn't sign you in automatically when the page opens, so the first upload of each visit opens Google's window — usually just one click to pick your account.</p>
     <p>Need a different account? <b>Switch account</b> lets you log into another Google account without losing any of your saved folders.</p>
 
     <h3>Choosing where recordings go</h3>
@@ -558,7 +560,7 @@
     <p>Hit <b>Done</b> once you've picked somewhere. It stays active next time — no need to choose again unless you want to switch.</p>
 
     <h3>Sending a recording to Drive</h3>
-    <p>Once you're connected with somewhere picked, an <b>Upload to Drive</b> button appears next to Download MP3. Record as normal, then hit Upload — it lands wherever's active, named however you titled it.</p>
+    <p>Record as normal, then hit <b>Upload to Drive</b> next to Download MP3 — it lands wherever's active, named however you titled it. If you haven't signed in yet this visit, Google asks first.</p>
     <p>You can still download your MP3 to your computer too.</p>
 
     <h3>Share link</h3>
@@ -2452,7 +2454,8 @@ const DRIVE_CONNECTED_KEY = 'audiobookguy.audioRecorder.driveConnected.v1';   //
 let tokenClient = null;
 let accessToken = null;
 let gisLoaded   = false;
-let isSilentAttempt = false;   // true while we're trying a quiet, no-popup reconnect on page load
+let isSilentAttempt = false;
+let pendingUpload   = false;   // Upload was pressed before signing in — carry on once signed in
 
 // ── LIBRARY LOAD CALLBACK (wired via script onload attr) ────
 window.__gisLoaded = function () {
@@ -2460,51 +2463,65 @@ window.__gisLoaded = function () {
   tokenClient = google.accounts.oauth2.initTokenClient({
     client_id: GOOGLE_CLIENT_ID,
     scope: DRIVE_SCOPE,
-    callback: handleTokenResponse
+    callback: handleTokenResponse,
+    error_callback: handleTokenError
   });
-
-  // Access tokens from GIS aren't stored/refreshable client-side, so the
-  // browser can't "remember" the account by itself. What we CAN do is try a
-  // silent reconnect (no popup, no consent screen) if this browser has
-  // connected before and still has a live Google session — that's what
-  // makes it feel remembered without storing anything sensitive.
-  if (localStorage.getItem(DRIVE_CONNECTED_KEY) === '1') {
-    isSilentAttempt = true;
-    tokenClient.requestAccessToken({ prompt: '' });
-  }
+  // Nothing happens on page load: Google only asks you to sign in when you
+  // press Upload to Drive, Connect Google Drive or Change folder. Recording
+  // and downloading never need an account.
 };
+
+// Opens Google's sign-in. Must be called straight from a click.
+function requestDriveSignIn(prompt) {
+  if (!gisLoaded || !tokenClient) {
+    driveStatus.className = '';
+    driveStatus.textContent = 'Still loading Google sign-in — try again in a moment.';
+    pendingUpload = false;
+    return false;
+  }
+  driveStatus.className = '';
+  driveStatus.textContent = '';
+  tokenClient.requestAccessToken({ prompt: prompt == null ? '' : prompt });
+  return true;
+}
+
+function handleTokenError(err) {
+  // the sign-in window was closed or blocked — nothing to clean up
+  const wanted = pendingUpload;
+  pendingUpload = false;
+  if (wanted) {
+    encodeStatus.className = '';
+    encodeStatus.textContent = (err && err.type === 'popup_failed_to_open')
+      ? 'Your browser blocked the Google sign-in window — allow pop-ups for this page and try again.'
+      : 'Upload cancelled — no changes made. Your recording is still here.';
+  }
+}
 
 function handleTokenResponse(resp) {
   const wasSilent = isSilentAttempt;
   isSilentAttempt = false;
   if (resp.error) {
-    if (wasSilent) return; // quiet background attempt failed — just show the normal Connect button, no error noise
+    pendingUpload = false;
+    if (wasSilent) return;
     driveStatus.className = 'err';
     driveStatus.textContent = 'Google sign-in failed — please try again.';
     return;
   }
   accessToken = resp.access_token;
-  localStorage.setItem(DRIVE_CONNECTED_KEY, '1');
+  try { localStorage.setItem(DRIVE_CONNECTED_KEY, '1'); } catch (e) { /* fine */ }
   onDriveConnected();
+  if (pendingUpload) { pendingUpload = false; doUpload(); }
 }
 
 // ── CONNECT / SWITCH ACCOUNT ─────────────────────────────────
-driveConnectBtn.addEventListener('click', () => {
-  if (!gisLoaded) {
-    driveStatus.textContent = 'Still loading Google sign-in — try again in a moment.';
-    return;
-  }
-  driveStatus.className = '';
-  driveStatus.textContent = '';
-  tokenClient.requestAccessToken({ prompt: 'consent' });
-});
+driveConnectBtn.addEventListener('click', () => requestDriveSignIn(''));
 
 switchAccountBtn.addEventListener('click', () => {
   // A different account means a different Drive — folder IDs from the last account won't resolve.
   localStorage.removeItem(FOLDERS_STORAGE_KEY);
   localStorage.removeItem(FOLDER_STORAGE_KEY);
   renderFolderInfo();
-  tokenClient.requestAccessToken({ prompt: 'select_account consent' });
+  requestDriveSignIn('select_account consent');
 });
 
 function onDriveConnected() {
@@ -2781,15 +2798,21 @@ renderFolderInfo(); // show remembered folder immediately, even before sign-in
 updateRecTitle();
 
 // ── UPLOAD TO DRIVE ────────────────────────────────────────
-uploadBtn.addEventListener('click', async () => {
+uploadBtn.addEventListener('click', () => {
   if (!hasAudio() && !recordedBlob) return;
-
   if (!accessToken) {
-    driveStatus.className = '';
-    driveStatus.textContent = 'Connect Google Drive above first, then try uploading again.';
-    driveConnectBtn.click();
+    // first time this visit — sign in now, and the upload carries on by itself
+    pendingUpload = true;
+    encodeStatus.className = '';
+    encodeStatus.textContent = 'Sign in to Google to save this to your Drive…';
+    requestDriveSignIn('');
     return;
   }
+  doUpload();
+});
+
+async function doUpload() {
+  if (!hasAudio() && !recordedBlob) return;
   const folder = loadSavedFolder(); // null means "My Drive root" — a valid, explicit choice
 
   uploadBtn.disabled = true;
@@ -2828,7 +2851,7 @@ uploadBtn.addEventListener('click', async () => {
   } finally {
     uploadBtn.disabled = false;
   }
-});
+}
 
 async function uploadFileToDrive(blob, filename, folderId, token) {
   const metadata = { name: filename, mimeType: 'audio/mpeg' };
@@ -2916,7 +2939,7 @@ copyLinkBtn.addEventListener('click', async () => {
   }
 });
 </script>
-<div id="tool-version">v11.5</div>
+<div id="tool-version">v11.6</div>
 <div id="tag-footer"></div>
 <script src="/partials/inject-brand.js"></script>
 </body>
