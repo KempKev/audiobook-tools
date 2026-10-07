@@ -537,7 +537,7 @@
       <li><b>Zoom</b> — use <b>+ / −</b>, <b>Fit</b>, or Ctrl/Cmd + scroll over the waveform. Shift + scroll (or a sideways trackpad swipe) moves along it.</li>
       <li><b>⤢ Expand</b> — makes the editor much bigger for detailed work (and a plain scroll wheel zooms). It remembers your choice next time.</li>
     </ul>
-    <p>Stopping playback with <b>Space</b> returns the playhead to where you pressed Play — press <b>Enter</b> instead to pause right where you are. <b>[</b> and <b>]</b> jump to the start or end of everything, and <b>Ctrl/Cmd + [</b> or <b>]</b> hops to the nearest item edge.</p>
+    <p>Stopping playback with <b>Space</b> returns the playhead to where you pressed Play — press <b>Enter</b> instead to pause right where you are. <b>[</b> and <b>]</b> jump to the start or end of everything, and <b>Ctrl/Cmd + [</b> or <b>]</b> hops to the nearest item edge. The <b>← →</b> arrow keys nudge the playhead a little (hold <b>Shift</b> for bigger steps), and <b>↑ ↓</b> zoom in and out.</p>
     <p>See every key: <button class="keys-link" id="keys-link-howto" type="button">⌨ Keyboard shortcuts</button></p>
 
     <hr class="howto-divider">
@@ -718,6 +718,12 @@ async function beginRecording(mode) {
   if (isRecording || recStarting || !hasSupport) return;
   recStarting = true;
   stopPlayback(false);
+  // iOS only lets audio start inside the tap itself, so wake everything now,
+  // before waiting on the microphone.
+  if (IS_IOS) setAudioSession('play-and-record');
+  if (mode === 'punch') ensurePlayCtx();
+  const AC0 = window.AudioContext || window.webkitAudioContext;
+  try { audioCtx = new AC0(); audioCtx.resume().catch(() => {}); } catch (e) { audioCtx = null; }
 
   try {
     // Processing off: auto-gain / noise suppression would make punch-ins
@@ -730,6 +736,7 @@ async function beginRecording(mode) {
       stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     } catch (e2) {
       statusEl.textContent = 'Microphone access denied — check browser permissions.';
+      if (audioCtx) { audioCtx.close().catch(() => {}); audioCtx = null; }
       recStarting = false;
       return;
     }
@@ -746,7 +753,11 @@ async function beginRecording(mode) {
 
   chunks = [];
   let mimeType = '';
-  for (const t of ['audio/webm;codecs=opus', 'audio/webm', 'audio/ogg;codecs=opus']) {
+  // iPhone/iPad: record as MP4/AAC — the format Safari reliably plays back and decodes
+  const mimeChoices = IS_IOS
+    ? ['audio/mp4', 'audio/mp4;codecs=mp4a.40.2', 'audio/aac', 'audio/webm;codecs=opus', 'audio/webm']
+    : ['audio/webm;codecs=opus', 'audio/webm', 'audio/ogg;codecs=opus'];
+  for (const t of mimeChoices) {
     if (MediaRecorder.isTypeSupported(t)) { mimeType = t; break; }
   }
   mediaRecorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
@@ -1074,7 +1085,8 @@ function updateTimer() {
 // ── LEVEL METER ────────────────────────────────────────────
 function setupMeter(mediaStream) {
   const AC = window.AudioContext || window.webkitAudioContext;
-  audioCtx = new AC();
+  if (!audioCtx) audioCtx = new AC();
+  if (audioCtx.state !== 'running') audioCtx.resume().catch(() => {});
   const source = audioCtx.createMediaStreamSource(mediaStream);
   analyser = audioCtx.createAnalyser();
   analyser.fftSize = 256;
@@ -1625,6 +1637,20 @@ function ensureVisible(t) {
   }
 }
 
+// Left / Right arrows — nudge the playhead. The step follows the zoom
+// (about 1% of the visible width), so it's fine when zoomed in and quick
+// when zoomed out. Shift makes it a bigger step.
+function nudgePlayhead(dir, big) {
+  const step = Math.max(0.005, viewDur * (big ? 0.1 : 0.01));
+  const t = clamp(playhead + dir * step, 0, timelineEnd());
+  playhead = t;
+  if (isPlaying) startPlayback(t);
+  const x = timeToX(t);
+  if (x < 0) { viewStart = t - viewDur * 0.05; clampView(); }
+  else if (x > cssW) { viewStart = t - viewDur * 0.95; clampView(); }
+  refresh();
+}
+
 // Ctrl/Cmd + [ or ] — hop to the nearest item edge before/after the playhead
 function jumpToEdge(dir) {
   const edges = [0];
@@ -2122,6 +2148,8 @@ const SHORTCUTS = [
     ['Go to the end of all items', [[']']]],
     ['Playhead to the previous item edge', [[MOD_KEY, '[']]],
     ['Playhead to the next item edge', [[MOD_KEY, ']']]],
+    ['Nudge the playhead left / right', [['←'], ['→']]],
+    ['Bigger nudge', [['Shift', '←'], ['Shift', '→']]],
   ]},
   { group: 'Editing', rows: [
     ['Delete the time selection or selected item — leaves a gap, everything else stays put', [['Delete'], ['Backspace'], ['Shift', 'D']]],
@@ -2135,7 +2163,7 @@ const SHORTCUTS = [
     ['Clear the selection', [['Esc']]],
   ]},
   { group: 'View', rows: [
-    ['Zoom in / out', [['+'], ['−']]],
+    ['Zoom in / out', [['↑'], ['↓'], ['+'], ['−']]],
     ['Zoom around the mouse', [[MOD_KEY, 'Scroll']]],
     ['Scroll along the waveform', [['Shift', 'Scroll']]],
     ['Show this list', [['?']]],
@@ -2226,6 +2254,14 @@ document.addEventListener('keydown', (e) => {
   else if (e.key === 'Escape') { selection = null; selItemId = null; refresh(); }
   else if (!mod && !alt && (e.key === '=' || e.key === '+')) zoomAt(0.5, timeToX(playhead));
   else if (!mod && !alt && (e.key === '-' || e.key === '_')) zoomAt(2, timeToX(playhead));
+  else if (!mod && !alt && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
+    e.preventDefault(); blurButton();
+    nudgePlayhead(e.key === 'ArrowLeft' ? -1 : 1, shift);
+  }
+  else if (!mod && !alt && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+    e.preventDefault(); blurButton();
+    zoomAt(e.key === 'ArrowUp' ? 0.8 : 1.25, clamp(timeToX(playhead), 0, cssW));
+  }
 });
 
 // ── PLAYBACK (renders the edited timeline) ─────────────────
@@ -2234,7 +2270,33 @@ document.addEventListener('keydown', (e) => {
 function ensurePlayCtx() {
   const AC = window.AudioContext || window.webkitAudioContext;
   if (!playCtx) playCtx = new AC({ latencyHint: 'interactive' });
-  if (playCtx.state === 'suspended') playCtx.resume();
+  if (playCtx.state !== 'running') playCtx.resume().catch(() => {});
+}
+
+// ── iPhone / iPad audio routing ────────────────────────────
+// iOS mutes web audio when the ring/silent switch is on, and after the mic
+// has been used it can leave playback on the quiet earpiece. Telling Safari
+// this page is a media player fixes both. Older iOS gets the same effect by
+// playing a moment of silence through a normal audio element.
+const IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+let iosUnlockEl = null;
+function setAudioSession(type) {
+  try { if (navigator.audioSession) navigator.audioSession.type = type; } catch (e) { /* not supported */ }
+}
+function iosPlaybackMode() {
+  if (!IS_IOS) return;
+  setAudioSession('playback');
+  if (!navigator.audioSession) {
+    try {
+      if (!iosUnlockEl) {
+        iosUnlockEl = new Audio('data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YQAAAAA=');
+        iosUnlockEl.setAttribute('playsinline', '');
+      }
+      const p = iosUnlockEl.play();
+      if (p && p.catch) p.catch(() => {});
+    } catch (e) { /* fine */ }
+  }
 }
 
 function getPlayBuffer() {
@@ -2262,6 +2324,7 @@ function pauseToggle() {
 
 function startPlayback(from) {
   stopPlayback(false);
+  if (!isRecording) iosPlaybackMode();
   const buf = getPlayBuffer();
   if (from >= buf.duration - 0.02) from = 0;
 
@@ -2823,7 +2886,7 @@ copyLinkBtn.addEventListener('click', async () => {
   }
 });
 </script>
-<div id="tool-version">v11.2</div>
+<div id="tool-version">v11.3</div>
 <div id="tag-footer"></div>
 <script src="/partials/inject-brand.js"></script>
 </body>
