@@ -63,6 +63,15 @@
     100% { transform: scale(1.45); opacity: 0; }
   }
 
+  #clear-btn {
+    display: none; margin: -8px auto 16px; padding: 6px 14px; border-radius: 6px;
+    border: 1.5px solid var(--rule); background: #fff; color: var(--mid); cursor: pointer;
+    font-family: 'Raleway', sans-serif; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.04em;
+    text-transform: uppercase; transition: border-color 0.15s, color 0.15s, background 0.15s;
+  }
+  #clear-btn.on { display: inline-block; }
+  #clear-btn:hover:not(:disabled) { border-color: var(--red); color: var(--red); background: var(--red-bg); }
+  #clear-btn:disabled { color: #c9c9c9; cursor: not-allowed; }
   #timer { font-family: 'Raleway', sans-serif; font-size: 1.9rem; font-weight: 800; letter-spacing: 0.02em; margin-bottom: 4px; font-variant-numeric: tabular-nums; }
   #status-text { font-size: 0.85rem; color: var(--mid); margin-bottom: 14px; }
 
@@ -350,6 +359,7 @@
         </svg>
       </button>
     </div>
+    <button id="clear-btn" type="button" title="Clear everything and start again with a clean slate">Clear Recording</button>
 
     <div id="timer">00:00</div>
     <div id="status-text">Tap to start recording</div>
@@ -409,9 +419,6 @@
       <div class="action-row">
         <button id="download-btn" class="btn-primary">Download MP3</button>
         <button id="upload-btn" class="btn-primary">Upload to Drive</button>
-      </div>
-      <div class="action-row">
-        <button id="fresh-btn" class="btn-secondary" style="flex:1;" title="Delete everything and start a brand new recording">Record Fresh</button>
       </div>
       <div id="encode-status"></div>
 
@@ -501,7 +508,7 @@
       <li><b>Hit it again to stop</b> — your recording appears as a waveform, ready to edit.</li>
       <li><b>Edit it</b> (see below), press <b>▶</b> or the <b>Space bar</b> to listen back.</li>
       <li><b>Download MP3</b> saves your edited version straight to your computer.</li>
-      <li>Want to start over completely? <b>Record Fresh</b> deletes everything and starts a brand new recording.</li>
+      <li>Want to start over completely? <b>Clear Recording</b> (just under the Record button) clears everything and gives you a clean slate — nothing records until you hit Record again.</li>
     </ol>
 
     <h3>Punch &amp; roll</h3>
@@ -519,7 +526,7 @@
     <ul>
       <li>With audio already in the editor, <b>Add an MP3 after this audio</b> puts the file on the timeline as a new item, straight after what's there.</li>
       <li><b>Drag a file onto the waveform</b> and it appears just after the current audio — keep dragging to slide it wherever you want, even over the existing audio, then let go. Where it overlaps, the two crossfade.</li>
-      <li>Want a blank slate instead? Hit <b>Record Fresh</b> first, then open your file.</li>
+      <li>Want a blank slate instead? Hit <b>Clear Recording</b> first, then open your file.</li>
     </ul>
 
     <h3>Editing</h3>
@@ -607,7 +614,7 @@ const punchAtEl     = document.getElementById('punch-at');
 const postRec       = document.getElementById('post-rec');
 const filenameInput = document.getElementById('filename-input');
 const downloadBtn   = document.getElementById('download-btn');
-const freshBtn      = document.getElementById('fresh-btn');
+const clearBtn      = document.getElementById('clear-btn');
 const encodeStatus  = document.getElementById('encode-status');
 const meterWrap     = document.getElementById('meter-wrap');
 const waveformCanvas = document.getElementById('waveform-canvas');
@@ -792,6 +799,7 @@ async function beginRecording(mode) {
   encodeStatus.textContent = '';
   encodeStatus.className = '';
 
+  updateClearBtn();
   recBtn.classList.add('recording');
   recBtn.title = 'Stop recording (Space)';
   recIcon.innerHTML = STOP_ICON;
@@ -834,6 +842,7 @@ function stopRecording() {
 
   recBtn.classList.remove('recording');
   recIcon.innerHTML = MIC_ICON;
+  updateClearBtn();
   pulseRing.classList.remove('on');
   updateRecTitle();
 
@@ -885,7 +894,7 @@ async function handleStop(r) {
 }
 
 function setActionsEnabled(on) {
-  [downloadBtn, uploadBtn, freshBtn].forEach(b => { b.disabled = !on; });
+  [downloadBtn, uploadBtn, clearBtn].forEach(b => { b.disabled = !on; });
 }
 
 function updateRecTitle() {
@@ -917,12 +926,35 @@ function recTick() {
   recRAF = requestAnimationFrame(recTick);
 }
 
-// ── RECORD FRESH ───────────────────────────────────────────
-freshBtn.addEventListener('click', () => {
-  if (isRecording) return;
-  if (hasAudio() && !confirm('Delete everything recorded so far and start a fresh recording?')) return;
-  beginRecording('fresh');
+// ── CLEAR RECORDING ────────────────────────────────────────
+// Wipes the editor back to a clean slate. Nothing records until the
+// Record button is pressed again.
+function updateClearBtn() {
+  clearBtn.classList.toggle('on', !isRecording && (hasAudio() || !!recordedBlob));
+}
+
+clearBtn.addEventListener('click', () => {
+  if (isRecording || recStarting) return;
+  if (hasAudio() && !confirm('Clear everything recorded so far and start again with a clean slate?')) return;
+  clearRecording();
 });
+
+function clearRecording() {
+  stopPlayback(false);
+  recordedBlob = null;
+  resetEditor();
+  postRec.classList.remove('on');
+  recOptions.classList.remove('on');
+  shareBox.classList.remove('on');
+  shareLinkInput.value = '';
+  filenameInput.value = '';
+  encodeStatus.textContent = '';
+  encodeStatus.className = '';
+  timerEl.textContent = '00:00';
+  statusEl.textContent = 'Tap to start recording';
+  clearBtn.blur();
+  updateClearBtn();
+}
 
 // ── OPEN / DROP AN AUDIO FILE ──────────────────────────────
 // Any file the browser can decode (MP3, WAV, M4A…) can come in. With an
@@ -948,6 +980,7 @@ fileInput.addEventListener('change', () => {
 });
 
 function updateFileLinks() {
+  updateClearBtn();
   const on = hasAudio();
   openFileBtn.textContent = on ? '⤒ Add an MP3 after this audio' : '⤒ Open an MP3 to edit';
   openFileBtn.title = on ? 'Add an audio file as a new item after the current audio' : 'Open an MP3 (or WAV, M4A…) to edit';
@@ -2939,7 +2972,7 @@ copyLinkBtn.addEventListener('click', async () => {
   }
 });
 </script>
-<div id="tool-version">v11.6</div>
+<div id="tool-version">v12.0</div>
 <div id="tag-footer"></div>
 <script src="/partials/inject-brand.js"></script>
 </body>
