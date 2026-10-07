@@ -537,7 +537,7 @@
       <li><b>Zoom</b> — use <b>+ / −</b>, <b>Fit</b>, or Ctrl/Cmd + scroll over the waveform. Shift + scroll (or a sideways trackpad swipe) moves along it.</li>
       <li><b>⤢ Expand</b> — makes the editor much bigger for detailed work (and a plain scroll wheel zooms). It remembers your choice next time.</li>
     </ul>
-    <p>Stopping playback with <b>Space</b> returns the playhead to where you pressed Play — press <b>Enter</b> instead to pause right where you are. <b>[</b> and <b>]</b> jump to the start or end of everything, and <b>Ctrl/Cmd + [</b> or <b>]</b> hops to the nearest item edge. The <b>← →</b> arrow keys nudge the playhead a little (hold <b>Shift</b> for bigger steps), and <b>↑ ↓</b> zoom in and out.</p>
+    <p>Stopping playback with <b>Space</b> returns the playhead to where you pressed Play — press <b>Enter</b> instead to pause right where you are. <b>[</b> and <b>]</b> jump to the start or end of everything, and <b>Ctrl/Cmd + [</b> or <b>]</b> hops to the nearest item edge. The <b>← →</b> arrow keys nudge the playhead a little (hold <b>Shift</b> for bigger steps), and <b>↑ ↓</b> zoom in and out. <b>Shift + ↑ ↓</b> makes the waveform taller or shorter so quiet bits are easier to see — it only changes the picture, never the volume.</p>
     <p>See every key: <button class="keys-link" id="keys-link-howto" type="button">⌨ Keyboard shortcuts</button></p>
 
     <hr class="howto-divider">
@@ -1230,6 +1230,17 @@ let drag = null;
 let editVersion = 0, renderCache = null, playBufCache = null;
 let playCtx = null, playSrc = null, playT0 = 0, playFrom = 0, isPlaying = false, playRAF = null;
 let cssW = 1, cssH = 1;
+let waveZoom = 1;                // waveform display height only — never changes the audio
+const WAVE_ZOOM_KEY = 'audiobookguy.audioRecorder.waveZoom.v1';
+try { const z = parseFloat(localStorage.getItem(WAVE_ZOOM_KEY)); if (isFinite(z)) waveZoom = Math.max(0.25, Math.min(32, z)); } catch (e) { /* fine */ }
+
+function setWaveZoom(factor) {
+  waveZoom = clamp(waveZoom * factor, 0.25, 32);
+  if (Math.abs(waveZoom - 1) < 0.02) waveZoom = 1;
+  try { localStorage.setItem(WAVE_ZOOM_KEY, String(waveZoom)); } catch (e) { /* fine */ }
+  draw();
+  updateReadout();
+}
 
 const hasAudio = () => sources.length > 0 && items.length > 0;
 const selectedItem = () => (selItemId == null ? null : items.find(it => it.id === selItemId) || null);
@@ -1782,7 +1793,8 @@ function draw() {
       if (t1 <= t0) continue;
       const mm = srcMinMax(S, (it.srcStart + t0 - it.pos) * srcRate, (it.srcStart + t1 - it.pos) * srcRate);
       if (!mm) continue;
-      const y1 = mid - mm[1] * amp, y2 = mid - mm[0] * amp;
+      const y1 = Math.max(L.waveTop, mid - mm[1] * amp * waveZoom);
+      const y2 = Math.min(L.waveBot, mid - mm[0] * amp * waveZoom);
       g.fillRect(px, y1, 1, Math.max(1, y2 - y1));
     }
   }
@@ -1925,6 +1937,7 @@ function updateReadout() {
   if (items.length > 1) parts.push(`${items.length} items`);
   if (selection) parts.push(`Selection ${fmtTenths(selection.a)} → ${fmtTenths(selection.b)} (${(selection.b - selection.a).toFixed(2)} s)`);
   else parts.push(`Playhead ${fmtTenths(playhead)}`);
+  if (waveZoom !== 1) parts.push(`Waveform ×${waveZoom < 1 ? waveZoom.toFixed(2) : waveZoom.toFixed(1)}`);
   editReadout.textContent = parts.join('  ·  ');
 }
 
@@ -2164,6 +2177,7 @@ const SHORTCUTS = [
   ]},
   { group: 'View', rows: [
     ['Zoom in / out', [['↑'], ['↓'], ['+'], ['−']]],
+    ['Make the waveform taller / shorter (display only — volume doesn\'t change)', [['Shift', '↑'], ['Shift', '↓']]],
     ['Zoom around the mouse', [[MOD_KEY, 'Scroll']]],
     ['Scroll along the waveform', [['Shift', 'Scroll']]],
     ['Show this list', [['?']]],
@@ -2257,6 +2271,10 @@ document.addEventListener('keydown', (e) => {
   else if (!mod && !alt && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
     e.preventDefault(); blurButton();
     nudgePlayhead(e.key === 'ArrowLeft' ? -1 : 1, shift);
+  }
+  else if (shift && !mod && !alt && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+    e.preventDefault(); blurButton();
+    setWaveZoom(e.key === 'ArrowUp' ? 1.25 : 0.8);
   }
   else if (!mod && !alt && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
     e.preventDefault(); blurButton();
@@ -2886,7 +2904,7 @@ copyLinkBtn.addEventListener('click', async () => {
   }
 });
 </script>
-<div id="tool-version">v11.3</div>
+<div id="tool-version">v11.4</div>
 <div id="tag-footer"></div>
 <script src="/partials/inject-brand.js"></script>
 </body>
