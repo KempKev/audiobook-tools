@@ -720,7 +720,7 @@ async function beginRecording(mode) {
   stopPlayback(false);
   // iOS only lets audio start inside the tap itself, so wake everything now,
   // before waiting on the microphone.
-  if (IS_IOS) setAudioSession('play-and-record');
+  if (IS_IOS) { setAudioSession('auto'); iosCaptureUsed = true; }
   if (mode === 'punch') ensurePlayCtx();
   const AC0 = window.AudioContext || window.webkitAudioContext;
   try { audioCtx = new AC0(); audioCtx.resume().catch(() => {}); } catch (e) { audioCtx = null; }
@@ -823,6 +823,8 @@ function stopRecording() {
   }
   if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
   if (stream) stream.getTracks().forEach(t => t.stop());
+  stream = null;
+  if (IS_IOS) setAudioSession('playback');
   clearInterval(timerId);
   if (recRAF) cancelAnimationFrame(recRAF);
   recRAF = null;
@@ -2299,12 +2301,22 @@ function ensurePlayCtx() {
 const IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
   (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 let iosUnlockEl = null;
+let iosCaptureUsed = false;   // an audio engine made while the mic was live stays on the earpiece
 function setAudioSession(type) {
   try { if (navigator.audioSession) navigator.audioSession.type = type; } catch (e) { /* not supported */ }
 }
 function iosPlaybackMode() {
   if (!IS_IOS) return;
   setAudioSession('playback');
+  // iOS keeps an audio engine on the route it started with. If the playback
+  // engine was created or used while the mic was live, it's stuck on the
+  // earpiece — so throw it away and build a fresh one, now, inside the tap.
+  if (iosCaptureUsed && playCtx) {
+    try { playCtx.close(); } catch (e) { /* fine */ }
+    playCtx = null;
+    playBufCache = null;
+  }
+  iosCaptureUsed = false;
   if (!navigator.audioSession) {
     try {
       if (!iosUnlockEl) {
@@ -2904,7 +2916,7 @@ copyLinkBtn.addEventListener('click', async () => {
   }
 });
 </script>
-<div id="tool-version">v11.4</div>
+<div id="tool-version">v11.5</div>
 <div id="tag-footer"></div>
 <script src="/partials/inject-brand.js"></script>
 </body>
