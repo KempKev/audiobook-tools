@@ -451,9 +451,10 @@
     <ul>
       <li>Set your microphone and headphones in <b>Mic &amp; Output</b>. Arm a track with its red <b>●</b> button — the meter shows your input level. Aim for peaks well below the red.</li>
       <li><b>Punch &amp; Roll</b> — stop at a mistake, place the cursor where you want to pick up, and press <b>R</b> (or <b>Ctrl/Cmd + R</b>, or <b>Shift + Space</b>). The pre-roll plays the lead-in so you can match your read, then recording starts at the cursor. Everything after that point on the armed track is replaced by the new take (Undo brings it back).</li>
-      <li><b>Record over selected item</b> — click an item, press <b>R</b>, and the new take replaces just that item. Recording stops by itself at the item's end.</li>
-      <li><b>Record over time selection</b> — drag across the armed track to select a stretch (it can cover several items) and press <b>R</b>. Only that stretch is replaced; recording stops at the end of the selection.</li>
+      <li><b>Record over selected item</b> — click an item, press <b>R</b>, and the new take replaces just that item. Recording keeps going until you stop it, so you can carry on past the item's end.</li>
+      <li><b>Record over time selection</b> — drag across the armed track to select a stretch (it can cover several items) and press <b>R</b>. Only that stretch is replaced; recording keeps going until you stop it.</li>
       <li>Press <b>Space</b>, <b>Esc</b> or <b>R</b> to stop. Takes are written as WAV files into your project's Audio Files folder while you record.</li>
+      <li><b>Every take keeps all of your audio</b> — the pre-roll and anything after the end of the item or selection are recorded too. The new item sits exactly where you punched in, and you can <b>Alt/Opt-drag</b> inside it to slide the take, or drag its edges to reveal the extra audio, to blend it with the takes either side.</li>
     </ul>
 
     <h3>Editing</h3>
@@ -463,7 +464,7 @@
       <li><b>Delete</b> (<b>Delete</b>, <b>Backspace</b> or <b>Shift + D</b>) removes the selection and leaves a gap; everything else stays exactly where it is.</li>
       <li><b>Delete &amp; Join</b> (<b>Shift + Delete</b>, <b>Alt/Opt + Delete</b> or <b>Alt/Opt + Shift + D</b>) closes the gap so everything after slides up, and crossfades the two pieces either side. The cursor jumps to a second before the join so you can press Play and hear it.</li>
       <li><b>Close Gaps</b> (<b>Alt/Opt + Shift + Space</b>) slides the items on the selected tracks back to back so there's no silence between them.</li>
-      <li>Drag an item's top bar to move it, including onto another track. Drag its edges to trim, and the small squares at its top corners to fade in or out. Overlap two items on a track and they crossfade automatically. <b>Alt/Opt-drag</b> inside an item slides its audio while the item stays put.</li>
+      <li>Drag an item's top bar to move it, including onto another track. Drag its edges to trim, and the small squares at its top corners to fade in or out. Overlap two items on a track and they crossfade automatically. <b>Alt/Opt-drag</b> inside an item slides its audio while the item stays put — the audio loops round, so you can always slide it, even when the item is the full length of its take (a faint dotted line shows where the take starts over).</li>
       <li>Every edit is non-destructive — your original takes are never changed, and Undo goes all the way back.</li>
     </ul>
 
@@ -487,7 +488,7 @@
 </section>
 
 <div id="disclaimer">The Audiobook Guy DAW is still under construction. While we work on it, we can't guarantee its stability and can't be held responsible for lost recordings, projects or files. Please keep backups of anything important.</div>
-<div id="tool-version">v3.0</div>
+<div id="tool-version">v3.1</div>
 <div id="tag-footer"></div>
 
 <!-- ═══ MODALS ═══ -->
@@ -911,10 +912,10 @@ async function readZip(file) {
 }
 
 // ═══════════════════════════════════════════════════════════
-// THE AUDIOBOOK GUY DAW — v3.0
+// THE AUDIOBOOK GUY DAW — v3.1
 // ═══════════════════════════════════════════════════════════
 'use strict';
-const APP_VERSION = '3.0';
+const APP_VERSION = '3.1';
 const PROJECT_EXT = '.tagdaw';
 const AUDIO_DIR   = 'Audio Files';
 const DEF_TRACK_H = 96, MIN_TRACK_H = 60, MAX_TRACK_H = 480;
@@ -1373,30 +1374,48 @@ function itemGain(c, item, f, local, dur, when, dest) {
 
 // A "job" plays one item from timeline time `fromTl` (= context time `t0`),
 // fetching its audio a block at a time just ahead of the playhead.
-function makeJob(c, item, f, fromTl, t0, dest, untilTl) {
+// An item's audio loops: slide it past the end of its take and it carries on
+// from the start, so there's always audio to slide within the item.
+const modN = (v, n) => ((v % n) + n) % n;
+// keeps a looped item's offset inside its take (same sound, tidier numbers)
+function normOffset(it) { const d = srcDur(it.src); if (isFinite(d) && d > 0 && (it.offset >= d || it.offset < 0)) it.offset = modN(it.offset, d); return it; }
+function itemLoops(it, s) {
+  s = s || sources.get(it.src);
+  return !!(s && !s.missing && isFinite(s.dur) && (it.offset < -1e-6 || it.offset + it.len > s.dur + 0.001));
+}
+// `afterTl` skips the item before that timeline time (used to carry on
+// playing a track after the end of a punch range while recording).
+function makeJob(c, item, f, fromTl, t0, dest, untilTl, afterTl) {
   const s = sources.get(item.src);
   if (!s || s.missing) return null;
   const end = Math.min(itemEnd(item), untilTl == null ? Infinity : untilTl);
-  const st = Math.max(fromTl, item.start);
+  const st = Math.max(fromTl, item.start, afterTl == null ? -Infinity : afterTl);
   if (end - st <= 0.0005) return null;
   const local = st - item.start, dur = end - st, when = t0 + (st - fromTl);
   const g = itemGain(c, item, f, local, dur, when, dest);
   const rate = s.rate, exact0 = item.offset + local, frame0 = Math.round(exact0 * rate);
-  return { item, s, g, rate, t0, fromTl, exact0, frame0, when0: when,
-    frame: frame0,
-    endFrame: Math.min(s.frames, Math.round((item.offset + local + dur) * rate)) };
+  const loop = itemLoops(item, s);
+  let endFrame = Math.round((item.offset + local + dur) * rate);
+  if (!loop) endFrame = Math.min(s.frames, endFrame);
+  return { item, s, g, rate, t0, fromTl, exact0, frame0, when0: when, loop,
+    frame: loop ? frame0 : Math.max(0, frame0), endFrame };
 }
 function jobWhen(job, fr) { return job.t0 + (job.item.start + fr / job.rate - job.item.offset - job.fromTl); }
 function pumpJob(c, job, horizon, owner, sink) {
-  const CF = chunkFrames(job.s);
+  const CF = chunkFrames(job.s), N = job.s.frames;
   while (job.frame < job.endFrame && jobWhen(job, job.frame) < horizon) {
-    const idx = Math.floor(job.frame / CF), a = job.frame, b = Math.min(job.endFrame, (idx + 1) * CF);
-    job.frame = b;
+    // `vf` counts frames along the item; `real` is where that lands in the take
+    const vf = job.frame, real = job.loop ? modN(vf, N) : vf;
+    const idx = Math.floor(real / CF), blockEnd = job.loop ? Math.min(N, (idx + 1) * CF) : (idx + 1) * CF;
+    const seg = Math.min(blockEnd - real, job.endFrame - vf);
+    if (seg <= 0) { job.frame = job.endFrame; break; }
+    job.frame = vf + seg;
     const p = getChunk(job.s, idx).then(buf => {
       if (owner && play !== owner) return;
-      let when = jobWhen(job, a), off = (a - idx * CF) / job.rate, dur = (b - a) / job.rate;
-      if (a === job.frame0) {   // first block starts at the item's exact (sub-sample) position
-        when = job.when0; off = job.exact0 - idx * CF / job.rate; dur = b / job.rate - job.exact0;
+      let when = jobWhen(job, vf), off = (real - idx * CF) / job.rate, dur = seg / job.rate;
+      if (vf === job.frame0) {   // first block starts at the item's exact (sub-sample) position
+        const exactReal = real / job.rate + (job.exact0 - vf / job.rate);
+        when = job.when0; off = Math.max(0, exactReal - idx * CF / job.rate); dur = (real + seg) / job.rate - exactReal;
         if (dur <= 0) return;
       }
       if (owner) {
@@ -1421,7 +1440,8 @@ function currentTime() {
   if (!play) return ui.cursor;
   return Math.max(play.from, play.from + (ctx.currentTime - play.t0));
 }
-// opts.clip = { trackId, at } plays that track only up to `at` (used while recording)
+// opts.clip = { trackId, at, resume } plays that track only up to `at`, and
+// again from `resume` if given (used while recording)
 function startPlayback(from, opts) {
   stopPlayback(true);
   const c = ensureCtx(), t0 = c.currentTime + 0.12;
@@ -1431,8 +1451,11 @@ function startPlayback(from, opts) {
     const bus = makeTrackBus(c, t, masterGain, anySolo);
     trackNodes.set(t.id, bus);
     const fades = trackFades(t);
-    const until = (opts && opts.clip && opts.clip.trackId === t.id) ? opts.clip.at : null;
-    t.items.forEach(it => { const j = makeJob(c, it, fades.get(it.id), from, t0, bus.g, until); if (j) jobs.push(j); });
+    const clip = (opts && opts.clip && opts.clip.trackId === t.id) ? opts.clip : null;
+    t.items.forEach(it => {
+      const j = makeJob(c, it, fades.get(it.id), from, t0, bus.g, clip ? clip.at : null); if (j) jobs.push(j);
+      if (clip && clip.resume != null) { const j2 = makeJob(c, it, fades.get(it.id), from, t0, bus.g, null, clip.resume); if (j2) jobs.push(j2); }
+    });
   });
   const userFrom = (opts && opts.userFrom != null) ? opts.userFrom : from;
   play = { t0, from, userFrom, jobs, nodes: [], trackNodes, timer: null };
@@ -1574,11 +1597,15 @@ async function startRecording() {
   const nCh = P.settings.ch === 2 ? 2 : 1, rate = inp.ctx.sampleRate, bits = P.settings.bits;
   const file = uniqueFile(`${track.name} ${stamp()}`, '.wav');
   const writer = new TakeWriter(store, file, nCh, rate, bits);
-  startPlayback(from, { clip: { trackId: track.id, at: a } });
+  startPlayback(from, { clip: { trackId: track.id, at: a, resume: b === Infinity ? null : b } });
   const c = ctx;
   const comp = (c.outputLatency || 0) + (c.baseLatency || 0) + (inp.latency || 0) + (P.settings.offsetMs || 0) / 1000;
   const half = PUNCH_XF / 2;
+  // The take records the whole time — from the start of the pre-roll until you
+  // stop — so its audio can be slid later to blend with earlier takes. The
+  // item still covers only the punch range (capA … capB).
   rec = { trackId: track.id, mode, a, b, from, t0: play.t0, comp, rate, nCh, bits, file, writer, len: 0,
+          capS: from, takeT0: null,
           capA: Math.max(from, a - half), capB: b === Infinity ? Infinity : b + half,
           targetId: target ? target.item.id : null, pk: new PeakBuilder(), stopping: false };
   inp.worklet.port.postMessage('start');
@@ -1594,10 +1621,9 @@ function onCaptureMessage(e) {
   const rate = rec.rate, n = m.data[0].length;
   // timeline time of the chunk's first sample, with latency compensation
   const tl0 = rec.from + (m.frame / rate - rec.t0) - rec.comp;
-  let k0 = Math.ceil((rec.capA - tl0) * rate - 1e-6);
-  let k1 = rec.capB === Infinity ? n : Math.floor((rec.capB - tl0) * rate + 1e-6);
-  k0 = clamp(k0, 0, n); k1 = clamp(k1, 0, n);
+  let k0 = clamp(Math.ceil((rec.capS - tl0) * rate - 1e-6), 0, n), k1 = n;
   if (k1 <= k0) return;
+  if (rec.takeT0 == null) rec.takeT0 = tl0 + k0 / rate;   // timeline time of the take's first sample
   const pick = (c) => m.data[c].subarray(k0, k1);
   let chs;
   if (rec.nCh === 2) chs = [pick(0).slice(), pick(1).slice()];
@@ -1623,7 +1649,9 @@ async function finishRecording() {
   updateRecStatus();
   if (ui.armed == null) closeInput();
   const rate = r.rate;
-  if (r.len < rate * 0.05) {
+  const takeT0 = r.takeT0 == null ? r.capS : r.takeT0;
+  const itStart = Math.max(r.capA, takeT0), itOff = itStart - takeT0;   // where the punch range sits inside the take
+  if (r.len - itOff * rate < rate * 0.05) {
     r.writer.cancel(); knownFiles.delete(r.file.toLowerCase());
     markStatic(); toast('Nothing was recorded — the take was too short.'); return;
   }
@@ -1641,10 +1669,10 @@ async function finishRecording() {
   savePeaks(s);
   const track = findTrack(r.trackId);
   if (!track) { markStatic(); return; }
-  const L = s.dur;
+  const L = s.dur - itOff;                      // take audio from the item's start onwards
   edit(() => {
-    const it = newItem(r.file, r.capA, 0, L);
-    const lead = r.a - r.capA;                 // take audio recorded before the punch-in point
+    const it = newItem(r.file, itStart, itOff, L);
+    const lead = r.a - itStart;                // take audio used before the punch-in point
     // the old audio just before the punch point carries on under the new take for a moment
     const extendLeft = x => { const hl = Math.max(0, Math.min(PUNCH_XF / 2, srcDur(x.src) - (x.offset + x.len))); x.len += hl; return hl; };
     let left = null;
@@ -1659,7 +1687,7 @@ async function finishRecording() {
     if (lead + hl > 1e-6) { it.fadeIn = 0; if (left) left.fadeOut = 0; }      // overlap → automatic crossfade
     else { it.fadeIn = EDGE_FADE; if (left) left.fadeOut = Math.min(Math.max(left.fadeOut, EDGE_FADE), left.len); }
     if (r.mode !== 'punch') {
-      it.len = Math.min(L, r.capB - r.capA);
+      it.len = Math.min(L, r.capB - itStart);
       const right = track.items.find(x => Math.abs(x.start - r.b) < 1e-6 && x !== left);
       if (right && itemEnd(it) >= r.b - 1e-6) {
         // reveal a little of the old audio under the end of the take so the punch-out crossfades too
@@ -1686,7 +1714,7 @@ function clearRange(track, a, b, softEdges) {
     const s = x.start, e = itemEnd(x);
     if (e <= a + 1e-9 || s >= b - 1e-9) { out.push(x); return; }
     if (s < a - 1e-9) { const l = Object.assign({}, x, { len: a - s }); if (softEdges) l.fadeOut = Math.min(Math.max(x.fadeOut, EDGE_FADE), l.len); else l.fadeOut = Math.min(x.fadeOut, l.len); out.push(l); }
-    if (e > b + 1e-9) { const cut = b - s; const rr = Object.assign({}, x, { id: P.nextId++, start: b, offset: x.offset + cut, len: e - b, fadeIn: softEdges ? EDGE_FADE : 0 }); rr.fadeOut = Math.min(x.fadeOut, rr.len); out.push(rr); }
+    if (e > b + 1e-9) { const cut = b - s; const rr = Object.assign({}, x, { id: P.nextId++, start: b, offset: x.offset + cut, len: e - b, fadeIn: softEdges ? EDGE_FADE : 0 }); rr.fadeOut = Math.min(x.fadeOut, rr.len); out.push(normOffset(rr)); }
   });
   track.items = out;
 }
@@ -1697,6 +1725,7 @@ function updateRecStatus() {
   const t = currentTime();
   if (rec.stopping) { el.textContent = 'Saving…'; el.className = 'pre'; }
   else if (t < rec.a) { el.textContent = 'Pre-roll ' + Math.ceil(rec.a - t); el.className = 'pre'; }
+  else if (rec.b !== Infinity && t > rec.b) { el.textContent = '● Recording · past the end'; el.className = 'live'; }
   else { el.textContent = '● Recording'; el.className = 'live'; }
 }
 
@@ -1744,7 +1773,6 @@ function loop() {
   if (play) {
     pump();
     const t = currentTime();
-    if (rec && !rec.stopping && rec.b !== Infinity && t >= rec.capB + Math.max(0.05, rec.comp)) stopRecording();
     if (!rec && t > projectEnd() + 0.3 && t > play.from + 0.3) stopPlayback();
     else followPlayhead(t);
   }
@@ -1779,7 +1807,7 @@ function resizeCanvases() {
 function markStatic() { staticDirty = true; markOverlay(); }
 function markOverlay() { if (overlayQueued) return; overlayQueued = true; requestAnimationFrame(() => { overlayQueued = false; drawOverlay(); }); }
 
-function viewSpan() { return Math.max(projectEnd(), ui.cursor, rec ? rec.capA + rec.len / rec.rate : 0) + W / ui.pps * 0.5 + 5; }
+function viewSpan() { return Math.max(projectEnd(), ui.cursor, rec ? rec.capS + rec.len / rec.rate : 0) + W / ui.pps * 0.5 + 5; }
 function updateScrollbar() {
   const inner = $('hscroll-inner'), sc = $('hscroll');
   inner.style.width = Math.max(W, viewSpan() * ui.pps) + 'px';
@@ -1845,24 +1873,37 @@ function drawRuler() {
 function drawWave(g, item, s, x0, x1, top, h, color) {
   const rate = s.rate, mid = top + h / 2, amp = (h / 2) * 0.95 * ui.waveZoom, n = s.frames;
   const { mins, maxs } = s.peaks;
-  const ix0 = tToX(item.start), spp = rate / ui.pps;
+  const ix0 = tToX(item.start), spp = rate / ui.pps, loop = itemLoops(item, s);
   let detail = null;
   if (spp < PEAK_BIN * 2) {
-    const fa = Math.floor(((x0 - ix0) / ui.pps + item.offset) * rate), fb = Math.ceil(((x1 - ix0) / ui.pps + item.offset) * rate);
+    let fa = Math.floor(((x0 - ix0) / ui.pps + item.offset) * rate), fb = Math.ceil(((x1 - ix0) / ui.pps + item.offset) * rate);
+    if (loop) { const span = fb - fa; fa = modN(fa, n); fb = fa + span; if (fb > n) { fa = 0; fb = n; } }
     detail = getDetail(s, clamp(fa, 0, n), clamp(fb, 0, n));
   }
+  // min/max of the take between two of its frames (s0 < s1, both inside the take)
+  const scan = (s0, s1, acc) => {
+    if (s1 <= s0) return;
+    if (detail && s0 >= detail.f0 && s1 <= detail.f1) {
+      for (const d of detail.chs) for (let i = s0 - detail.f0, e = s1 - detail.f0; i < e; i++) { const v = d[i]; if (v < acc.lo) acc.lo = v; if (v > acc.hi) acc.hi = v; }
+    } else {
+      const b0 = Math.floor(s0 / PEAK_BIN), b1 = Math.max(b0 + 1, Math.ceil(s1 / PEAK_BIN));
+      for (let b = b0; b < b1 && b < mins.length; b++) { if (mins[b] < acc.lo * 127) acc.lo = mins[b] / 127; if (maxs[b] > acc.hi * 127) acc.hi = maxs[b] / 127; }
+    }
+  };
   g.fillStyle = color;
   for (let x = Math.floor(x0); x < x1; x++) {
     const tA = (x - ix0) / ui.pps + item.offset, tB = (x + 1 - ix0) / ui.pps + item.offset;
-    let s0 = Math.floor(tA * rate), s1 = Math.ceil(tB * rate);
-    s0 = clamp(s0, 0, n); s1 = clamp(s1, 0, n); if (s1 <= s0) continue;
-    let lo = 1, hi = -1;
-    if (detail && s0 >= detail.f0 && s1 <= detail.f1) {
-      for (const d of detail.chs) for (let i = s0 - detail.f0, e = s1 - detail.f0; i < e; i++) { const v = d[i]; if (v < lo) lo = v; if (v > hi) hi = v; }
+    const acc = { lo: 1, hi: -1 };
+    if (loop) {
+      const span = Math.min(n, Math.max(1, Math.ceil(tB * rate) - Math.floor(tA * rate)));
+      const s0 = modN(Math.floor(tA * rate), n), s1 = s0 + span;
+      if (s1 <= n) scan(s0, s1, acc); else { scan(s0, n, acc); scan(0, s1 - n, acc); }
     } else {
-      const b0 = Math.floor(s0 / PEAK_BIN), b1 = Math.max(b0 + 1, Math.ceil(s1 / PEAK_BIN));
-      for (let b = b0; b < b1 && b < mins.length; b++) { if (mins[b] < lo * 127) lo = mins[b] / 127; if (maxs[b] > hi * 127) hi = maxs[b] / 127; }
+      let s0 = Math.floor(tA * rate), s1 = Math.ceil(tB * rate);
+      s0 = clamp(s0, 0, n); s1 = clamp(s1, 0, n); if (s1 <= s0) continue;
+      scan(s0, s1, acc);
     }
+    const lo = acc.lo, hi = acc.hi;
     if (hi < lo) continue;
     const y0 = Math.max(top, mid - hi * amp), y1 = Math.min(top + h, mid - lo * amp);
     if (y1 >= y0) g.fillRect(x, y0, 1, Math.max(1, y1 - y0));
@@ -1887,6 +1928,19 @@ function drawItem(g, t, it, fades, rTop, rH, multi) {
     g.globalAlpha = multi ? 0.85 : 1;
     drawWave(g, it, src, Math.max(cx0, 0), Math.min(cx1, W), G.waveTop, G.waveBot - G.waveTop, '#e05a00');
     g.restore();
+    // where a looped item's audio starts over from the top of its take
+    if (itemLoops(it, src) && src.dur * ui.pps > 4) {
+      g.save(); g.strokeStyle = 'rgba(34,34,34,0.35)'; g.lineWidth = 1; g.setLineDash([3, 3]); g.beginPath();
+      for (let k = Math.ceil(it.offset / src.dur - 1e-9); ; k++) {
+        const tl = it.start + k * src.dur - it.offset;
+        if (tl >= itemEnd(it) - 1e-6) break;
+        if (tl <= it.start + 1e-6) continue;
+        const xx = Math.round(tToX(tl)) + 0.5;
+        if (xx > W + 2) break;
+        if (xx >= -2) { g.moveTo(xx, G.waveTop); g.lineTo(xx, G.waveBot); }
+      }
+      g.stroke(); g.restore();
+    }
   } else { g.fillStyle = '#b91c1c'; g.font = '600 11px "Open Sans", sans-serif'; g.textBaseline = 'alphabetic'; g.fillText('Audio file missing', Math.max(cx0, 0) + 6, top + BAR_H + 18); }
   // fades you've drawn yourself (crossfades get the X instead)
   g.strokeStyle = 'rgba(34,34,34,0.45)'; g.lineWidth = 1; g.beginPath();
@@ -1979,16 +2033,23 @@ function drawOverlay() {
       const rTop = rowTop(row), rH = trackH(P.tracks[row]), G = itemGeom(rTop, rH);
       const xa = tToX(rec.a);
       if (rec.len > 0) {
-        // the new take growing over what it replaces
-        const xs = tToX(rec.capA), x1 = tToX(rec.capA + rec.len / rec.rate);
-        g.fillStyle = 'rgba(242,242,242,0.7)'; g.fillRect(xs, G.top, x1 - xs, G.h);
-        g.fillStyle = 'rgba(220,38,38,0.16)'; g.fillRect(xs, G.top, x1 - xs, G.h);
-        g.fillStyle = '#dc2626'; g.fillRect(xs, G.top + 1, x1 - xs, BAR_H);
+        // the new take growing over what it replaces. The take is also capturing
+        // the pre-roll (kept in the file, not shown), and anything after the end
+        // of the item / selection is drawn lighter: it's in the take, outside the item.
+        const t0r = rec.takeT0 == null ? rec.capS : rec.takeT0;
+        const tNow = t0r + rec.len / rec.rate, tEnd = Math.min(tNow, rec.capB);
+        const xs = tToX(rec.capA), x1 = tToX(tEnd), xr = tToX(tNow);
+        if (x1 > xs) {
+          g.fillStyle = 'rgba(242,242,242,0.7)'; g.fillRect(xs, G.top, x1 - xs, G.h);
+          g.fillStyle = 'rgba(220,38,38,0.16)'; g.fillRect(xs, G.top, x1 - xs, G.h);
+          g.fillStyle = '#dc2626'; g.fillRect(xs, G.top + 1, x1 - xs, BAR_H);
+        }
+        if (xr > x1 && tNow > rec.capB) { g.fillStyle = 'rgba(220,38,38,0.07)'; g.fillRect(Math.max(xs, x1), G.top, xr - Math.max(xs, x1), G.h); }
         const mid = (G.waveTop + G.waveBot) / 2, amp = (G.waveBot - G.waveTop) / 2 * 0.95 * ui.waveZoom, binDur = PEAK_BIN / rec.rate;
         const mins = rec.pk.mins, maxs = rec.pk.maxs;
-        g.fillStyle = 'rgba(185,28,28,0.85)';
-        for (let x = Math.max(0, Math.floor(xs)); x < Math.min(W, x1); x++) {
-          const b0 = Math.floor((xToT(x) - rec.capA) / binDur), b1 = Math.max(b0 + 1, Math.floor((xToT(x + 1) - rec.capA) / binDur));
+        for (let x = Math.max(0, Math.floor(xs)); x < Math.min(W, xr); x++) {
+          g.fillStyle = x < x1 ? 'rgba(185,28,28,0.85)' : 'rgba(185,28,28,0.35)';
+          const b0 = Math.floor((xToT(x) - t0r) / binDur), b1 = Math.max(b0 + 1, Math.floor((xToT(x + 1) - t0r) / binDur));
           let lo = 127, hi = -127; for (let b = Math.max(0, b0); b < b1 && b < mins.length; b++) { if (mins[b] < lo) lo = mins[b]; if (maxs[b] > hi) hi = maxs[b]; }
           if (hi >= lo) { const ya = Math.max(G.waveTop, mid - hi / 127 * amp), yb = Math.min(G.waveBot, mid - lo / 127 * amp); g.fillRect(x, ya, 1, Math.max(1, yb - ya)); }
         }
@@ -2121,7 +2182,7 @@ lanesCv.addEventListener('pointermove', e => {
     it.start = ns; it.offset = drag.offset + (ns - drag.start); it.len = drag.len - (ns - drag.start);
     it.fadeIn = Math.min(it.fadeIn, it.len); it.fadeOut = Math.min(it.fadeOut, it.len - it.fadeIn);
   } else if (drag.kind === 'right') {
-    const it = drag.item, maxLen = srcDur(it.src) - it.offset;
+    const it = drag.item, maxLen = Math.max(drag.len, srcDur(it.src) - it.offset);   // a looped item keeps its length
     const ne = snapTime(drag.start + drag.len + dt, new Set([it.id]));
     it.len = clamp(ne - it.start, MIN_LEN, maxLen);
     it.fadeOut = Math.min(it.fadeOut, it.len); it.fadeIn = Math.min(it.fadeIn, it.len - it.fadeOut);
@@ -2130,7 +2191,14 @@ lanesCv.addEventListener('pointermove', e => {
   } else if (drag.kind === 'fadeout') {
     const it = drag.item; it.fadeOut = clamp(itemEnd(it) - xToT(x), 0, it.len - it.fadeIn);
   } else if (drag.kind === 'slip') {
-    const it = drag.item; it.offset = clamp(drag.offset - dt, 0, Math.max(0, srcDur(it.src) - it.len));
+    // the audio loops, so it can always slide — even when the item is the full length of its take
+    const it = drag.item, d = srcDur(it.src);
+    if (!isFinite(d) || d <= 0) it.offset = Math.max(0, drag.offset - dt);
+    else {
+      let o = modN(drag.offset - dt, d);
+      if ($('snap-on').checked) { const lim = 6 / ui.pps; if (o < lim || d - o < lim) o = 0; }   // snaps back to the take's own start
+      it.offset = o;
+    }
   } else if (drag.kind === 'range') {
     const t1 = snapTime(Math.max(0, xToT(x)));
     ui.timeSel = { a: Math.min(drag.t0, t1), b: Math.max(drag.t0, t1) };
@@ -2367,6 +2435,7 @@ function splitAt() {
       const right = Object.assign({}, item, { id: P.nextId++, start: t, offset: item.offset + cut, len: item.len - cut, fadeIn: 0 });
       right.fadeOut = Math.min(item.fadeOut, right.len);
       item.len = cut; item.fadeOut = 0; item.fadeIn = Math.min(item.fadeIn, item.len);
+      normOffset(right);
       track.items.push(right);
       crossfadeJunction(item, right);
       if (ui.selItems.has(item.id)) ui.selItems.add(right.id);
