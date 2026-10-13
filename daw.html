@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The Audiobook Guy DAW</title>
+<link rel="manifest" href="daw.webmanifest">
+<meta name="theme-color" content="#e05a00">
 <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;600;700;800&family=Open+Sans:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/lamejs@1.2.1/lame.min.js"></script>
 <script src="https://accounts.google.com/gsi/client" async defer onload="window.__gisLoaded && window.__gisLoaded()"></script>
@@ -79,12 +81,19 @@
   .tb-sep { width: 1px; height: 22px; background: var(--rule); margin: 0 4px; }
 
   /* ── START SCREEN ── */
-  .start-card { max-width: 760px; margin: 20px auto; padding: 34px 38px 30px; }
+  .start-card { max-width: 760px; margin: 20px auto; padding: 34px 38px 30px; position: relative; }
   .start-card h2 { font-family: 'Raleway', sans-serif; font-weight: 800; font-size: 1.15rem; margin-bottom: 6px; }
   .start-card > p { font-size: 0.86rem; color: var(--mid); line-height: 1.6; margin-bottom: 20px; }
   .start-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 28px; }
   .start-actions .btn-primary, .start-actions .btn-secondary { padding: 13px 20px; font-size: 0.85rem; }
   .start-card h3 { font-family: 'Raleway', sans-serif; font-weight: 700; font-size: 0.75rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; }
+  .start-card.drag-over::after {
+    content: 'Drop a project folder, project file or backup .zip to open it'; position: absolute; inset: 0; z-index: 20;
+    display: flex; align-items: center; justify-content: center; text-align: center; padding: 30px; border-radius: var(--radius);
+    border: 2px dashed var(--accent); background: rgba(255,243,237,0.94); color: var(--accent);
+    font-family: 'Raleway', sans-serif; font-weight: 800; font-size: 1rem; pointer-events: none;
+  }
+  .start-drop-hint { font-size: 0.74rem; color: var(--light); margin: -18px 0 24px; }
   .recent-row { display: flex; align-items: center; gap: 12px; padding: 11px 12px; border: 1px solid var(--rule); border-radius: 6px; margin-bottom: 8px; cursor: pointer; transition: border-color 0.15s, background 0.15s; }
   .recent-row:hover { border-color: var(--accent-brd); background: var(--accent-bg); }
   .recent-row svg { width: 20px; height: 20px; color: var(--accent); flex-shrink: 0; }
@@ -100,6 +109,7 @@
   .banner.accent { background: var(--accent-bg); border: 1px solid var(--accent-brd); color: #7a3300; }
   .banner.warn { background: #fffbeb; border: 1px solid #fde68a; color: #854d0e; }
   .banner.err { background: var(--red-bg); border: 1px solid #fecaca; color: #991b1b; }
+  .banner.plain { background: #fafafa; border: 1px solid var(--rule); color: var(--mid); }
   .banner .grow { flex: 1; min-width: 220px; }
 
   /* ── WORKSPACE TOOLBARS ── */
@@ -155,15 +165,15 @@
   .tl-lanes.drag-over::after { content: 'Drop audio to import it here'; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(255,243,237,0.88); border: 2px dashed var(--accent); color: var(--accent); font-family: 'Raleway', sans-serif; font-weight: 800; z-index: 5; pointer-events: none; }
   #hscroll { overflow-x: auto; overflow-y: hidden; height: 14px; border-top: 1px solid var(--rule); }
   #hscroll-inner { height: 1px; }
-  .tl-empty-hint { position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-50%); text-align: center; font-size: 0.8rem; color: var(--light); pointer-events: none; }
+  .tl-empty-hint { position: absolute; left: 0; right: 0; top: 48px; transform: translateY(-50%); text-align: center; font-size: 0.8rem; color: var(--light); pointer-events: none; }
 
-  .track-hdr { height: 96px; border-bottom: 1px solid var(--rule); padding: 8px 10px; display: flex; flex-direction: column; gap: 6px; background: #fff; position: relative; }
+  .track-hdr { height: 96px; border-bottom: 1px solid var(--rule); padding: 8px 10px; display: flex; flex-direction: column; gap: 6px; background: #fff; position: relative; overflow: hidden; }
   .track-hdr.sel { background: var(--accent-bg); box-shadow: inset 3px 0 0 var(--accent); }
   .th-row { display: flex; align-items: center; gap: 5px; }
   .th-name { flex: 1; min-width: 0; border: 1px solid transparent; background: transparent; padding: 3px 5px; font-family: 'Raleway', sans-serif; font-weight: 700; font-size: 0.8rem; border-radius: 4px; }
   .th-name:hover { border-color: var(--rule); background: #fff; }
   .th-name:focus { border-color: var(--accent); background: #fff; }
-  .th-btn { width: 24px; height: 22px; border-radius: 4px; border: 1.5px solid var(--rule); background: #fff; cursor: pointer; font-family: 'Raleway', sans-serif; font-weight: 800; font-size: 0.66rem; color: var(--mid); display: inline-flex; align-items: center; justify-content: center; }
+  .th-btn { width: 24px; height: 22px; border-radius: 4px; border: 1.5px solid var(--rule); background: #fff; cursor: pointer; font-family: 'Raleway', sans-serif; font-weight: 800; font-size: 0.66rem; color: var(--mid); display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .th-btn:hover { border-color: var(--ink); color: var(--ink); }
   .th-btn.arm.on { background: var(--red); border-color: var(--red); color: #fff; }
   .th-btn.mute.on { background: #f59e0b; border-color: #f59e0b; color: #fff; }
@@ -176,6 +186,8 @@
   .th-slider input[type=range] { flex: 1; accent-color: var(--accent); height: 14px; min-width: 0; }
   .th-meter { position: absolute; right: 0; top: 0; bottom: 0; width: 4px; background: transparent; }
   .th-meter .fill { position: absolute; left: 0; right: 0; bottom: 0; height: 0; background: #22c55e; }
+  .th-resize { position: absolute; left: 0; right: 0; bottom: 0; height: 7px; cursor: row-resize; z-index: 2; }
+  .th-resize:hover, .th-resize.on { background: linear-gradient(transparent 4px, var(--accent) 4px, var(--accent) 6px, transparent 6px); }
 
   #readout { font-size: 0.74rem; color: var(--mid); padding: 2px 4px 0; min-height: 20px; font-variant-numeric: tabular-nums; }
   #readout b { color: var(--ink); font-weight: 600; }
@@ -231,6 +243,7 @@
   .clean-list div { padding: 3px 0; display: flex; justify-content: space-between; gap: 10px; }
 
   /* keys */
+  .modal.keys { max-width: 600px; }
   .key-row { display: flex; justify-content: space-between; align-items: center; gap: 14px; padding: 7px 0; border-bottom: 1px solid #f0f0f0; font-size: 0.8rem; color: var(--mid); }
   .key-row:last-child { border-bottom: none; }
   .key-row .combo { flex-shrink: 0; text-align: right; white-space: nowrap; }
@@ -240,7 +253,7 @@
   .combo .or { color: var(--light); font-size: 0.68rem; margin: 0 6px; font-style: italic; }
 
   /* context menu */
-  #ctx-menu { position: fixed; z-index: 1100; background: #fff; border: 1px solid var(--rule); border-radius: 6px; box-shadow: var(--shadow-md); padding: 5px 0; min-width: 190px; display: none; }
+  #ctx-menu { position: fixed; z-index: 1100; background: #fff; border: 1px solid var(--rule); border-radius: 6px; box-shadow: var(--shadow-md); padding: 5px 0; min-width: 210px; display: none; }
   #ctx-menu.on { display: block; }
   #ctx-menu button { display: flex; justify-content: space-between; width: 100%; border: none; background: none; padding: 7px 14px; font-size: 0.8rem; color: var(--ink); cursor: pointer; text-align: left; gap: 16px; }
   #ctx-menu button:hover:not(:disabled) { background: var(--accent-bg); color: var(--accent); }
@@ -287,7 +300,7 @@
   <img src="data:image/jpeg;base64,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Xd6OrZa2baf7rdKAMOipJ4ZIH2yoVPv3qOgAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACigDJwOta1hpJfEl1lV7J3P1oAoWlpLdNiNeO7HoK3rPTobbDEeZJ/ebt9BVxEVFCooVR0ApaACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAGTRJMhSVQy+hrGvdIZMvbEsv9w9fwrcooA40ggkEYI7GiunvbCK6GSNsnZx/Wufu7WW1fbKvHZh0NAEFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFPgheeQJEpZjUtlaSXcm1BhR95j0FdJaW0drHsjH1J6mgCvp+nR2oDNh5fXsPpV6iigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACmyxpKhSRQynqDTqKAOe1HTXt8yRZeL9VrOrsqx9T0vOZbYc9Sg7/SgDFooPB5ooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKt6fZPdyf3Yx95v6CjTrJruTuIx95v6CulijWKMJGoVR0AoASGJIYxHGuFFPoooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigDN1TThODLCAJe4/vf/Xrn2BUkMCCOCDXZVnapp4uFMkQAmH/AI9QBz1FBBBIIwR1BooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACrFjavdzBF4Ucs3oKjt4XnlWOMZY/pXUWlultCI0/E+poAfDEkMaxxjCin0UUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRTJ5o4ImlndY41GWZjgAV5x4q+KljYs0Gixi9mGQZScRj6etAHpLusalpGVVHUscAVy2s+PvD+lble8E8o/ggG/n0z0FeF614l1rxBOftd1NIG4EMfCj2CitTQ/h3r+q7XNt9lhb/lpcHbx646n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iiigAooooAKydfuNsawKeW+Zvp2rUkdY42dzhVGTXJ3MzTzvI3Vj+QoAjooooAKKKKACiiigAqS3maCZJE6qc/Wo6KAOvhkWaJZEOVYZFPrD0O72ubdz8rcr9fStygAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKiup1t4Gkft0HqfSgDM166wBboeTy/9BWLTpZGlkZ3OWY5NNoAKKKKACiiigAooooAKKKKAAEqQQcEcg11GnXQurcMT+8Xhh71y9WLG5a1nDjlejD1FAHVUU2N1kRXQ5VhkGnUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFc5q939on2If3SdPc+taGtXnlR+TGf3jjk+grAoAKKKKACiiigAooooAKKKKACiiigAooooA0tHvfIfyZT+6Y8E/wAJroK42tzR7/eBBMfmHCMe/tQBrUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABVa/ultIC55c8KvqaluJkt4mkkOFH61zF5cvdTGR+B0A9BQBFI7SSM7nLMck02iigAooooAKKKKACiiigAooooAKKKKACiiigAoBIIIOCKKKAOh0rUBcKIpTiUdD/AHv/AK9aNccpKsCpII5BFdBpeoC4AjlIEw/8eoA0aKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKbLIkUbPIQqjqaJZEhjLyMFUdTXNajevdyd1iH3V/qaAE1C8a7lz0jX7q/1qrRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABQCQQQcEdCKKKAN7TNTEuIrggSdA3Zv8A69alcbWvpuqFMRXJJXoH9PrQBt0UKQwBUgg9CKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACo7ieO3jLytgD8zUV7ex2iZc5c9FHU1zl3cyXUu+Q/QDoKAJL+9e7kyfljH3VqrRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFAFyw1CS1O378XdT2+ldDbXMVzHuibPqO4rkqfDK8MgeJirDuKAOvorLsdWSXCXGEf+92P+Fag5HFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRUNzcxWybpWx6DuaAJqy7/VViylvh37t2H+NZ99qUtzlV+SL0HU/WqNADpHaRy7sWY9SabRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFW7O/mtcBTuj/ut/SqlFAHT2moQXOAG2P/AHW/pVuuNq9aanPBgMfMT0br+dAHSUVTtdRt7jADbH/utxVygAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiimSyxwrulcKvqTQA+mySJEhaRgqjuTWVdayoytsuT/AHm6flWRPNJO+6Vyx9+1AGreax1W1H/AyP5CsiR2kctIxZj3NNooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAq1bX9xb4CPlR/C3IqrRQBu2+sxNgToUPqORWjDPFMMxSK30NcjQCVIKkgjuKAOyormYdSuov+Wm8ej81eh1odJoiPdT/AEoA2KKpxalayf8ALUKfRhirSSI4yjqw9jmgB1FFFABRRRQAUUUUAFFFFABRRRQAUUVDJd28X35kHtnJoAmorOl1i3T7gdz7DA/WqM2sztxEqxj8zQBvk4GT0qnPqVtDkGTe3onNc9NcTTf62Rm9iePyqKgDUuNYlfIhURj1PJrNkkeVt0jMzepNNooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACgEg5HBoooAmS7uE+7NIB6bqnTVLtf+WmfqooooAni1e4LAFYj+B/xrRt7p5Blgv4CiigCyrk+lPY4oooAieVgDgCs651KaLO1Y/wAQf8aKKAKj6vdN0KL9F/xqF9Qun6zN+HH8qKKAK7yySf6x2b6nNNoooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAP/9k=" alt="The Audiobook Guy" style="height:40px;width:40px;border-radius:50%;object-fit:cover;flex-shrink:0;">
   <div class="header-text">
     <h1>The Audiobook Guy DAW</h1>
-    <p>Multitrack Recording &amp; Editing for Narrators</p>
+    <p>Multitrack Recording &amp; Editing for Narrators and Voice Over Artists</p>
   </div>
   <div class="header-proj" id="header-proj" hidden>
     <div>
@@ -304,12 +317,17 @@
 
   <!-- ═══ START SCREEN ═══ -->
   <section id="start-screen" class="card start-card">
+    <div class="banner accent" id="launch-banner" hidden>
+      <div class="grow"><b id="launch-title">Open project</b><br><span id="launch-text">Your browser needs your OK to use this project's folder.</span></div>
+      <button class="btn-primary" id="launch-go">Open project</button>
+      <button class="tb-btn" id="launch-dismiss">Not now</button>
+    </div>
     <div class="banner accent" id="handoff-banner" hidden>
       <div class="grow"><b>Your recording from the Audio Recorder is ready.</b> Start a new project with it, or open a project and it will be added on a new track.</div>
       <button class="tb-btn" id="handoff-dismiss">Discard</button>
     </div>
     <h2>Start a project</h2>
-    <p>Each project keeps its own folder: the project file (your backup) and an <b>Audio Files</b> folder with every take. Your audio stays on your computer — nothing is uploaded unless you export to Google Drive.</p>
+    <p>Each project keeps its own folder: the project file (your backup) and an <b>Audio Files</b> folder with every take. Your audio stays on your computer and plays straight from that folder — nothing is uploaded unless you export to Google Drive.</p>
     <div class="banner warn" id="browser-banner" hidden>
       <div class="grow"><b>This browser can't save projects to a folder</b>, so projects are kept inside the browser instead. That works, but clearing your browser data would remove them. For safer projects and backups, use <b>Chrome or Edge on a computer</b> — and use <b>Backup</b> to download a copy of anything important.</div>
     </div>
@@ -318,6 +336,11 @@
       <button id="open-folder-btn" class="btn-secondary">Open Project Folder</button>
       <button id="open-backup-btn" class="btn-secondary">Open Backup (.zip)</button>
       <input type="file" id="backup-input" accept=".zip,application/zip" hidden>
+    </div>
+    <div class="start-drop-hint" id="start-drop-hint">You can also drag a project folder, a .tagdaw project file or a backup .zip onto this card.</div>
+    <div class="banner plain" id="install-banner" hidden>
+      <div class="grow"><b>Open projects with a double-click.</b> <span id="install-text">Install the DAW as an app and your computer will open any .tagdaw project file straight into it.</span></div>
+      <button class="btn-secondary" id="install-btn" hidden>Install the DAW</button>
     </div>
     <h3>Recent projects</h3>
     <div id="recent-list"></div>
@@ -345,10 +368,10 @@
     </div>
 
     <div class="card bar">
-      <button class="transport-btn sm" id="home-btn" title="Go to start (Home)"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="5" width="2.4" height="14" rx="1"/><path d="M19 5.8v12.4a.8.8 0 01-1.24.67L9.3 12.67a.8.8 0 010-1.34l8.46-5.86A.8.8 0 0119 5.8z"/></svg></button>
-      <button class="transport-btn" id="play-btn" title="Play / Stop (Space)"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.8v14.4a.8.8 0 001.22.68l11.4-7.2a.8.8 0 000-1.36L8.22 4.12A.8.8 0 007 4.8z"/></svg></button>
+      <button class="transport-btn sm" id="home-btn" title="Go to start ([ or Home)"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="5" width="2.4" height="14" rx="1"/><path d="M19 5.8v12.4a.8.8 0 01-1.24.67L9.3 12.67a.8.8 0 010-1.34l8.46-5.86A.8.8 0 0119 5.8z"/></svg></button>
+      <button class="transport-btn" id="play-btn" title="Play / Stop (Space) · Pause (Enter)"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.8v14.4a.8.8 0 001.22.68l11.4-7.2a.8.8 0 000-1.36L8.22 4.12A.8.8 0 007 4.8z"/></svg></button>
       <button class="transport-btn" id="stop-btn" title="Stop (Space)"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="1.5"/></svg></button>
-      <button class="transport-btn" id="rec-btn" title="Record (R)"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="6.5"/></svg></button>
+      <button class="transport-btn" id="rec-btn" title="Record (R, Ctrl/Cmd + R or Shift + Space)"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="6.5"/></svg></button>
       <div id="time-display">0:00.000</div>
       <div id="rec-status"></div>
       <span class="tb-sep"></span>
@@ -370,16 +393,20 @@
 
     <div class="card bar">
       <button class="tb-btn" id="split-btn" title="Split at the cursor (S)">Split</button>
-      <button class="tb-btn" id="delete-btn" title="Delete, leaving a gap (Delete)">Delete</button>
-      <button class="tb-btn" id="join-btn" title="Delete and close the gap (Shift + Delete)">Delete &amp; Join</button>
+      <button class="tb-btn" id="delete-btn" title="Delete, leaving a gap (Delete or Shift + D)">Delete</button>
+      <button class="tb-btn" id="join-btn" title="Delete and close the gap, crossfaded (Shift + Delete, Alt + Delete or Alt + Shift + D)">Delete &amp; Join</button>
+      <button class="tb-btn" id="gaps-btn" title="Delete the space between items (Alt + Shift + Space)">Close Gaps</button>
       <span class="tb-sep"></span>
       <button class="tb-btn icon" id="undo-btn" title="Undo (Ctrl/Cmd + Z)" disabled>↶</button>
       <button class="tb-btn icon" id="redo-btn" title="Redo (Ctrl/Cmd + Shift + Z)" disabled>↷</button>
       <span class="tb-sep"></span>
       <label class="switch-lbl" title="Snap moves and edges to other items and the cursor"><input type="checkbox" id="snap-on" checked><span class="switch"></span>Snap</label>
       <span class="spacer"></span>
-      <button class="tb-btn icon" id="zoom-out-btn" title="Zoom out (−)">−</button>
-      <button class="tb-btn icon" id="zoom-in-btn" title="Zoom in (+)">+</button>
+      <button class="tb-btn icon" id="wave-down-btn" title="Shorter waveform — display only (Shift + ↓)">↧</button>
+      <button class="tb-btn icon" id="wave-up-btn" title="Taller waveform — display only (Shift + ↑)">↥</button>
+      <span class="tb-sep"></span>
+      <button class="tb-btn icon" id="zoom-out-btn" title="Zoom out (− or ↓)">−</button>
+      <button class="tb-btn icon" id="zoom-in-btn" title="Zoom in (+ or ↑)">+</button>
       <button class="tb-btn" id="zoom-fit-btn" title="Fit the whole project (F)">Fit</button>
       <button class="tb-btn icon" id="keys-btn" title="Keyboard shortcuts (?)">⌨</button>
     </div>
@@ -395,19 +422,21 @@
       </div>
     </div>
     <div id="readout"></div>
-    <div class="hint-line">Click to place the cursor · Drag across a lane to select time · Drag an item's top bar to move it (also between tracks) · Drag an item's edge to trim · Drag the small corner squares for fades · <span class="alt-key">Alt</span>-drag inside an item to slide its audio · Right-click for more</div>
+    <div class="hint-line">Click to place the cursor · Drag across a lane to select time (drag its edges to adjust) · Drag an item's top bar to move it (also between tracks) · Drag an item's edge to trim · Drag the small corner squares for fades · <span class="alt-key">Alt</span>-drag inside an item to slide its audio · Drag a track's bottom edge to make it taller · Right-click for more</div>
   </section>
 </main>
 
 <section id="howto">
   <div class="card howto-card">
     <h2>How to use The Audiobook Guy DAW</h2>
-    <p>A full recording and editing workspace for narration and voiceover, right in your browser. Your audio stays on your computer — nothing leaves it unless you export to Google Drive.</p>
+    <p>A full recording and editing workspace for narration and voice over, right in your browser. Your audio stays on your computer — nothing leaves it unless you export to Google Drive.</p>
 
     <h3>Projects</h3>
     <ul>
       <li><b>New Project</b> asks for a name and where to keep it. Choose a folder on your computer and the DAW creates <b>Project Name › Project Name.tagdaw</b> (the project file and backup) plus an <b>Audio Files</b> folder holding every take and import.</li>
-      <li>Everything saves automatically as you work. To come back to a project, use <b>Recent projects</b> or <b>Open Project Folder</b> and pick the project's folder.</li>
+      <li>Everything saves automatically as you work. To come back to a project, use <b>Recent projects</b>, <b>Open Project Folder</b>, or drag the project's folder onto the start screen.</li>
+      <li><b>Open with a double-click</b> — install the DAW as an app (the <b>Install the DAW</b> button on the start screen, or the install icon at the right of Chrome or Edge's address bar). After that, double-clicking any <b>.tagdaw</b> file opens that project. The first time, the DAW asks you to OK its folder — choose <b>Allow on every visit</b> and it opens straight away from then on.</li>
+      <li>Audio <b>plays straight from your project folder</b> instead of being loaded into the browser, so even long projects use very little memory. Keep the project folder where it is (and plugged in, if it's on an external drive) while you work.</li>
       <li><b>Clean Project</b> lists audio files the timeline no longer uses (old takes, deleted imports) and removes them from the folder.</li>
       <li><b>Backup</b> downloads the whole project — project file and audio — as one .zip. <b>Open Backup</b> restores it anywhere.</li>
       <li>Saving to a folder needs <b>Chrome or Edge on a computer</b>. Other browsers keep projects inside the browser instead — fine for quick work, but download a Backup of anything that matters.</li>
@@ -416,23 +445,35 @@
     <h3>Recording</h3>
     <ul>
       <li>Set your microphone and headphones in <b>Mic &amp; Output</b>. Arm a track with its red <b>●</b> button — the meter shows your input level. Aim for peaks well below the red.</li>
-      <li><b>Punch &amp; Roll</b> — stop at a mistake, place the cursor where you want to pick up, and press <b>R</b>. The pre-roll plays the lead-in so you can match your read, then recording starts at the cursor. Everything after that point on the armed track is replaced by the new take (Undo brings it back).</li>
+      <li><b>Punch &amp; Roll</b> — stop at a mistake, place the cursor where you want to pick up, and press <b>R</b> (or <b>Ctrl/Cmd + R</b>, or <b>Shift + Space</b>). The pre-roll plays the lead-in so you can match your read, then recording starts at the cursor. Everything after that point on the armed track is replaced by the new take (Undo brings it back).</li>
       <li><b>Record over selected item</b> — click an item, press <b>R</b>, and the new take replaces just that item. Recording stops by itself at the item's end.</li>
       <li><b>Record over time selection</b> — drag across the armed track to select a stretch (it can cover several items) and press <b>R</b>. Only that stretch is replaced; recording stops at the end of the selection.</li>
-      <li>Press <b>Space</b> or <b>R</b> to stop. Takes are saved as WAV files in your project's Audio Files folder.</li>
+      <li>Press <b>Space</b>, <b>Esc</b> or <b>R</b> to stop. Takes are written as WAV files into your project's Audio Files folder while you record.</li>
     </ul>
 
     <h3>Editing</h3>
     <ul>
-      <li><b>Split</b> (<b>S</b>) cuts selected items — or the selected track — at the cursor.</li>
-      <li><b>Delete</b> removes the selection and leaves a gap; <b>Delete &amp; Join</b> (<b>Shift + Delete</b>) closes the gap so everything after slides up.</li>
-      <li>Drag an item's top bar to move it, including onto another track. Drag its edges to trim, and the small squares at its top corners to fade in or out. Overlap two items on a track and they crossfade automatically.</li>
+      <li><b>Select</b> — drag across a track to make a time selection, then drag either edge of it to fine-tune. Click an item to select it; click an empty spot or press <b>Esc</b> to deselect.</li>
+      <li><b>Split</b> (<b>S</b>) cuts selected items — or the selected track — at the cursor, with a tiny crossfade so the cut is seamless.</li>
+      <li><b>Delete</b> (<b>Delete</b>, <b>Backspace</b> or <b>Shift + D</b>) removes the selection and leaves a gap; everything else stays exactly where it is.</li>
+      <li><b>Delete &amp; Join</b> (<b>Shift + Delete</b>, <b>Alt/Opt + Delete</b> or <b>Alt/Opt + Shift + D</b>) closes the gap so everything after slides up, and crossfades the two pieces either side. The cursor jumps to a second before the join so you can press Play and hear it.</li>
+      <li><b>Close Gaps</b> (<b>Alt/Opt + Shift + Space</b>) slides the items on the selected tracks back to back so there's no silence between them.</li>
+      <li>Drag an item's top bar to move it, including onto another track. Drag its edges to trim, and the small squares at its top corners to fade in or out. Overlap two items on a track and they crossfade automatically. <b>Alt/Opt-drag</b> inside an item slides its audio while the item stays put.</li>
       <li>Every edit is non-destructive — your original takes are never changed, and Undo goes all the way back.</li>
+    </ul>
+
+    <h3>Moving around &amp; viewing</h3>
+    <ul>
+      <li><b>Space</b> plays and stops — stopping returns the cursor to where you pressed Play. <b>Enter</b> pauses right where you are.</li>
+      <li><b>[</b> and <b>]</b> jump to the start and end of the project; <b>Ctrl/Cmd + [</b> or <b>]</b> hop to the nearest item edge. <b>← →</b> nudge the cursor a little (hold <b>Shift</b> for bigger steps).</li>
+      <li><b>↑ ↓</b> (or <b>+ / −</b>, or <b>Ctrl/Cmd + scroll</b>) zoom in and out; <b>Shift + scroll</b> moves along the timeline; <b>F</b> fits the whole project.</li>
+      <li><b>Make a track taller</b> — drag the bottom edge of the track (in its header or on the timeline) to see its waveform bigger. Double-click the edge to reset it. This only changes the view, never the volume.</li>
+      <li><b>Shift + ↑ ↓</b> (or the ↥ ↧ buttons) makes the waveforms taller or shorter so quiet bits are easier to see — again, display only.</li>
     </ul>
 
     <h3>Importing &amp; exporting</h3>
     <ul>
-      <li>Import WAV, MP3, FLAC, M4A, OGG and more with <b>Import Audio</b>, or drop files onto the timeline.</li>
+      <li>Import WAV, MP3, FLAC, M4A, OGG and more with <b>Import Audio</b>, or drop files onto the timeline. WAV files are copied into the project as they are; other formats are converted to WAV so they can play straight from the folder.</li>
       <li><b>Export</b> mixes the whole project or the time selection to WAV, MP3 or FLAC — choose mono or stereo, sample rate, bit depth or MP3 bitrate. Download it, or upload it to Google Drive and get a shareable link straight away. Google sign-in is only asked for when you use Drive.</li>
       <li>From the <b>Audio Recorder</b>, use <b>Open in DAW</b> to carry a quick recording over into a full project.</li>
     </ul>
@@ -441,7 +482,7 @@
 </section>
 
 <div id="disclaimer">The Audiobook Guy DAW is still under construction. While we work on it, we can't guarantee its stability and can't be held responsible for lost recordings, projects or files. Please keep backups of anything important.</div>
-<div id="tool-version">v1.1</div>
+<div id="tool-version">v2.0</div>
 <div id="tag-footer"></div>
 
 <!-- ═══ MODALS ═══ -->
@@ -459,7 +500,7 @@
       <div class="field"><label>Record in</label><div class="seg" data-seg="np-ch"><button data-v="1" class="on">Mono</button><button data-v="2">Stereo</button></div></div>
       <div class="field"><label>Bit depth</label><div class="seg" data-seg="np-bits"><button data-v="16">16-bit</button><button data-v="24" class="on">24-bit</button></div></div>
     </div>
-    <div class="field"><label>Sample rate</label><div class="seg" data-seg="np-rate"><button data-v="44100" class="on">44.1 kHz</button><button data-v="48000">48 kHz</button></div><div class="note">44.1 kHz suits audiobooks (ACX); 48 kHz is standard for video and dubbing.</div></div>
+    <div class="field"><label>Sample rate</label><div class="seg" data-seg="np-rate"><button data-v="44100" class="on">44.1 kHz</button><button data-v="48000">48 kHz</button></div><div class="note">44.1 kHz suits audiobooks (ACX); 48 kHz is standard for other Voice Over</div></div>
     <div class="modal-status" id="np-status"></div>
     <div class="modal-actions"><button class="btn-secondary" data-close>Cancel</button><button class="btn-primary" id="np-create">Create Project</button></div>
   </div>
@@ -558,27 +599,10 @@
 </div>
 
 <div class="modal-overlay" id="keys-modal">
-  <div class="modal">
+  <div class="modal keys">
     <button class="modal-close" data-close>✕</button>
     <h2>Keyboard shortcuts</h2>
-    <div class="keys-head">Transport</div>
-    <div class="key-row"><span>Play / stop</span><span class="combo"><kbd>Space</kbd></span></div>
-    <div class="key-row"><span>Record / stop recording</span><span class="combo"><kbd>R</kbd></span></div>
-    <div class="key-row"><span>Go to start / end</span><span class="combo"><kbd>Home</kbd><span class="or">/</span><kbd>End</kbd></span></div>
-    <div class="key-row"><span>Nudge cursor</span><span class="combo"><kbd>←</kbd><span class="or">/</span><kbd>→</kbd><span class="or">(Shift = 1 s)</span></span></div>
-    <div class="keys-head">Editing</div>
-    <div class="key-row"><span>Split at cursor</span><span class="combo"><kbd>S</kbd></span></div>
-    <div class="key-row"><span>Delete (leave gap)</span><span class="combo"><kbd>Delete</kbd><span class="or">or</span><kbd>Backspace</kbd></span></div>
-    <div class="key-row"><span>Delete &amp; Join</span><span class="combo"><kbd>Shift</kbd><span class="plus">+</span><kbd>Delete</kbd></span></div>
-    <div class="key-row"><span>Copy / cut / paste at cursor</span><span class="combo"><kbd>Ctrl/Cmd</kbd><span class="plus">+</span><kbd>C</kbd> <kbd>X</kbd> <kbd>V</kbd></span></div>
-    <div class="key-row"><span>Select all items</span><span class="combo"><kbd>Ctrl/Cmd</kbd><span class="plus">+</span><kbd>A</kbd></span></div>
-    <div class="key-row"><span>Undo / redo</span><span class="combo"><kbd>Ctrl/Cmd</kbd><span class="plus">+</span><kbd>Z</kbd><span class="or">/</span><kbd>Shift</kbd><span class="plus">+</span><kbd>Z</kbd></span></div>
-    <div class="key-row"><span>Clear selection</span><span class="combo"><kbd>Esc</kbd></span></div>
-    <div class="keys-head">View &amp; project</div>
-    <div class="key-row"><span>Zoom in / out</span><span class="combo"><kbd>+</kbd><span class="or">/</span><kbd>−</kbd><span class="or">or</span><kbd>Ctrl/Cmd</kbd><span class="plus">+</span>scroll</span></div>
-    <div class="key-row"><span>Fit project</span><span class="combo"><kbd>F</kbd></span></div>
-    <div class="key-row"><span>Save now</span><span class="combo"><kbd>Ctrl/Cmd</kbd><span class="plus">+</span><kbd>S</kbd></span></div>
-    <div class="key-row"><span>This list</span><span class="combo"><kbd>?</kbd></span></div>
+    <div id="keys-list"></div>
   </div>
 </div>
 
@@ -599,19 +623,20 @@ function floatToInt(v, bits) {
 }
 
 // ── WAV (PCM 16 / 24-bit, interleaved) ──────────────────────
-function encodeWav(channels, sampleRate, bits) {
-  const nCh = channels.length, len = channels[0].length;
-  const bps = bits / 8, dataBytes = len * nCh * bps;
-  const buf = new ArrayBuffer(44 + dataBytes);
-  const v = new DataView(buf);
+function wavHeader(nCh, sampleRate, bits, dataBytes) {
+  const bps = bits / 8, buf = new ArrayBuffer(44), v = new DataView(buf);
   const str = (o, s) => { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); };
   str(0, 'RIFF'); v.setUint32(4, 36 + dataBytes, true); str(8, 'WAVE');
   str(12, 'fmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, nCh, true);
   v.setUint32(24, sampleRate, true); v.setUint32(28, sampleRate * nCh * bps, true);
   v.setUint16(32, nCh * bps, true); v.setUint16(34, bits, true);
   str(36, 'data'); v.setUint32(40, dataBytes, true);
-  const out = new Uint8Array(buf);
-  let o = 44;
+  return buf;
+}
+function pcmBytes(channels, bits) {
+  const nCh = channels.length, len = channels[0].length;
+  const out = new Uint8Array(len * nCh * (bits / 8));
+  let o = 0;
   for (let i = 0; i < len; i++) {
     for (let c = 0; c < nCh; c++) {
       const s = floatToInt(channels[c][i], bits);
@@ -619,7 +644,61 @@ function encodeWav(channels, sampleRate, bits) {
       else { out[o++] = s & 255; out[o++] = (s >> 8) & 255; out[o++] = (s >> 16) & 255; }
     }
   }
-  return new Blob([buf], { type: 'audio/wav' });
+  return out;
+}
+function encodeWav(channels, sampleRate, bits) {
+  const data = pcmBytes(channels, bits);
+  return new Blob([wavHeader(channels.length, sampleRate, bits, data.length), data], { type: 'audio/wav' });
+}
+
+// Reads a WAV file's layout without loading the audio. Returns null for
+// anything that isn't plain PCM or 32-bit float.
+async function parseWav(blob) {
+  if (!blob || blob.size < 44) return null;
+  const tag = (dv, o) => String.fromCharCode(dv.getUint8(o), dv.getUint8(o + 1), dv.getUint8(o + 2), dv.getUint8(o + 3));
+  const head = new DataView(await blob.slice(0, 12).arrayBuffer());
+  if (tag(head, 0) !== 'RIFF' || tag(head, 8) !== 'WAVE') return null;
+  let off = 12, fmt = null;
+  while (off + 8 <= blob.size) {
+    const ch = new DataView(await blob.slice(off, off + 8).arrayBuffer());
+    const id = tag(ch, 0), size = ch.getUint32(4, true);
+    if (id === 'fmt ') {
+      const f = new DataView(await blob.slice(off + 8, off + 8 + Math.min(size, 40)).arrayBuffer());
+      let format = f.getUint16(0, true);
+      if (format === 0xFFFE && size >= 26) format = f.getUint16(24, true);
+      fmt = { format, nCh: f.getUint16(2, true), rate: f.getUint32(4, true), blockAlign: f.getUint16(12, true), bits: f.getUint16(14, true) };
+    } else if (id === 'data') {
+      if (!fmt) return null;
+      const dataOffset = off + 8;
+      let dataBytes = size;
+      if (!dataBytes || dataOffset + dataBytes > blob.size) dataBytes = blob.size - dataOffset;
+      const ok = (fmt.format === 1 && [8, 16, 24, 32].includes(fmt.bits)) || (fmt.format === 3 && fmt.bits === 32);
+      if (!ok || !fmt.nCh || fmt.rate < 3000 || fmt.rate > 768000 || fmt.blockAlign !== fmt.nCh * fmt.bits / 8) return null;
+      return Object.assign(fmt, { dataOffset, frames: Math.floor(dataBytes / fmt.blockAlign) });
+    }
+    off += 8 + size + (size & 1);
+  }
+  return null;
+}
+// Interleaved PCM bytes → one Float32Array per channel (length n, zero-padded).
+function pcmToFloat(ab, w, n) {
+  const nCh = w.nCh, chs = [];
+  for (let c = 0; c < nCh; c++) chs.push(new Float32Array(n));
+  const avail = Math.min(n, Math.floor(ab.byteLength / w.blockAlign));
+  const u8 = new Uint8Array(ab), dv = new DataView(ab), bps = w.bits / 8;
+  let o = 0;
+  for (let i = 0; i < avail; i++) {
+    for (let c = 0; c < nCh; c++) {
+      let v;
+      if (w.format === 3) v = dv.getFloat32(o, true);
+      else if (bps === 2) v = dv.getInt16(o, true) / 32768;
+      else if (bps === 3) { let s = u8[o] | (u8[o + 1] << 8) | (u8[o + 2] << 16); if (s & 0x800000) s -= 0x1000000; v = s / 8388608; }
+      else if (bps === 4) v = dv.getInt32(o, true) / 2147483648;
+      else v = (u8[o] - 128) / 128;
+      chs[c][i] = v; o += bps;
+    }
+  }
+  return chs;
 }
 
 // ── FLAC (fixed predictors + Rice coding) ───────────────────
@@ -827,13 +906,14 @@ async function readZip(file) {
 }
 
 // ═══════════════════════════════════════════════════════════
-// THE AUDIOBOOK GUY DAW — v1.0
+// THE AUDIOBOOK GUY DAW — v2.0
 // ═══════════════════════════════════════════════════════════
 'use strict';
-const APP_VERSION = '1.1';
+const APP_VERSION = '2.0';
 const PROJECT_EXT = '.tagdaw';
 const AUDIO_DIR   = 'Audio Files';
-const TRACK_H = 96, BAR_H = 16, EDGE_PX = 6, MIN_LEN = 0.01, EDGE_FADE = 0.005;
+const DEF_TRACK_H = 96, MIN_TRACK_H = 60, MAX_TRACK_H = 480;
+const BAR_H = 16, EDGE_PX = 6, MIN_LEN = 0.01, EDGE_FADE = 0.005, XFADE = 0.010;
 const LS_DEVICES = 'audiobookguy.daw.devices.v1';
 const LS_PREFS   = 'audiobookguy.daw.prefs.v1';
 const $ = id => document.getElementById(id);
@@ -842,6 +922,7 @@ const dbToGain = db => Math.pow(10, db / 20);
 const HAS_FS = typeof window.showDirectoryPicker === 'function';
 const AC = window.AudioContext || window.webkitAudioContext;
 const OAC = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+const IS_MAC = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent || '');
 
 function lsGet(k, d) { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } }
 function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* storage blocked — fine */ } }
@@ -865,17 +946,18 @@ function toast(msg, isErr, ms) {
 
 // ── INDEXEDDB ───────────────────────────────────────────────
 const idbCache = {};
-function idbOpen(name, stores) {
+function idbOpen(name, stores, version) {
   if (idbCache[name]) return idbCache[name];
   return idbCache[name] = new Promise((res, rej) => {
-    const r = indexedDB.open(name, 1);
+    const r = indexedDB.open(name, version || 1);
     r.onupgradeneeded = () => stores.forEach(s => { if (!r.result.objectStoreNames.contains(s)) r.result.createObjectStore(s); });
-    r.onsuccess = () => res(r.result);
+    r.onsuccess = () => { const db = r.result; db.onversionchange = () => { db.close(); delete idbCache[name]; }; res(db); };
     r.onerror = () => { delete idbCache[name]; rej(r.error); };
   });
 }
 async function idb(dbName, store, mode, fn) {
-  const db = await idbOpen(dbName, dbName === 'tag-handoff' ? ['files'] : ['recents', 'projects', 'audio']);
+  const hand = dbName === 'tag-handoff';
+  const db = await idbOpen(dbName, hand ? ['files'] : ['recents', 'projects', 'audio', 'peaks'], hand ? 1 : 2);
   return new Promise((res, rej) => {
     const tx = db.transaction(store, mode), r = fn(tx.objectStore(store));
     tx.oncomplete = () => res(r ? r.result : undefined);
@@ -891,6 +973,7 @@ class FolderStore {
   get where() { return 'Folder · ' + this.dir.name; }
   async audioDir() { return this._ad || (this._ad = await this.dir.getDirectoryHandle(AUDIO_DIR, { create: true })); }
   async writeAudio(name, blob) { const fh = await (await this.audioDir()).getFileHandle(name, { create: true }); const w = await fh.createWritable(); await w.write(blob); await w.close(); }
+  async openWriter(name) { const fh = await (await this.audioDir()).getFileHandle(name, { create: true }); return fh.createWritable(); }
   async readAudio(name) { return (await (await this.audioDir()).getFileHandle(name)).getFile(); }
   async listAudio() { const out = [], d = await this.audioDir(); for await (const [n, h] of d.entries()) if (h.kind === 'file' && !n.startsWith('.')) out.push({ name: n, size: (await h.getFile()).size }); return out; }
   async deleteAudio(name) { await (await this.audioDir()).removeEntry(name); }
@@ -919,28 +1002,74 @@ class BrowserStore {
   }
 }
 
+// Writes a take straight to the project as it's recorded, so long takes
+// never pile up in memory (folder projects). Browser projects keep the
+// encoded bytes until the take ends.
+class TakeWriter {
+  constructor(st, name, nCh, rate, bits) {
+    Object.assign(this, { st, name, nCh, rate, bits });
+    this.bytes = 0; this.parts = []; this.err = null; this.w = null;
+    this.folder = st.kind === 'folder';
+    this.chain = this.folder
+      ? st.openWriter(name).then(w => { this.w = w; return w.write(new Uint8Array(44)); }).catch(e => { this.err = e; })
+      : Promise.resolve();
+  }
+  push(chs) {
+    const b = pcmBytes(chs, this.bits);
+    this.bytes += b.length;
+    if (this.folder) this.chain = this.chain.then(() => (this.err || !this.w) ? null : this.w.write(b)).catch(e => { this.err = this.err || e; });
+    else this.parts.push(b);
+  }
+  async finish() {
+    const hdr = wavHeader(this.nCh, this.rate, this.bits, this.bytes);
+    if (this.folder) {
+      await this.chain;
+      if (this.err) throw this.err;
+      await this.w.write({ type: 'write', position: 0, data: hdr });
+      await this.w.close();
+    } else {
+      await this.st.writeAudio(this.name, new Blob([hdr, ...this.parts], { type: 'audio/wav' }));
+      this.parts = [];
+    }
+  }
+  async cancel() {
+    try { if (this.folder) { await this.chain; if (this.w) await this.w.abort(); await this.st.deleteAudio(this.name); } } catch (e) { /* nothing to tidy */ }
+    this.parts = [];
+  }
+}
+
 // ── PROJECT STATE ───────────────────────────────────────────
 let P = null;            // project data (saved to the project file)
 let store = null;        // FolderStore | BrowserStore
-const sources = new Map(); // file name → { file, buffer, peaks, dur, missing }
+const sources = new Map(); // file name → source (see AUDIO SOURCES)
 let knownFiles = new Set();
 const ui = {
   selItems: new Set(), selTracks: new Set(), armed: null, cursor: 0, timeSel: null,
-  pps: 60, t0: 0, clipboard: null
+  pps: 60, t0: 0, clipboard: null, waveZoom: 1
 };
 let undoStack = [], redoStack = [];
 
 function defaultSettings() { return { ch: 1, rate: 44100, bits: 24, offsetMs: 0 }; }
-function newTrack(name) { return { id: P.nextId++, name: name || ('Track ' + (P.tracks.length + 1)), vol: 0, pan: 0, mute: false, solo: false, items: [] }; }
+function newTrack(name) { return { id: P.nextId++, name: name || ('Track ' + (P.tracks.length + 1)), vol: 0, pan: 0, mute: false, solo: false, h: DEF_TRACK_H, items: [] }; }
 function newItem(src, start, offset, len) { return { id: P.nextId++, src, start, offset, len, fadeIn: 0, fadeOut: 0 }; }
 function itemEnd(it) { return it.start + it.len; }
 function findTrack(id) { return P.tracks.find(t => t.id === id); }
 function findItem(id) { for (const t of P.tracks) { const it = t.items.find(i => i.id === id); if (it) return { track: t, item: it }; } return null; }
 function allItems() { const out = []; P.tracks.forEach(t => t.items.forEach(it => out.push({ track: t, item: it }))); return out; }
 function projectEnd() { let e = 0; P.tracks.forEach(t => t.items.forEach(it => { e = Math.max(e, itemEnd(it)); })); return e; }
-function srcDur(name) { const s = sources.get(name); return s ? s.dur : Infinity; }
+function srcDur(name) { const s = sources.get(name); return s && !s.missing ? s.dur : Infinity; }
 function sortItems(t) { t.items.sort((a, b) => a.start - b.start || a.id - b.id); }
 function itemLabel(it) { return (it.src || '').replace(/\.[a-z0-9]+$/i, ''); }
+
+// ── TRACK HEIGHTS (view only — never the volume) ─────────────
+function trackH(t) { return clamp(Math.round(t.h || DEF_TRACK_H), MIN_TRACK_H, MAX_TRACK_H); }
+function rowTop(row) { let y = 0; for (let i = 0; i < row && i < P.tracks.length; i++) y += trackH(P.tracks[i]); return y; }
+function rowAt(y) {
+  let acc = 0;
+  for (let i = 0; i < P.tracks.length; i++) { acc += trackH(P.tracks[i]); if (y < acc) return i; }
+  return P.tracks.length;
+}
+function totalH() { let h = 0; P.tracks.forEach(t => h += trackH(t)); return h; }
 
 // Effective fades: user fades, widened automatically where items overlap (crossfades).
 function trackFades(t) {
@@ -990,9 +1119,9 @@ function redo() { if (!redoStack.length || rec) return; undoStack.push(snapshot(
 function afterEdit(structural) {
   P.tracks.forEach(sortItems);
   updateUndoButtons(); scheduleSave();
-  if (structural) renderTrackHeaders(); else updateTrackHeaders();
+  if (structural) { renderTrackHeaders(); resizeCanvases(); } else updateTrackHeaders();
   markStatic(); updateReadout();
-  if (play && !rec) startPlayback(currentTime());
+  if (play && !rec) startPlayback(currentTime(), { userFrom: play.userFrom });
 }
 function updateUndoButtons() { $('undo-btn').disabled = !undoStack.length; $('redo-btn').disabled = !redoStack.length; }
 
@@ -1033,37 +1162,153 @@ function uniqueFile(base, ext) {
   return n;
 }
 
-// ── DECODING + PEAKS ────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════
+// AUDIO SOURCES — streamed from the project, never fully loaded
+// ═══════════════════════════════════════════════════════════
+// A WAV source is read straight from its file in the project, a slice at a
+// time, as it plays or draws. Only its waveform overview ("peaks", about
+// 1/128 the size of the audio) stays in memory, and that's cached so a
+// project reopens quickly. Older projects may hold MP3/FLAC files; those are
+// decoded into memory as before ("mem" sources).
+//   { file, kind: 'wav'|'mem', rate, nCh, frames, dur, peaks, wav, blob, buffer, missing }
+const PEAK_BIN = 256;
+
 async function decodeAtRate(blob, rate) {
   const ab = await blob.arrayBuffer();
   const ctx0 = new OAC(1, 1, rate);
   return await ctx0.decodeAudioData(ab);
 }
-const PEAK_BIN = 256;
-function buildPeaks(buffer) {
-  const n = buffer.length, bins = Math.ceil(n / PEAK_BIN);
-  const mins = new Float32Array(bins), maxs = new Float32Array(bins);
-  const chs = []; for (let c = 0; c < buffer.numberOfChannels; c++) chs.push(buffer.getChannelData(c));
-  for (let b = 0; b < bins; b++) {
-    let lo = 1, hi = -1; const s0 = b * PEAK_BIN, s1 = Math.min(n, s0 + PEAK_BIN);
-    for (const d of chs) for (let i = s0; i < s1; i++) { const v = d[i]; if (v < lo) lo = v; if (v > hi) hi = v; }
-    mins[b] = lo; maxs[b] = hi;
+
+// Running min/max per PEAK_BIN frames, stored as 8-bit values.
+class PeakBuilder {
+  constructor() { this.mins = []; this.maxs = []; this.lo = 1; this.hi = -1; this.n = 0; }
+  add(chs) {
+    const len = chs[0].length, nc = chs.length;
+    for (let i = 0; i < len; i++) {
+      for (let c = 0; c < nc; c++) { const v = chs[c][i]; if (v < this.lo) this.lo = v; if (v > this.hi) this.hi = v; }
+      if (++this.n === PEAK_BIN) this.flush();
+    }
   }
-  return { mins, maxs };
+  flush() {
+    const q = v => clamp(Math.round(v * 127), -127, 127);
+    this.mins.push(q(this.lo)); this.maxs.push(q(this.hi)); this.lo = 1; this.hi = -1; this.n = 0;
+  }
+  finish() { if (this.n) this.flush(); return { mins: Int8Array.from(this.mins), maxs: Int8Array.from(this.maxs) }; }
 }
-function registerSource(file, buffer) {
-  const s = { file, buffer, dur: buffer.duration, peaks: buildPeaks(buffer), missing: false };
+
+async function sourceBlob(s, fresh) {
+  if (!s.blob || fresh) s.blob = await store.readAudio(s.file);
+  return s.blob;
+}
+// Reads `n` frames from `start`; returns one Float32Array per channel (zero-padded).
+async function readFrames(s, start, n) {
+  const chs = [];
+  if (s.kind === 'mem') {
+    for (let c = 0; c < s.nCh; c++) {
+      const out = new Float32Array(n), d = s.buffer.getChannelData(c);
+      if (start < d.length) out.set(d.subarray(start, Math.min(d.length, start + n)));
+      chs.push(out);
+    }
+    return chs;
+  }
+  const w = s.wav, m = Math.max(0, Math.min(n, s.frames - start));
+  if (m <= 0) { for (let c = 0; c < s.nCh; c++) chs.push(new Float32Array(n)); return chs; }
+  const a = w.dataOffset + start * w.blockAlign, b = a + m * w.blockAlign;
+  let ab;
+  try { ab = await (await sourceBlob(s)).slice(a, b).arrayBuffer(); }
+  catch (e) { ab = await (await sourceBlob(s, true)).slice(a, b).arrayBuffer(); }  // file was replaced — get it again
+  return pcmToFloat(ab, w, n);
+}
+
+function peaksKey(file) { return P.id + '/' + file; }
+async function savePeaks(s) {
+  try {
+    const blob = await sourceBlob(s);
+    await dawDB('peaks', 'readwrite', st => st.put({ size: blob.size, frames: s.frames, mins: s.peaks.mins, maxs: s.peaks.maxs }, peaksKey(s.file)));
+  } catch (e) { /* the cache is a convenience */ }
+}
+async function loadSource(file, onProgress, knownPeaks) {
+  const blob = await store.readAudio(file);
+  const w = await parseWav(blob);
+  let s;
+  if (w) {
+    s = { file, kind: 'wav', blob, wav: w, rate: w.rate, nCh: w.nCh, frames: w.frames, dur: w.frames / w.rate, peaks: null, missing: false };
+    if (knownPeaks) { s.peaks = knownPeaks; savePeaks(s); }
+    else {
+      let cached = null;
+      try { cached = await dawDB('peaks', 'readonly', st => st.get(peaksKey(file))); } catch (e) { /* no cache */ }
+      if (cached && cached.size === blob.size && cached.frames === w.frames) s.peaks = { mins: cached.mins, maxs: cached.maxs };
+      else {
+        const pb = new PeakBuilder(), BLOCK = PEAK_BIN * 4096;
+        for (let f = 0; f < s.frames; f += BLOCK) {
+          pb.add(await readFrames(s, f, Math.min(BLOCK, s.frames - f)));
+          if (onProgress) onProgress(f / s.frames);
+        }
+        s.peaks = pb.finish();
+        savePeaks(s);
+      }
+    }
+  } else {
+    const buffer = await decodeAtRate(blob, P.settings.rate);
+    const chs = []; for (let c = 0; c < buffer.numberOfChannels; c++) chs.push(buffer.getChannelData(c));
+    const pb = new PeakBuilder(); pb.add(chs);
+    s = { file, kind: 'mem', buffer, rate: buffer.sampleRate, nCh: buffer.numberOfChannels, frames: buffer.length, dur: buffer.duration, peaks: pb.finish(), missing: false };
+  }
   sources.set(file, s); knownFiles.add(file.toLowerCase());
   return s;
+}
+function forgetSource(file) {
+  sources.delete(file); detailCache.delete(file);
+  for (const k of [...chunkCache.keys()]) if (k.startsWith(file + '|')) chunkCache.delete(k);
+  if (P) dawDB('peaks', 'readwrite', st => st.delete(peaksKey(file))).catch(() => {});
+}
+
+// ~1 second blocks of audio, kept in a small cache so replaying the same
+// passage doesn't touch the disk again.
+const chunkCache = new Map(), CHUNK_MAX = 96;
+function chunkFrames(s) { return Math.max(4096, Math.round(s.rate)); }
+function getChunk(s, idx) {
+  const key = s.file + '|' + idx;
+  let p = chunkCache.get(key);
+  if (p) { chunkCache.delete(key); chunkCache.set(key, p); return p; }
+  const CF = chunkFrames(s);
+  p = readFrames(s, idx * CF, CF).then(chs => {
+    const b = new AudioBuffer({ numberOfChannels: chs.length, length: CF, sampleRate: s.rate });
+    chs.forEach((d, c) => b.copyToChannel(d, c));
+    return b;
+  });
+  p.catch(() => chunkCache.delete(key));
+  chunkCache.set(key, p);
+  while (chunkCache.size > CHUNK_MAX) chunkCache.delete(chunkCache.keys().next().value);
+  return p;
+}
+
+// Full-detail audio for deep zoom, loaded around what's on screen.
+const detailCache = new Map(), detailPending = new Set();
+function getDetail(s, f0, f1) {
+  if (s.kind === 'mem') { if (!s.chs) { s.chs = []; for (let c = 0; c < s.nCh; c++) s.chs.push(s.buffer.getChannelData(c)); } return { f0: 0, f1: s.frames, chs: s.chs }; }
+  const list = detailCache.get(s.file) || [];
+  const hit = list.find(d => d.f0 <= f0 && d.f1 >= f1);
+  if (hit) return hit;
+  if (f1 - f0 > 3e6 || detailPending.has(s.file)) return null;
+  const pad = Math.max(s.rate, f1 - f0), a = Math.max(0, f0 - pad), b = Math.min(s.frames, f1 + pad);
+  detailPending.add(s.file);
+  readFrames(s, a, b - a).then(chs => {
+    const l = detailCache.get(s.file) || [];
+    l.unshift({ f0: a, f1: b, chs }); if (l.length > 4) l.length = 4;
+    detailCache.set(s.file, l);
+  }).catch(() => {}).finally(() => { detailPending.delete(s.file); markStatic(); });
+  return null;
 }
 
 // ═══════════════════════════════════════════════════════════
 // AUDIO ENGINE — playback, metering, input, recording
 // ═══════════════════════════════════════════════════════════
 let ctx = null, masterGain = null, outAnalyser = null;
-let play = null;   // { t0, from, nodes, trackNodes }
+let play = null;   // { t0, from, userFrom, jobs, nodes, trackNodes, timer }
 let rec = null;    // active recording
 const devPrefs = Object.assign({ input: '', output: '', inCh: 'in1' }, lsGet(LS_DEVICES, {}));
+const LOOKAHEAD = 2.5, PUMP_MS = 120;
 
 function ensureCtx() {
   const rate = P ? P.settings.rate : 44100;
@@ -1108,24 +1353,62 @@ function setBusLevels(bus, t, anySolo, immediate) {
   }
 }
 
-// Schedules one item from timeline time `fromTl`, which maps to context time `t0`.
-function scheduleItem(c, item, fades, fromTl, t0, dest, untilTl) {
-  const src = sources.get(item.src);
-  if (!src || !src.buffer) return null;
-  const end = Math.min(itemEnd(item), untilTl == null ? Infinity : untilTl);
-  const s = Math.max(fromTl, item.start);
-  if (end - s <= 0.0005) return null;
-  const local = s - item.start, dur = end - s, when = t0 + (s - fromTl);
-  const node = c.createBufferSource(); node.buffer = src.buffer;
-  const g = c.createGain(); node.connect(g); g.connect(dest);
-  const fi = fades ? fades.fi : item.fadeIn, fo = fades ? fades.fo : item.fadeOut, len = item.len;
+// Fade envelope for one item, from item-local time `local` for `dur` seconds.
+function itemGain(c, item, f, local, dur, when, dest) {
+  const g = c.createGain(); g.connect(dest);
+  const fi = f ? f.fi : item.fadeIn, fo = f ? f.fo : item.fadeOut, len = item.len;
   g.gain.setValueAtTime(envAt(local, len, fi, fo), when);
   const pts = [fi, len - fo, local + dur];
   if (fi > 0 && fo > 0 && fi + fo > len) pts.push(fi * len / (fi + fo));
   [...new Set(pts)].filter(p => p > local + 1e-6 && p <= local + dur + 1e-9).sort((a, b) => a - b)
     .forEach(p => g.gain.linearRampToValueAtTime(envAt(p, len, fi, fo), when + (p - local)));
-  node.start(when, item.offset + local, dur);
-  return node;
+  return g;
+}
+
+// A "job" plays one item from timeline time `fromTl` (= context time `t0`),
+// fetching its audio a block at a time just ahead of the playhead.
+function makeJob(c, item, f, fromTl, t0, dest, untilTl) {
+  const s = sources.get(item.src);
+  if (!s || s.missing) return null;
+  const end = Math.min(itemEnd(item), untilTl == null ? Infinity : untilTl);
+  const st = Math.max(fromTl, item.start);
+  if (end - st <= 0.0005) return null;
+  const local = st - item.start, dur = end - st, when = t0 + (st - fromTl);
+  const g = itemGain(c, item, f, local, dur, when, dest);
+  const rate = s.rate, exact0 = item.offset + local, frame0 = Math.round(exact0 * rate);
+  return { item, s, g, rate, t0, fromTl, exact0, frame0, when0: when,
+    frame: frame0,
+    endFrame: Math.min(s.frames, Math.round((item.offset + local + dur) * rate)) };
+}
+function jobWhen(job, fr) { return job.t0 + (job.item.start + fr / job.rate - job.item.offset - job.fromTl); }
+function pumpJob(c, job, horizon, owner, sink) {
+  const CF = chunkFrames(job.s);
+  while (job.frame < job.endFrame && jobWhen(job, job.frame) < horizon) {
+    const idx = Math.floor(job.frame / CF), a = job.frame, b = Math.min(job.endFrame, (idx + 1) * CF);
+    job.frame = b;
+    const p = getChunk(job.s, idx).then(buf => {
+      if (owner && play !== owner) return;
+      let when = jobWhen(job, a), off = (a - idx * CF) / job.rate, dur = (b - a) / job.rate;
+      if (a === job.frame0) {   // first block starts at the item's exact (sub-sample) position
+        when = job.when0; off = job.exact0 - idx * CF / job.rate; dur = b / job.rate - job.exact0;
+        if (dur <= 0) return;
+      }
+      if (owner) {
+        const now = c.currentTime;
+        if (when < now) { const late = now - when; if (late >= dur) return; when = now; off += late; dur -= late; }
+      }
+      const node = c.createBufferSource(); node.buffer = buf; node.connect(job.g);
+      node.start(when, off, dur);
+      if (owner) owner.nodes.push(node);
+    }).catch(e => console.warn('Audio read failed', e));
+    if (sink) sink.push(p);
+  }
+}
+function pump() {
+  if (!play || !ctx) return;
+  const h = ctx.currentTime + LOOKAHEAD;
+  play.jobs.forEach(j => pumpJob(ctx, j, h, play));
+  if (play.nodes.length > 400) play.nodes = play.nodes.slice(-200);   // finished blocks tidy themselves up
 }
 
 function currentTime() {
@@ -1135,29 +1418,40 @@ function currentTime() {
 // opts.clip = { trackId, at } plays that track only up to `at` (used while recording)
 function startPlayback(from, opts) {
   stopPlayback(true);
-  const c = ensureCtx(), t0 = c.currentTime + 0.06;
+  const c = ensureCtx(), t0 = c.currentTime + 0.12;
   const anySolo = P.tracks.some(t => t.solo);
-  const nodes = [], trackNodes = new Map();
+  const jobs = [], trackNodes = new Map();
   P.tracks.forEach(t => {
     const bus = makeTrackBus(c, t, masterGain, anySolo);
     trackNodes.set(t.id, bus);
     const fades = trackFades(t);
     const until = (opts && opts.clip && opts.clip.trackId === t.id) ? opts.clip.at : null;
-    t.items.forEach(it => { const n = scheduleItem(c, it, fades.get(it.id), from, t0, bus.g, until); if (n) nodes.push(n); });
+    t.items.forEach(it => { const j = makeJob(c, it, fades.get(it.id), from, t0, bus.g, until); if (j) jobs.push(j); });
   });
-  play = { t0, from, nodes, trackNodes };
+  const userFrom = (opts && opts.userFrom != null) ? opts.userFrom : from;
+  play = { t0, from, userFrom, jobs, nodes: [], trackNodes, timer: null };
+  pump();
+  play.timer = setInterval(pump, PUMP_MS);
   $('play-btn').classList.add('on');
   startLoop();
 }
-function stopPlayback(keepState) {
+function stopPlayback(keepState, toStart) {
   if (!play) return;
-  const t = currentTime();
-  play.nodes.forEach(n => { try { n.stop(); } catch (e) {} n.disconnect(); });
-  play.trackNodes.forEach(b => { try { b.g.disconnect(); } catch (e) {} });
+  const t = currentTime(), p = play;
+  clearInterval(p.timer);
+  p.nodes.forEach(n => { try { n.stop(); } catch (e) {} try { n.disconnect(); } catch (e) {} });
+  p.jobs.forEach(j => { try { j.g.disconnect(); } catch (e) {} });
+  p.trackNodes.forEach(b => { try { b.g.disconnect(); } catch (e) {} });
   play = null;
-  if (!keepState) { ui.cursor = Math.max(0, t); $('play-btn').classList.remove('on'); markOverlay(); updateTimeDisplay(); }
+  if (!keepState) { ui.cursor = toStart ? p.userFrom : Math.max(0, t); $('play-btn').classList.remove('on'); followPlayhead(ui.cursor); markOverlay(); updateTimeDisplay(); }
 }
+// Space: play, or stop and go back to where play started
 function togglePlay() {
+  if (rec) { stopRecording(); return; }
+  if (play) stopPlayback(false, true); else startPlayback(ui.cursor);
+}
+// Enter: pause where you are, or carry on from there
+function pausePlay() {
   if (rec) { stopRecording(); return; }
   if (play) stopPlayback(); else startPlayback(ui.cursor);
 }
@@ -1262,7 +1556,7 @@ async function startRecording() {
   if (!track) {
     const sel = [...ui.selTracks].map(findTrack).filter(Boolean);
     track = sel[0] || P.tracks[0];
-    if (!track) { edit(() => { P.tracks.push(newTrack('Narration')); }); renderTrackHeaders(); track = P.tracks[0]; }
+    if (!track) { edit(() => { P.tracks.push(newTrack('Narration')); }); renderTrackHeaders(); resizeCanvases(); track = P.tracks[0]; }
   }
   if (ui.armed !== track.id) { await setArmed(track.id); if (ui.armed !== track.id) return; }
   let inp;
@@ -1271,11 +1565,14 @@ async function startRecording() {
   const wasPlaying = !!play;
   const pre = (!wasPlaying && $('preroll-on').checked) ? clamp(parseFloat($('preroll-secs').value) || 0, 0, 30) : 0;
   const from = Math.max(0, a - pre);
+  const nCh = P.settings.ch === 2 ? 2 : 1, rate = inp.ctx.sampleRate, bits = P.settings.bits;
+  const file = uniqueFile(`${track.name} ${stamp()}`, '.wav');
+  const writer = new TakeWriter(store, file, nCh, rate, bits);
   startPlayback(from, { clip: { trackId: track.id, at: a } });
   const c = ctx;
   const comp = (c.outputLatency || 0) + (c.baseLatency || 0) + (inp.latency || 0) + (P.settings.offsetMs || 0) / 1000;
-  rec = { trackId: track.id, mode, a, b, from, t0: play.t0, comp, rate: c.sampleRate, chunks: [], len: 0,
-          targetId: target ? target.item.id : null, peaksMin: [], peaksMax: [], pkLo: 1, pkHi: -1, pkN: 0, stopping: false };
+  rec = { trackId: track.id, mode, a, b, from, t0: play.t0, comp, rate, nCh, bits, file, writer, len: 0,
+          targetId: target ? target.item.id : null, pk: new PeakBuilder(), stopping: false };
   inp.worklet.port.postMessage('start');
   $('rec-btn').classList.add('on');
   ui.timeSel = mode === 'range' ? ui.timeSel : null;
@@ -1285,7 +1582,7 @@ async function startRecording() {
 function onCaptureMessage(e) {
   const m = e.data;
   if (m.done) { if (rec && rec.stopping) finishRecording(); return; }
-  if (!rec || rec.stopping && rec.flushed) return;
+  if (!rec || rec.finished) return;
   const rate = rec.rate, n = m.data[0].length;
   // timeline time of the chunk's first sample, with latency compensation
   const tl0 = rec.from + (m.frame / rate - rec.t0) - rec.comp;
@@ -1295,17 +1592,13 @@ function onCaptureMessage(e) {
   if (k1 <= k0) return;
   const pick = (c) => m.data[c].subarray(k0, k1);
   let chs;
-  if (P.settings.ch === 2) chs = [pick(0).slice(), pick(1).slice()];
+  if (rec.nCh === 2) chs = [pick(0).slice(), pick(1).slice()];
   else if (devPrefs.inCh === 'in2') chs = [pick(1).slice()];
   else if (devPrefs.inCh === 'mix') { const l = pick(0), r = pick(1), o = new Float32Array(l.length); for (let i = 0; i < l.length; i++) o[i] = (l[i] + r[i]) * 0.5; chs = [o]; }
   else chs = [pick(0).slice()];
-  rec.chunks.push(chs); rec.len += chs[0].length;
-  // live peaks
-  for (let i = 0; i < chs[0].length; i++) {
-    let v = chs[0][i]; if (chs[1]) { const w = chs[1][i]; if (Math.abs(w) > Math.abs(v)) v = w; }
-    if (v < rec.pkLo) rec.pkLo = v; if (v > rec.pkHi) rec.pkHi = v;
-    if (++rec.pkN === PEAK_BIN) { rec.peaksMin.push(rec.pkLo); rec.peaksMax.push(rec.pkHi); rec.pkLo = 1; rec.pkHi = -1; rec.pkN = 0; }
-  }
+  rec.writer.push(chs);
+  rec.len += chs[0].length;
+  rec.pk.add(chs);
 }
 
 function stopRecording() {
@@ -1322,21 +1615,27 @@ async function finishRecording() {
   updateRecStatus();
   if (ui.armed == null) closeInput();
   const rate = r.rate;
-  if (r.len < rate * 0.05) { markStatic(); toast('Nothing was recorded — the take was too short.'); return; }
-  const nCh = r.chunks[0].length, data = [];
-  for (let c = 0; c < nCh; c++) { const o = new Float32Array(r.len); let p = 0; r.chunks.forEach(ch => { o.set(ch[c], p); p += ch[c].length; }); data.push(o); }
-  const track = findTrack(r.trackId);
-  const file = uniqueFile(`${track ? track.name : 'Take'} ${stamp()}`, '.wav');
-  const buf = ctx.createBuffer(nCh, r.len, rate);
-  data.forEach((d, c) => buf.copyToChannel(d, c));
-  registerSource(file, buf);
+  if (r.len < rate * 0.05) {
+    r.writer.cancel(); knownFiles.delete(r.file.toLowerCase());
+    markStatic(); toast('Nothing was recorded — the take was too short.'); return;
+  }
   setSaveState('Saving take…', 'dirty');
-  try { await store.writeAudio(file, encodeWav(data, rate, P.settings.bits)); }
-  catch (e) { console.error(e); toast('The take couldn\'t be written to the project — it\'s on the timeline but not saved. Try Backup.', true, 9000); }
+  try { await r.writer.finish(); }
+  catch (e) {
+    console.error(e); markStatic();
+    setSaveState('Not saved', 'err');
+    toast('The take couldn\'t be written to the project folder — check the folder is still there and has space.', true, 9000);
+    return;
+  }
+  const s = { file: r.file, kind: 'wav', blob: null, rate, nCh: r.nCh, frames: r.len, dur: r.len / rate, peaks: r.pk.finish(), missing: false,
+              wav: { format: 1, nCh: r.nCh, rate, bits: r.bits, blockAlign: r.nCh * r.bits / 8, dataOffset: 44, frames: r.len } };
+  sources.set(r.file, s);
+  savePeaks(s);
+  const track = findTrack(r.trackId);
   if (!track) { markStatic(); return; }
-  const L = r.len / rate;
+  const L = s.dur;
   edit(() => {
-    const it = newItem(file, r.a, 0, L);
+    const it = newItem(r.file, r.a, 0, L);
     if (r.mode === 'punch') {
       track.items = track.items.filter(x => x.start < r.a - 1e-6);
       track.items.forEach(x => { if (itemEnd(x) > r.a) { x.len = r.a - x.start; x.fadeOut = Math.min(Math.max(x.fadeOut, EDGE_FADE), x.len); } });
@@ -1417,6 +1716,7 @@ function startLoop() { if (loopOn) return; loopOn = true; requestAnimationFrame(
 function loop() {
   if (!P) { loopOn = false; return; }
   if (play) {
+    pump();
     const t = currentTime();
     if (rec && !rec.stopping && rec.b !== Infinity && t >= rec.b + Math.max(0.05, rec.comp)) stopRecording();
     if (!rec && t > projectEnd() + 0.3 && t > play.from + 0.3) stopPlayback();
@@ -1434,7 +1734,7 @@ function updateTimeDisplay() { $('time-display').textContent = fmtTime(play ? cu
 const lanesBox = $('lanes-box'), lanesCv = $('lanes-cv'), rulerCv = $('ruler-cv');
 let staticLayer = document.createElement('canvas');
 let staticDirty = true, overlayQueued = false;
-let W = 800, H = TRACK_H, DPR = window.devicePixelRatio || 1;
+let W = 800, H = DEF_TRACK_H, DPR = window.devicePixelRatio || 1;
 
 const xToT = x => ui.t0 + x / ui.pps;
 const tToX = t => (t - ui.t0) * ui.pps;
@@ -1442,7 +1742,7 @@ const tToX = t => (t - ui.t0) * ui.pps;
 function resizeCanvases() {
   DPR = window.devicePixelRatio || 1;
   W = Math.max(100, lanesBox.clientWidth);
-  H = Math.max(TRACK_H, (P ? P.tracks.length : 1) * TRACK_H);
+  H = Math.max(DEF_TRACK_H, P ? totalH() : DEF_TRACK_H);
   lanesBox.style.height = H + 'px';
   for (const [cv, h] of [[lanesCv, H], [rulerCv, 30], [staticLayer, H]]) {
     cv.width = Math.round(W * DPR); cv.height = Math.round(h * DPR);
@@ -1482,6 +1782,11 @@ function followPlayhead(t) {
   const x = tToX(t);
   if (x > W - 20 || x < 0) { ui.t0 = Math.max(0, t - 20 / ui.pps); updateScrollbar(); markStatic(); }
 }
+function setWaveZoom(f) {
+  ui.waveZoom = clamp(ui.waveZoom * f, 0.25, 32);
+  if (Math.abs(ui.waveZoom - 1) < 0.02) ui.waveZoom = 1;
+  savePrefs(); markStatic(); updateReadout();
+}
 
 function niceStep() {
   const steps = [0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1, 2, 5, 10, 15, 30, 60, 120, 300, 600, 900, 1800, 3600];
@@ -1505,31 +1810,35 @@ function drawRuler() {
   g.stroke();
 }
 
-function drawWave(g, item, src, x0, x1, top, h, color) {
-  const rate = src.buffer.sampleRate, mid = top + h / 2, amp = h / 2 - 1;
-  const { mins, maxs } = src.peaks, chs = [];
-  for (let c = 0; c < src.buffer.numberOfChannels; c++) chs.push(src.buffer.getChannelData(c));
-  const n = src.buffer.length;
+function drawWave(g, item, s, x0, x1, top, h, color) {
+  const rate = s.rate, mid = top + h / 2, amp = (h / 2 - 1) * ui.waveZoom, n = s.frames;
+  const { mins, maxs } = s.peaks;
+  const ix0 = tToX(item.start), spp = rate / ui.pps;
+  let detail = null;
+  if (spp < PEAK_BIN * 2) {
+    const fa = Math.floor(((x0 - ix0) / ui.pps + item.offset) * rate), fb = Math.ceil(((x1 - ix0) / ui.pps + item.offset) * rate);
+    detail = getDetail(s, clamp(fa, 0, n), clamp(fb, 0, n));
+  }
   g.fillStyle = color;
-  const ix0 = tToX(item.start);
   for (let x = Math.floor(x0); x < x1; x++) {
     const tA = (x - ix0) / ui.pps + item.offset, tB = (x + 1 - ix0) / ui.pps + item.offset;
     let s0 = Math.floor(tA * rate), s1 = Math.ceil(tB * rate);
     s0 = clamp(s0, 0, n); s1 = clamp(s1, 0, n); if (s1 <= s0) continue;
     let lo = 1, hi = -1;
-    if (s1 - s0 > PEAK_BIN * 2) {
-      const b0 = Math.floor(s0 / PEAK_BIN), b1 = Math.ceil(s1 / PEAK_BIN);
-      for (let b = b0; b < b1; b++) { if (mins[b] < lo) lo = mins[b]; if (maxs[b] > hi) hi = maxs[b]; }
+    if (detail && s0 >= detail.f0 && s1 <= detail.f1) {
+      for (const d of detail.chs) for (let i = s0 - detail.f0, e = s1 - detail.f0; i < e; i++) { const v = d[i]; if (v < lo) lo = v; if (v > hi) hi = v; }
     } else {
-      for (const d of chs) for (let i = s0; i < s1; i++) { const v = d[i]; if (v < lo) lo = v; if (v > hi) hi = v; }
+      const b0 = Math.floor(s0 / PEAK_BIN), b1 = Math.max(b0 + 1, Math.ceil(s1 / PEAK_BIN));
+      for (let b = b0; b < b1 && b < mins.length; b++) { if (mins[b] < lo * 127) lo = mins[b] / 127; if (maxs[b] > hi * 127) hi = maxs[b] / 127; }
     }
-    const y0 = mid - hi * amp, y1 = mid - lo * amp;
-    g.fillRect(x, y0, 1, Math.max(1, y1 - y0));
+    if (hi < lo) continue;
+    const y0 = Math.max(top, mid - hi * amp), y1 = Math.min(top + h, mid - lo * amp);
+    if (y1 >= y0) g.fillRect(x, y0, 1, Math.max(1, y1 - y0));
   }
 }
 
-function drawItem(g, t, it, fades, row) {
-  const top = row * TRACK_H + 3, h = TRACK_H - 6;
+function drawItem(g, t, it, fades, rTop, rH) {
+  const top = rTop + 3, h = rH - 6;
   let x0 = tToX(it.start), x1 = tToX(itemEnd(it));
   if (x1 < 0 || x0 > W) return;
   const sel = ui.selItems.has(it.id), src = sources.get(it.src), missing = !src || src.missing;
@@ -1566,24 +1875,28 @@ function drawStatic() {
   g.clearRect(0, 0, W, H);
   if (!P) return;
   const step = niceStep();
+  let y = 0;
   P.tracks.forEach((t, row) => {
-    const y = row * TRACK_H;
+    const th = trackH(t);
     g.fillStyle = ui.selTracks.has(t.id) ? '#fffaf6' : (row % 2 ? '#fbfbfb' : '#f7f7f7');
-    g.fillRect(0, y, W, TRACK_H);
-    g.fillStyle = '#e6e6e6'; g.fillRect(0, y + TRACK_H - 1, W, 1);
+    g.fillRect(0, y, W, th);
+    g.fillStyle = '#e6e6e6'; g.fillRect(0, y + th - 1, W, 1);
+    y += th;
   });
   g.strokeStyle = 'rgba(0,0,0,0.045)'; g.beginPath();
   for (let t = Math.floor(ui.t0 / step) * step; t <= xToT(W); t += step) { const x = Math.round(tToX(t)) + 0.5; g.moveTo(x, 0); g.lineTo(x, H); }
   g.stroke();
   if (ui.timeSel) {
     const x0 = tToX(ui.timeSel.a), x1 = tToX(ui.timeSel.b);
-    P.tracks.forEach((t, row) => {
-      const on = !ui.selTracks.size || ui.selTracks.has(t.id);
+    let yy = 0;
+    P.tracks.forEach(t => {
+      const on = !ui.selTracks.size || ui.selTracks.has(t.id), th = trackH(t);
       g.fillStyle = on ? 'rgba(224,90,0,0.13)' : 'rgba(224,90,0,0.04)';
-      g.fillRect(x0, row * TRACK_H, x1 - x0, TRACK_H);
+      g.fillRect(x0, yy, x1 - x0, th); yy += th;
     });
   }
-  P.tracks.forEach((t, row) => { const f = trackFades(t); t.items.forEach(it => drawItem(g, t, it, f, row)); });
+  y = 0;
+  P.tracks.forEach(t => { const f = trackFades(t), th = trackH(t); t.items.forEach(it => drawItem(g, t, it, f, y, th)); y += th; });
   if (ui.timeSel) {
     g.fillStyle = 'rgba(224,90,0,0.7)';
     g.fillRect(Math.round(tToX(ui.timeSel.a)), 0, 1, H); g.fillRect(Math.round(tToX(ui.timeSel.b)), 0, 1, H);
@@ -1600,17 +1913,19 @@ function drawOverlay() {
   if (rec && !rec.finished) {
     const row = P.tracks.findIndex(t => t.id === rec.trackId);
     if (row >= 0) {
-      const top = row * TRACK_H + 3, h = TRACK_H - 6, x0 = tToX(rec.a), x1 = tToX(rec.a + rec.len / rec.rate);
+      const rTop = rowTop(row), rH = trackH(P.tracks[row]);
+      const top = rTop + 3, h = rH - 6, x0 = tToX(rec.a), x1 = tToX(rec.a + rec.len / rec.rate);
       g.fillStyle = '#fef2f2'; g.fillRect(x0, top, x1 - x0, h);
       g.fillStyle = '#dc2626'; g.fillRect(x0, top, x1 - x0, BAR_H);
-      const mid = top + BAR_H + (h - BAR_H) / 2, amp = (h - BAR_H) / 2 - 2, binDur = PEAK_BIN / rec.rate;
+      const mid = top + BAR_H + (h - BAR_H) / 2, amp = ((h - BAR_H) / 2 - 2) * ui.waveZoom, binDur = PEAK_BIN / rec.rate;
+      const mins = rec.pk.mins, maxs = rec.pk.maxs, wTop = top + BAR_H, wBot = top + h;
       g.fillStyle = '#b91c1c';
       for (let x = Math.max(0, Math.floor(x0)); x < Math.min(W, x1); x++) {
         const b0 = Math.floor((xToT(x) - rec.a) / binDur), b1 = Math.max(b0 + 1, Math.floor((xToT(x + 1) - rec.a) / binDur));
-        let lo = 1, hi = -1; for (let b = b0; b < b1 && b < rec.peaksMin.length; b++) { if (rec.peaksMin[b] < lo) lo = rec.peaksMin[b]; if (rec.peaksMax[b] > hi) hi = rec.peaksMax[b]; }
-        if (hi >= lo) g.fillRect(x, mid - hi * amp, 1, Math.max(1, (hi - lo) * amp));
+        let lo = 127, hi = -127; for (let b = Math.max(0, b0); b < b1 && b < mins.length; b++) { if (mins[b] < lo) lo = mins[b]; if (maxs[b] > hi) hi = maxs[b]; }
+        if (hi >= lo) { const ya = Math.max(wTop, mid - hi / 127 * amp), yb = Math.min(wBot, mid - lo / 127 * amp); g.fillRect(x, ya, 1, Math.max(1, yb - ya)); }
       }
-      if (rec.b !== Infinity) { g.fillStyle = 'rgba(220,38,38,0.6)'; g.fillRect(Math.round(tToX(rec.b)), row * TRACK_H, 2, TRACK_H); }
+      if (rec.b !== Infinity) { g.fillStyle = 'rgba(220,38,38,0.6)'; g.fillRect(Math.round(tToX(rec.b)), rTop, 2, rH); }
     }
   }
   const t = play ? currentTime() : ui.cursor, x = Math.round(tToX(t));
@@ -1623,11 +1938,16 @@ function drawOverlay() {
 
 // ── HIT TESTING ─────────────────────────────────────────────
 function hitTest(x, y) {
-  const row = Math.floor(y / TRACK_H), track = P.tracks[row];
+  const row = rowAt(y), track = P.tracks[row];
   if (!track) return { row, track: null };
-  const yy = y - row * TRACK_H, inBar = yy >= 3 && yy <= 3 + BAR_H;
-  const t = xToT(x);
+  const yy = y - rowTop(row), th = trackH(track), t = xToT(x);
+  if (yy >= th - 5) return { row, track, item: null, part: 'resize', t };
+  const inBar = yy >= 3 && yy <= 3 + BAR_H;
   const cands = track.items.filter(it => tToX(it.start) - EDGE_PX <= x && tToX(itemEnd(it)) + EDGE_PX >= x).sort((a, b) => b.start - a.start);
+  if (ui.timeSel && !inBar) {
+    const da = Math.abs(x - tToX(ui.timeSel.a)), db = Math.abs(x - tToX(ui.timeSel.b));
+    if (Math.min(da, db) <= 5) return { row, track, item: null, part: 'seledge', which: da <= db ? 'a' : 'b', t };
+  }
   for (const it of cands) {
     const x0 = tToX(it.start), x1 = tToX(itemEnd(it));
     if (inBar) {
@@ -1635,7 +1955,7 @@ function hitTest(x, y) {
       if (Math.abs(x - hx1) <= 5 && x1 - x0 > 14) return { row, track, item: it, part: 'fadein', t };
       if (Math.abs(x - hx2) <= 5 && x1 - x0 > 14) return { row, track, item: it, part: 'fadeout', t };
     }
-    if (Math.abs(x - x0) <= EDGE_PX && x >= x0 - EDGE_PX && (x <= x0 + EDGE_PX)) return { row, track, item: it, part: 'left', t };
+    if (Math.abs(x - x0) <= EDGE_PX) return { row, track, item: it, part: 'left', t };
     if (Math.abs(x - x1) <= EDGE_PX) return { row, track, item: it, part: 'right', t };
     if (x >= x0 && x <= x1) return { row, track, item: it, part: inBar ? 'bar' : 'body', t };
   }
@@ -1652,6 +1972,13 @@ function snapTime(t, excludeIds) {
   return best;
 }
 
+// ── TRACK RESIZE (header edge or lane edge) ─────────────────
+function applyTrackHeights() {
+  document.querySelectorAll('.track-hdr').forEach(el => { const t = findTrack(+el.dataset.id); if (t) el.style.height = trackH(t) + 'px'; });
+  resizeCanvases();
+}
+function resizeTrackTo(t, h) { t.h = clamp(Math.round(h), MIN_TRACK_H, MAX_TRACK_H); applyTrackHeights(); }
+
 // ── POINTER INTERACTION ─────────────────────────────────────
 let drag = null;
 function lanePos(e) { const r = lanesCv.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; }
@@ -1662,9 +1989,12 @@ lanesCv.addEventListener('pointerdown', e => {
   const { x, y } = lanePos(e), h = hitTest(x, y);
   if (!h.track) return;
   lanesCv.setPointerCapture(e.pointerId);
+  if (h.part === 'resize') { drag = { kind: 'resize', track: h.track, cy0: e.clientY, h0: trackH(h.track), moved: false }; return; }
   const before = snapshot();
   const it = h.item;
-  if (it && (h.part === 'bar') && !e.altKey) {
+  if (h.part === 'seledge') {
+    drag = { kind: 'seledge', which: h.which, x0: x, y0: y, moved: false };
+  } else if (it && (h.part === 'bar') && !e.altKey) {
     if (e.shiftKey || e.metaKey || e.ctrlKey) { ui.selItems.has(it.id) ? ui.selItems.delete(it.id) : ui.selItems.add(it.id); }
     else if (!ui.selItems.has(it.id)) { ui.selItems.clear(); ui.selItems.add(it.id); }
     selectTrackOnly(h.track.id, e.shiftKey);
@@ -1676,7 +2006,7 @@ lanesCv.addEventListener('pointerdown', e => {
   } else if (it && (h.part === 'fadein' || h.part === 'fadeout')) {
     ui.selItems.clear(); ui.selItems.add(it.id);
     drag = { kind: h.part, before, item: it, x0: x, moved: false };
-  } else if (it && h.part === 'body' && e.altKey) {
+  } else if (it && e.altKey) {
     ui.selItems.clear(); ui.selItems.add(it.id);
     drag = { kind: 'slip', before, item: it, x0: x, offset: it.offset, moved: false };
   } else {
@@ -1690,17 +2020,22 @@ lanesCv.addEventListener('pointermove', e => {
   if (!P) return;
   const { x, y } = lanePos(e);
   if (!drag) { setHoverCursor(x, y, e.altKey); return; }
+  if (drag.kind === 'resize') { drag.moved = true; resizeTrackTo(drag.track, drag.h0 + (e.clientY - drag.cy0)); return; }
   if (!drag.moved && Math.abs(x - drag.x0) < 3 && Math.abs(y - (drag.y0 || y)) < 3) return;
   drag.moved = true;
   const dt = (x - drag.x0) / ui.pps;
-  if (drag.kind === 'move') {
+  if (drag.kind === 'seledge') {
+    const v = snapTime(Math.max(0, xToT(x)));
+    ui.timeSel[drag.which] = v;
+    if (ui.timeSel.a > ui.timeSel.b) { const a = ui.timeSel.a; ui.timeSel.a = ui.timeSel.b; ui.timeSel.b = a; drag.which = drag.which === 'a' ? 'b' : 'a'; }
+  } else if (drag.kind === 'move') {
     const ids = new Set(drag.moving.map(m => m.item.id));
     let ns = Math.max(0, drag.anchorStart + dt);
     const snapS = snapTime(ns, ids), snapE = snapTime(ns + drag.anchor.len, ids) - drag.anchor.len;
     ns = Math.abs(snapS - ns) <= Math.abs(snapE - ns) ? snapS : snapE;
     let shift = ns - drag.anchorStart;
     const minStart = Math.min(...drag.moving.map(m => m.start0)); if (minStart + shift < 0) shift = -minStart;
-    let dRow = Math.floor(y / TRACK_H) - drag.row0;
+    let dRow = rowAt(Math.max(0, y)) - drag.row0;
     const rows = drag.moving.map(m => m.row0);
     dRow = clamp(dRow, -Math.min(...rows), P.tracks.length - 1 - Math.max(...rows));
     drag.moving.forEach(m => {
@@ -1727,7 +2062,7 @@ lanesCv.addEventListener('pointermove', e => {
   } else if (drag.kind === 'range') {
     const t1 = snapTime(Math.max(0, xToT(x)));
     ui.timeSel = { a: Math.min(drag.t0, t1), b: Math.max(drag.t0, t1) };
-    const r1 = clamp(Math.floor(y / TRACK_H), 0, P.tracks.length - 1), r0 = clamp(drag.row0, 0, P.tracks.length - 1);
+    const r1 = clamp(rowAt(Math.max(0, y)), 0, P.tracks.length - 1), r0 = clamp(drag.row0, 0, P.tracks.length - 1);
     ui.selTracks.clear();
     for (let r = Math.min(r0, r1); r <= Math.max(r0, r1); r++) ui.selTracks.add(P.tracks[r].id);
     ui.selItems.clear();
@@ -1740,7 +2075,10 @@ lanesCv.addEventListener('pointermove', e => {
 lanesCv.addEventListener('pointerup', e => {
   if (!drag) return;
   const d = drag; drag = null;
-  if (d.kind === 'range') {
+  if (d.kind === 'resize') { if (d.moved) scheduleSave(); return; }
+  if (d.kind === 'seledge') {
+    if (ui.timeSel && ui.timeSel.b - ui.timeSel.a < 0.002) ui.timeSel = null;
+  } else if (d.kind === 'range') {
     if (!d.moved) {
       // simple click: place cursor, select item under it (or clear)
       ui.timeSel = null;
@@ -1763,12 +2101,15 @@ lanesCv.addEventListener('pointerup', e => {
 });
 lanesCv.addEventListener('dblclick', e => {
   const { x, y } = lanePos(e), h = hitTest(x, y);
+  if (h.part === 'resize' && h.track) { resizeTrackTo(h.track, DEF_TRACK_H); scheduleSave(); return; }
   if (h.item) { ui.timeSel = { a: h.item.start, b: itemEnd(h.item) }; ui.selTracks.clear(); ui.selTracks.add(h.track.id); updateTrackHeaders(); markStatic(); updateReadout(); }
 });
 function setHoverCursor(x, y, alt) {
   const h = hitTest(x, y);
   let c = 'text';
-  if (h.item) c = { bar: 'grab', left: 'ew-resize', right: 'ew-resize', fadein: 'col-resize', fadeout: 'col-resize', body: alt ? 'move' : 'text' }[h.part] || 'text';
+  if (h.part === 'resize') c = 'row-resize';
+  else if (h.part === 'seledge') c = 'ew-resize';
+  else if (h.item) c = { bar: alt ? 'move' : 'grab', left: 'ew-resize', right: 'ew-resize', fadein: 'col-resize', fadeout: 'col-resize', body: alt ? 'move' : 'text' }[h.part] || 'text';
   lanesCv.style.cursor = c;
 }
 function selectTrackOnly(id, add) { if (!add) ui.selTracks.clear(); ui.selTracks.add(id); updateTrackHeaders(); }
@@ -1821,6 +2162,7 @@ function updateReadout() {
   if (ui.selItems.size === 1) { const f = findItem([...ui.selItems][0]); if (f) parts.push(`Item <b>${itemLabel(f.item)}</b> · ${fmtTime(f.item.start)} · length ${f.item.len.toFixed(3)} s`); }
   else if (ui.selItems.size > 1) parts.push(`<b>${ui.selItems.size}</b> items selected`);
   parts.push(`Project length ${fmtTime(projectEnd(), false)}`);
+  if (ui.waveZoom !== 1) parts.push(`Waveform ×${ui.waveZoom < 1 ? ui.waveZoom.toFixed(2) : ui.waveZoom.toFixed(1)}`);
   $('readout').innerHTML = parts.join(' &nbsp;·&nbsp; ');
 }
 
@@ -1831,7 +2173,7 @@ function renderTrackHeaders() {
   const box = $('track-headers'); box.innerHTML = '';
   P.tracks.forEach(t => {
     const el = document.createElement('div');
-    el.className = 'track-hdr'; el.dataset.id = t.id;
+    el.className = 'track-hdr'; el.dataset.id = t.id; el.style.height = trackH(t) + 'px';
     el.innerHTML = `
       <div class="th-row">
         <button class="th-btn arm" title="Arm for recording">●</button>
@@ -1842,7 +2184,8 @@ function renderTrackHeaders() {
       </div>
       <label class="th-slider"><span class="k">Vol</span><input type="range" class="vol" min="-60" max="12" step="0.5"><span class="v"></span></label>
       <label class="th-slider"><span class="k">Pan</span><input type="range" class="pan" min="-100" max="100" step="1"><span class="v"></span></label>
-      <div class="th-meter"><div class="fill"></div></div>`;
+      <div class="th-meter"><div class="fill"></div></div>
+      <div class="th-resize" title="Drag to make this track taller or shorter (view only) · double-click to reset"></div>`;
     const name = el.querySelector('.th-name'); name.value = t.name;
     name.addEventListener('change', () => { const v = name.value.trim() || t.name; edit(() => { t.name = v; }); name.value = v; });
     name.addEventListener('keydown', e => { if (e.key === 'Enter') name.blur(); e.stopPropagation(); });
@@ -1867,8 +2210,14 @@ function renderTrackHeaders() {
     pan.addEventListener('input', () => { t.pan = +pan.value; updateTrackHeaders(); refreshLiveLevels(); });
     pan.addEventListener('change', () => { if (volBefore) pushUndo(volBefore); else scheduleSave(); volBefore = null; });
     pan.addEventListener('dblclick', () => { const b = snapshot(); t.pan = 0; pan.value = 0; pushUndo(b); refreshLiveLevels(); });
+    const rz = el.querySelector('.th-resize');
+    let rzDrag = null;
+    rz.addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); rz.setPointerCapture(e.pointerId); rz.classList.add('on'); rzDrag = { cy0: e.clientY, h0: trackH(t), moved: false }; });
+    rz.addEventListener('pointermove', e => { if (!rzDrag) return; rzDrag.moved = true; resizeTrackTo(t, rzDrag.h0 + (e.clientY - rzDrag.cy0)); });
+    rz.addEventListener('pointerup', () => { if (rzDrag && rzDrag.moved) scheduleSave(); rzDrag = null; rz.classList.remove('on'); });
+    rz.addEventListener('dblclick', e => { e.stopPropagation(); resizeTrackTo(t, DEF_TRACK_H); scheduleSave(); });
     el.addEventListener('pointerdown', e => {
-      if (e.target.closest('button, input')) return;
+      if (e.target.closest('button, input, .th-resize')) return;
       if (e.shiftKey) { ui.selTracks.has(t.id) ? ui.selTracks.delete(t.id) : ui.selTracks.add(t.id); }
       else { ui.selTracks.clear(); ui.selTracks.add(t.id); }
       updateTrackHeaders(); markStatic();
@@ -1876,7 +2225,7 @@ function renderTrackHeaders() {
     box.appendChild(el);
   });
   updateTrackHeaders();
-  if (W !== lanesBox.clientWidth || H !== Math.max(TRACK_H, P.tracks.length * TRACK_H)) resizeCanvases();
+  if (W !== lanesBox.clientWidth || H !== Math.max(DEF_TRACK_H, totalH())) resizeCanvases();
 }
 function updateTrackHeaders() {
   if (!P) return;
@@ -1910,6 +2259,23 @@ function addTrack() {
 // ═══════════════════════════════════════════════════════════
 function targetTracks() { const sel = [...ui.selTracks].map(findTrack).filter(Boolean); return sel.length ? sel : P.tracks.slice(); }
 
+// Overlaps a left/right pair at a fresh join so they crossfade, revealing a
+// few ms of the original audio either side.
+function crossfadeJunction(left, right) {
+  if (!left || !right) return;
+  const half = XFADE / 2;
+  const hl = Math.max(0, Math.min(half, srcDur(left.src) - (left.offset + left.len)));
+  const hr = Math.max(0, Math.min(half, right.offset, right.start));
+  left.len += hl; right.offset -= hr; right.start -= hr; right.len += hr;
+  if (hl + hr > 1e-6) { left.fadeOut = 0; right.fadeIn = 0; }
+  else { left.fadeOut = Math.max(left.fadeOut, EDGE_FADE); right.fadeIn = Math.max(right.fadeIn, EDGE_FADE); }
+}
+function joinAt(track, p) {
+  const left = track.items.filter(x => x.start < p - 1e-6 && Math.abs(itemEnd(x) - p) < 1e-6).sort((a, b) => b.start - a.start)[0];
+  const right = track.items.find(x => Math.abs(x.start - p) < 1e-6 && x !== left);
+  crossfadeJunction(left, right);
+}
+
 function splitAt() {
   if (rec) return;
   const t = ui.cursor;
@@ -1924,6 +2290,7 @@ function splitAt() {
       right.fadeOut = Math.min(item.fadeOut, right.len);
       item.len = cut; item.fadeOut = 0; item.fadeIn = Math.min(item.fadeIn, item.len);
       track.items.push(right);
+      crossfadeJunction(item, right);
       if (ui.selItems.has(item.id)) ui.selItems.add(right.id);
     });
   });
@@ -1936,9 +2303,10 @@ function deleteSel(join) {
     edit(() => {
       tracks.forEach(tr => {
         clearRange(tr, a, b, false);
-        if (join) tr.items.forEach(x => { if (x.start >= b - 1e-9) x.start -= (b - a); });
+        if (join) { tr.items.forEach(x => { if (x.start >= b - 1e-9) x.start -= (b - a); }); joinAt(tr, a); }
       });
-      ui.cursor = a; ui.timeSel = join ? null : ui.timeSel; ui.selItems.clear();
+      ui.cursor = join ? Math.max(0, a - 1) : a; ui.selItems.clear();
+      if (join) ui.timeSel = null;
     });
     if (join) ui.timeSel = null;
   } else if (ui.selItems.size) {
@@ -1946,12 +2314,35 @@ function deleteSel(join) {
     edit(() => {
       found.forEach(({ track, item }) => {
         track.items = track.items.filter(x => x !== item);
-        if (join) { const gap = item.len, e = itemEnd(item); track.items.forEach(x => { if (x.start >= e - 1e-9) x.start = Math.max(0, x.start - gap); }); }
+        if (join) {
+          const gap = item.len, e = itemEnd(item);
+          track.items.forEach(x => { if (x.start >= e - 1e-9) x.start = Math.max(0, x.start - gap); });
+          joinAt(track, item.start);
+        }
       });
       ui.selItems.clear();
-      if (join && found.length) ui.cursor = found[found.length - 1].item.start;
+      if (found.length) ui.cursor = join ? Math.max(0, found[found.length - 1].item.start - 1) : found[found.length - 1].item.start;
     });
   } else { toast('Select an item or drag across a track to choose what to delete.'); return; }
+  markStatic(); updateTimeDisplay();
+}
+
+// Alt+Shift+Space — slide items back to back so there's no silence between them.
+function removeGaps() {
+  if (rec) return;
+  const tracks = targetTracks();
+  edit(() => {
+    tracks.forEach(tr => {
+      const sorted = tr.items.slice().sort((a, b) => a.start - b.start || a.id - b.id);
+      let shift = 0, cur = null;
+      for (const it of sorted) {
+        it.start -= shift;
+        if (cur !== null && it.start > cur + 1e-6) { const gap = it.start - cur; shift += gap; it.start -= gap; }
+        cur = cur === null ? itemEnd(it) : Math.max(cur, itemEnd(it));
+      }
+    });
+  });
+  ui.cursor = clamp(ui.cursor, 0, projectEnd());
   markStatic(); updateTimeDisplay();
 }
 
@@ -1981,6 +2372,34 @@ function selectAll() { ui.selItems.clear(); allItems().forEach(f => ui.selItems.
 function clearSelection() { ui.selItems.clear(); ui.timeSel = null; markStatic(); updateReadout(); }
 function resetFades() { const found = [...ui.selItems].map(findItem).filter(Boolean); edit(() => found.forEach(f => { f.item.fadeIn = 0; f.item.fadeOut = 0; })); }
 
+// ── MOVING THE CURSOR ───────────────────────────────────────
+function seekTo(t) {
+  ui.cursor = Math.max(0, t);
+  if (play && !rec) startPlayback(ui.cursor);
+  const x = tToX(ui.cursor);
+  if (x < 0 || x > W) setView(ui.cursor - (W / ui.pps) * 0.1);
+  updateTimeDisplay(); markOverlay();
+}
+// ← → — the step follows the zoom (about 1% of what's on screen; Shift = 10%)
+function nudge(dir, big) {
+  const step = Math.max(0.005, (W / ui.pps) * (big ? 0.1 : 0.01));
+  const t = Math.max(0, (play ? currentTime() : ui.cursor) + dir * step);
+  ui.cursor = t;
+  if (play && !rec) startPlayback(t);
+  const x = tToX(t);
+  if (x < 0) setView(t - (W / ui.pps) * 0.05); else if (x > W) setView(t - (W / ui.pps) * 0.95);
+  updateTimeDisplay(); markOverlay();
+}
+// Ctrl/Cmd + [ or ] — hop to the nearest item edge
+function jumpToEdge(dir) {
+  const from = play ? currentTime() : ui.cursor, eps = 1e-3, edges = [0];
+  allItems().forEach(f => edges.push(f.item.start, itemEnd(f.item)));
+  let target = null;
+  if (dir < 0) { edges.forEach(e => { if (e < from - eps && (target === null || e > target)) target = e; }); if (target === null) target = 0; }
+  else { edges.forEach(e => { if (e > from + eps && (target === null || e < target)) target = e; }); if (target === null) return; }
+  seekTo(target);
+}
+
 // ── CONTEXT MENU ────────────────────────────────────────────
 function hideCtx() { $('ctx-menu').classList.remove('on'); }
 lanesCv.addEventListener('contextmenu', e => {
@@ -1989,11 +2408,12 @@ lanesCv.addEventListener('contextmenu', e => {
   if (h.item && !ui.selItems.has(h.item.id)) { ui.selItems.clear(); ui.selItems.add(h.item.id); }
   if (h.track) { if (!ui.selTracks.has(h.track.id)) selectTrackOnly(h.track.id); }
   markStatic(); updateReadout();
-  const has = ui.selItems.size > 0, anySel = has || !!ui.timeSel;
+  const has = ui.selItems.size > 0, anySel = has || !!ui.timeSel, alt = IS_MAC ? '⌥' : 'Alt';
   const entries = [
     ['Split at cursor', 'S', splitAt, true],
     ['Delete', 'Del', () => deleteSel(false), anySel],
     ['Delete & Join', '⇧ Del', () => deleteSel(true), anySel],
+    ['Delete space between items', alt + ' ⇧ Space', removeGaps, true],
     null,
     ['Copy', '⌘/Ctrl C', () => copySel(false), has],
     ['Cut', '⌘/Ctrl X', () => copySel(true), has],
@@ -2003,6 +2423,7 @@ lanesCv.addEventListener('contextmenu', e => {
     ['Remove fades', '', resetFades, has],
     ['Record over this item', '', () => { $('rec-mode').value = 'item'; savePrefs(); startRecording(); }, ui.selItems.size === 1],
     null,
+    ['Reset track height', '', () => { if (h.track) { resizeTrackTo(h.track, DEF_TRACK_H); scheduleSave(); } }, !!h.track && trackH(h.track) !== DEF_TRACK_H],
     ['Add track', '', addTrack, true]
   ];
   const m = $('ctx-menu'); m.innerHTML = '';
@@ -2045,15 +2466,72 @@ function confirmBox(title, text, okLabel, cancelLabel) {
     openModal('confirm-modal');
   });
 }
-function savePrefs() { lsSet(LS_PREFS, { mode: $('rec-mode').value, preOn: $('preroll-on').checked, preSecs: $('preroll-secs').value, snap: $('snap-on').checked }); }
+function savePrefs() { lsSet(LS_PREFS, { mode: $('rec-mode').value, preOn: $('preroll-on').checked, preSecs: $('preroll-secs').value, snap: $('snap-on').checked, waveZoom: ui.waveZoom }); }
 (function loadPrefs() {
   const p = lsGet(LS_PREFS, {});
   if (p.mode) $('rec-mode').value = p.mode;
   if (p.preOn != null) $('preroll-on').checked = p.preOn;
   if (p.preSecs != null) $('preroll-secs').value = p.preSecs;
   if (p.snap != null) $('snap-on').checked = p.snap;
+  if (isFinite(p.waveZoom)) ui.waveZoom = clamp(+p.waveZoom, 0.25, 32);
 })();
 ['rec-mode', 'preroll-on', 'preroll-secs', 'snap-on'].forEach(id => $(id).addEventListener('change', savePrefs));
+
+// ── SHORTCUT LIST ───────────────────────────────────────────
+const MOD = IS_MAC ? 'Cmd' : 'Ctrl', ALT = IS_MAC ? 'Opt' : 'Alt';
+const SHORTCUTS = [
+  ['Transport', [
+    ['Play / stop — stop returns to where you pressed Play', [['Space']]],
+    ['Pause — leaves the cursor where it is', [['Enter']]],
+    ['Record / stop recording', [['R'], [MOD, 'R'], ['Shift', 'Space']]],
+    ['Stop recording', [['Space'], ['Esc']]],
+    ['Go to the start / end of the project', [['['], [']'], ['Home'], ['End']]],
+    ['Cursor to the previous / next item edge', [[MOD, '['], [MOD, ']']]],
+    ['Nudge the cursor left / right', [['←'], ['→']]],
+    ['Bigger nudge', [['Shift', '←'], ['Shift', '→']]],
+  ]],
+  ['Editing', [
+    ['Split at the cursor', [['S']]],
+    ['Delete — leaves a gap, everything else stays put', [['Delete'], ['Backspace'], ['Shift', 'D']]],
+    ['Delete & Join — closes the gap, crossfaded', [['Shift', 'Delete'], [ALT, 'Delete'], [ALT, 'Shift', 'D']]],
+    ['Delete space between items', [[ALT, 'Shift', 'Space']]],
+    ['Slide the audio inside an item', [[ALT, 'Drag']]],
+    ['Copy / cut / paste at the cursor', [[MOD, 'C'], [MOD, 'X'], [MOD, 'V']]],
+    ['Select all items', [[MOD, 'A']]],
+    ['Undo', [[MOD, 'Z']]],
+    ['Redo', [[MOD, 'Shift', 'Z'], [MOD, 'Y']]],
+    ['Clear the selection', [['Esc']]],
+  ]],
+  ['View & project', [
+    ['Zoom in / out', [['↑'], ['↓'], ['+'], ['−']]],
+    ['Zoom around the mouse', [[MOD, 'Scroll']]],
+    ['Scroll along the timeline', [['Shift', 'Scroll']]],
+    ['Fit the whole project', [['F']]],
+    ['Taller / shorter waveforms (display only — volume doesn\'t change)', [['Shift', '↑'], ['Shift', '↓']]],
+    ['Make a track taller (reset with a double-click)', [['Drag its bottom edge']]],
+    ['Save now', [[MOD, 'S']]],
+    ['Show this list', [['?']]],
+  ]],
+];
+(function renderShortcuts() {
+  const box = $('keys-list');
+  SHORTCUTS.forEach(([group, rows]) => {
+    const h = document.createElement('div'); h.className = 'keys-head'; h.textContent = group; box.appendChild(h);
+    rows.forEach(([label, combos]) => {
+      const row = document.createElement('div'); row.className = 'key-row';
+      const what = document.createElement('span'); what.textContent = label;
+      const combo = document.createElement('span'); combo.className = 'combo';
+      combos.forEach((keys, ci) => {
+        if (ci) { const or = document.createElement('span'); or.className = 'or'; or.textContent = 'or'; combo.appendChild(or); }
+        keys.forEach((k, ki) => {
+          if (ki) { const p = document.createElement('span'); p.className = 'plus'; p.textContent = '+'; combo.appendChild(p); }
+          const kb = document.createElement('kbd'); kb.textContent = k; combo.appendChild(kb);
+        });
+      });
+      row.appendChild(what); row.appendChild(combo); box.appendChild(row);
+    });
+  });
+})();
 
 // ═══════════════════════════════════════════════════════════
 // PROJECT LIFECYCLE
@@ -2062,7 +2540,7 @@ function normaliseProject(d) {
   const p = Object.assign({ app: 'The Audiobook Guy DAW', format: 1, name: 'Untitled', tracks: [], nextId: 1 }, d);
   p.settings = Object.assign(defaultSettings(), d.settings || {});
   let maxId = 0;
-  p.tracks.forEach(t => { t.items = t.items || []; maxId = Math.max(maxId, t.id); t.items.forEach(i => { maxId = Math.max(maxId, i.id); i.fadeIn = i.fadeIn || 0; i.fadeOut = i.fadeOut || 0; }); });
+  p.tracks.forEach(t => { t.items = t.items || []; t.h = t.h || DEF_TRACK_H; maxId = Math.max(maxId, t.id); t.items.forEach(i => { maxId = Math.max(maxId, i.id); i.fadeIn = i.fadeIn || 0; i.fadeOut = i.fadeOut || 0; }); });
   p.nextId = Math.max(p.nextId || 1, maxId + 1);
   if (!p.id) p.id = uid();
   return p;
@@ -2071,19 +2549,23 @@ function normaliseProject(d) {
 async function loadProject(data, st) {
   if (P) await closeProject(true);
   P = normaliseProject(data); store = st;
-  sources.clear(); knownFiles = new Set(); undoStack = []; redoStack = [];
+  sources.clear(); chunkCache.clear(); detailCache.clear();
+  knownFiles = new Set(); undoStack = []; redoStack = [];
   ui.selItems.clear(); ui.selTracks.clear(); ui.timeSel = null; ui.armed = null;
   const v = P.view || {};
   ui.pps = v.pps || 60; ui.t0 = v.t0 || 0; ui.cursor = v.cursor || 0;
+  hideLaunchBanner();
   showWorkspace();
   try { (await store.listAudio()).forEach(f => knownFiles.add(f.name.toLowerCase())); } catch (e) { /* folder may be read-only */ }
-  // decode every audio file the timeline uses
+  // read each audio file the timeline uses (just its layout and waveform overview)
   const used = [...new Set(allItems().map(f => f.item.src))];
   let i = 0;
   for (const file of used) {
-    i++; setSaveState(`Loading audio ${i}/${used.length}`, 'dirty');
-    try { const blob = await store.readAudio(file); registerSource(file, await decodeAtRate(blob, P.settings.rate)); }
-    catch (e) { console.warn('Missing audio', file, e); sources.set(file, { file, buffer: null, peaks: null, dur: Infinity, missing: true }); }
+    i++;
+    const label = `Reading audio ${i}/${used.length}`;
+    setSaveState(label, 'dirty');
+    try { await loadSource(file, p => setSaveState(`${label} · ${Math.round(p * 100)}%`, 'dirty')); }
+    catch (e) { console.warn('Missing audio', file, e); sources.set(file, { file, missing: true, dur: Infinity, peaks: null }); }
   }
   setSaveState('Saved');
   const missing = used.filter(f => sources.get(f).missing);
@@ -2107,7 +2589,7 @@ async function closeProject(silent) {
   stopPlayback();
   if (P && dirty) await saveNow();
   closeInput();
-  P = null; store = null; sources.clear();
+  P = null; store = null; sources.clear(); chunkCache.clear(); detailCache.clear();
   $('workspace').hidden = true; $('header-proj').hidden = true; $('start-screen').hidden = false;
   document.title = 'The Audiobook Guy DAW';
   if (!silent) renderRecents();
@@ -2134,7 +2616,7 @@ $('np-create').addEventListener('click', async () => {
   const loc = document.querySelector('input[name=np-loc]:checked').value;
   const settings = Object.assign(defaultSettings(), { ch: +segVal('np-ch'), rate: +segVal('np-rate'), bits: +segVal('np-bits') });
   const data = { id: uid(), name, created: new Date().toISOString(), settings, tracks: [], nextId: 1 };
-  data.tracks.push({ id: data.nextId++, name: 'Narration', vol: 0, pan: 0, mute: false, solo: false, items: [] });
+  data.tracks.push({ id: data.nextId++, name: 'Narration', vol: 0, pan: 0, mute: false, solo: false, h: DEF_TRACK_H, items: [] });
   try {
     let st;
     if (loc === 'folder') {
@@ -2222,8 +2704,101 @@ async function renderRecents() {
 $('close-btn').addEventListener('click', () => closeProject());
 
 // ═══════════════════════════════════════════════════════════
+// DOUBLE-CLICK LAUNCH, INSTALL + DROPPING PROJECTS ON THE START SCREEN
+// ═══════════════════════════════════════════════════════════
+// Installed as an app, the DAW is registered for .tagdaw files: the
+// operating system hands the file over here. The file sits in its project
+// folder, so the DAW finds that folder (from Recent projects, or by asking
+// you to confirm it — the picker opens right inside it).
+let launchAction = null;
+function showLaunchBanner(title, text, label, action) {
+  $('launch-title').textContent = title; $('launch-text').textContent = text; $('launch-go').textContent = label;
+  launchAction = action; $('launch-banner').hidden = false;
+}
+function hideLaunchBanner() { $('launch-banner').hidden = true; launchAction = null; }
+$('launch-go').addEventListener('click', async () => { const a = launchAction; if (!a) return; try { await a(); } catch (e) { console.error(e); toast('Couldn\'t open that project.', true); } });
+$('launch-dismiss').addEventListener('click', hideLaunchBanner);
+
+async function dirHolds(dir, fileHandle) {
+  for await (const [, h] of dir.entries()) if (h.kind === 'file' && await h.isSameEntry(fileHandle)) return true;
+  return false;
+}
+async function openProjectFileHandle(fh) {
+  let data;
+  try { data = JSON.parse(await (await fh.getFile()).text()); } catch (e) { toast(`“${fh.name}” isn't a project file this DAW can read.`, true, 7000); return; }
+  const name = data.name || fh.name.replace(/\.tagdaw$/i, '');
+  let recent = null;
+  try { if (data.id) recent = await dawDB('recents', 'readonly', s => s.get(data.id)); } catch (e) {}
+  const known = recent && recent.kind === 'folder' && recent.handle ? recent.handle : null;
+  if (known) {
+    try {
+      if (await known.queryPermission({ mode: 'readwrite' }) === 'granted' && await dirHolds(known, fh)) { await openFolderHandle(known); return; }
+    } catch (e) { /* folder moved — ask below */ }
+  }
+  const pick = async () => {
+    if (known) { try { if (await dirHolds(known, fh)) { if (await openFolderHandle(known)) return; } } catch (e) { /* moved */ } }
+    let dir;
+    try { dir = await window.showDirectoryPicker({ id: 'tagdaw-project', mode: 'readwrite', startIn: fh }); }
+    catch (e) { if (e.name !== 'AbortError') toast('Couldn\'t open that folder.', true); return; }
+    if (!(await dirHolds(dir, fh))) { toast(`Choose the folder that holds “${fh.name}” — the picker opens inside it, so just press Open / Select.`, true, 8000); return; }
+    await openFolderHandle(dir);
+  };
+  showLaunchBanner(`Open “${name}”`, known
+    ? 'Your browser needs your OK to use this project\'s folder. Choose “Allow on every visit” and next time it opens straight away.'
+    : 'Confirm the project\'s folder — the folder picker opens right where this project lives, so just press Open / Select.', 'Open project', pick);
+}
+if ('launchQueue' in window) {
+  window.launchQueue.setConsumer(params => {
+    if (params && params.files && params.files.length) openProjectFileHandle(params.files[0]);
+  });
+}
+
+let deferredInstall = null;
+const IS_APP = matchMedia('(display-mode: standalone)').matches || matchMedia('(display-mode: window-controls-overlay)').matches;
+function updateInstallUI() {
+  $('install-banner').hidden = !HAS_FS || IS_APP;
+  $('install-btn').hidden = !deferredInstall;
+  $('install-text').textContent = deferredInstall
+    ? 'Install the DAW as an app and your computer will open any .tagdaw project file straight into it.'
+    : 'Install the DAW as an app (the install icon at the right of Chrome or Edge\'s address bar, or the browser menu › Install) and your computer will open any .tagdaw project file straight into it.';
+}
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredInstall = e; updateInstallUI(); });
+window.addEventListener('appinstalled', () => { deferredInstall = null; updateInstallUI(); toast('Installed — double-click any .tagdaw project file to open it.', false, 5000); });
+$('install-btn').addEventListener('click', async () => {
+  if (!deferredInstall) return;
+  deferredInstall.prompt();
+  try { await deferredInstall.userChoice; } catch (e) {}
+  deferredInstall = null; updateInstallUI();
+});
+
+// Drop a project folder, .tagdaw file or backup .zip onto the start card
+const startCard = $('start-screen');
+startCard.addEventListener('dragover', e => { if (!e.dataTransfer || !e.dataTransfer.types.includes('Files')) return; e.preventDefault(); startCard.classList.add('drag-over'); });
+startCard.addEventListener('dragleave', e => { if (!startCard.contains(e.relatedTarget)) startCard.classList.remove('drag-over'); });
+startCard.addEventListener('drop', async e => {
+  e.preventDefault(); startCard.classList.remove('drag-over');
+  const items = [...(e.dataTransfer.items || [])].filter(i => i.kind === 'file');
+  const files = [...(e.dataTransfer.files || [])];
+  const handleProms = items.map(i => (typeof i.getAsFileSystemHandle === 'function' ? i.getAsFileSystemHandle() : Promise.resolve(null)));
+  const zip = files.find(f => /\.zip$/i.test(f.name));
+  if (zip) { restoreBackup(zip); return; }
+  let handles = [];
+  try { handles = (await Promise.all(handleProms)).filter(Boolean); } catch (err) { /* not supported */ }
+  const dir = handles.find(h => h.kind === 'directory');
+  const pf = handles.find(h => h.kind === 'file' && h.name.toLowerCase().endsWith(PROJECT_EXT));
+  if (dir) {
+    try { await openFolderHandle(dir); }
+    catch (err) { showLaunchBanner(`Open “${dir.name}”`, 'Your browser needs your OK to use this project\'s folder.', 'Open project', () => openFolderHandle(dir)); }
+  } else if (pf) openProjectFileHandle(pf);
+  else if (!HAS_FS) toast('Dropping projects needs Chrome or Edge on a computer. You can drop a backup .zip here.', true, 6000);
+  else toast('Drop a project folder, a .tagdaw project file or a backup .zip here.', true);
+});
+
+// ═══════════════════════════════════════════════════════════
 // IMPORT
 // ═══════════════════════════════════════════════════════════
+// WAV files go into the project as they are; anything else is converted to
+// a WAV once, so every take and import can stream from the folder.
 const AUDIO_RE = /\.(wav|wave|mp3|flac|m4a|aac|ogg|oga|opus|aif|aiff|webm|mp4)$/i;
 async function importFiles(files, track, at) {
   files = [...files].filter(f => (f.type || '').startsWith('audio/') || AUDIO_RE.test(f.name));
@@ -2231,14 +2806,25 @@ async function importFiles(files, track, at) {
   if (!track) track = targetTracks()[0] || addTrack();
   let pos = at != null ? at : ui.cursor, placed = [];
   for (const [i, f] of files.entries()) {
-    setSaveState(`Importing ${i + 1}/${files.length}`, 'dirty');
+    const label = `Importing ${i + 1}/${files.length}`;
+    setSaveState(label, 'dirty');
     try {
-      const buf = await decodeAtRate(f, P.settings.rate);
-      const ext = (f.name.match(/\.[a-z0-9]+$/i) || ['.wav'])[0].toLowerCase();
-      const file = uniqueFile(f.name.replace(/\.[a-z0-9]+$/i, ''), ext);
-      await store.writeAudio(file, f);
-      registerSource(file, buf);
-      placed.push({ file, start: pos, len: buf.duration }); pos += buf.duration;
+      const base = f.name.replace(/\.[a-z0-9]+$/i, '');
+      const w = /\.(wav|wave)$/i.test(f.name) || /wav/.test(f.type || '') ? await parseWav(f) : null;
+      let file, s;
+      if (w) {
+        file = uniqueFile(base, '.wav');
+        await store.writeAudio(file, f);
+        s = await loadSource(file, p => setSaveState(`${label} · ${Math.round(p * 100)}%`, 'dirty'));
+      } else {
+        const buf = await decodeAtRate(f, P.settings.rate);
+        const chs = []; for (let c = 0; c < buf.numberOfChannels; c++) chs.push(buf.getChannelData(c));
+        const pb = new PeakBuilder(); pb.add(chs);
+        file = uniqueFile(base, '.wav');
+        await store.writeAudio(file, encodeWav(chs, buf.sampleRate, P.settings.bits));
+        s = await loadSource(file, null, pb.finish());
+      }
+      placed.push({ file, start: pos, len: s.dur }); pos += s.dur;
     } catch (e) { console.error(e); toast(`Couldn't import “${f.name}” — the browser can't read that format.`, true, 7000); }
   }
   if (placed.length) {
@@ -2253,7 +2839,7 @@ lanesBox.addEventListener('dragover', e => { if (!P || !e.dataTransfer.types.inc
 lanesBox.addEventListener('dragleave', e => { if (!lanesBox.contains(e.relatedTarget)) lanesBox.classList.remove('drag-over'); });
 lanesBox.addEventListener('drop', e => {
   e.preventDefault(); lanesBox.classList.remove('drag-over'); if (!P || rec) return;
-  const { x, y } = lanePos(e), row = Math.floor(y / TRACK_H);
+  const { x, y } = lanePos(e), row = rowAt(Math.max(0, y));
   const track = P.tracks[row] || addTrack();
   importFiles(e.dataTransfer.files, track, Math.max(0, snapTime(xToT(x))));
 });
@@ -2275,13 +2861,9 @@ $('set-save').addEventListener('click', async () => {
   const rateChanged = ns.rate !== P.settings.rate;
   Object.assign(P.settings, ns); scheduleSave(); closeModal('settings-modal');
   if (rateChanged) {
+    // audio streams at its own rate and is converted as it plays, so there's nothing to re-read
     stopPlayback(); const wasArmed = ui.armed; closeInput();
-    let i = 0; const files = [...sources.keys()];
-    for (const f of files) {
-      setSaveState(`Converting ${++i}/${files.length}`, 'dirty');
-      try { registerSource(f, await decodeAtRate(await store.readAudio(f), ns.rate)); } catch (e) { console.warn(e); }
-    }
-    ensureCtx(); scheduleSave(); markStatic();
+    ensureCtx(); markStatic();
     if (wasArmed != null) setArmed(wasArmed).then(startLoop);
     toast('Sample rate changed to ' + (ns.rate / 1000) + ' kHz');
   } else toast('Settings saved');
@@ -2353,7 +2935,7 @@ $('clean-btn').addEventListener('click', async () => {
 });
 $('clean-go').addEventListener('click', async () => {
   let n = 0;
-  for (const f of cleanList) { try { await store.deleteAudio(f.name); sources.delete(f.name); knownFiles.delete(f.name.toLowerCase()); n++; } catch (e) { console.warn(e); } }
+  for (const f of cleanList) { try { await store.deleteAudio(f.name); forgetSource(f.name); knownFiles.delete(f.name.toLowerCase()); n++; } catch (e) { console.warn(e); } }
   undoStack = []; redoStack = []; updateUndoButtons();
   closeModal('clean-modal'); toast(`Removed ${n} unused file(s).`);
 });
@@ -2379,8 +2961,8 @@ $('backup-btn').addEventListener('click', makeBackup);
 $('ws-backup-btn2').addEventListener('click', makeBackup);
 
 $('open-backup-btn').addEventListener('click', () => $('backup-input').click());
-$('backup-input').addEventListener('change', async e => {
-  const file = e.target.files[0]; e.target.value = ''; if (!file) return;
+$('backup-input').addEventListener('change', e => { const file = e.target.files[0]; e.target.value = ''; if (file) restoreBackup(file); });
+async function restoreBackup(file) {
   let entries;
   try { entries = await readZip(file); } catch (err) { toast('That file isn\'t a project backup this browser can open.', true); return; }
   const pf = entries.find(x => x.path.toLowerCase().endsWith(PROJECT_EXT));
@@ -2404,7 +2986,7 @@ $('backup-input').addEventListener('change', async e => {
     await loadProject(data, st);
     toast('Backup restored');
   } catch (err) { if (err.name !== 'AbortError') { console.error(err); toast('Couldn\'t restore that backup.', true); } }
-});
+}
 
 // ═══════════════════════════════════════════════════════════
 // EXPORT — render, encode, download / Drive
@@ -2432,11 +3014,12 @@ function exProgress(f) { $('ex-progress').classList.toggle('on', f != null); if 
 
 async function renderMix(a, b, rate) {
   const len = Math.max(1, Math.ceil((b - a) * rate));
-  const off = new OAC(2, len, rate), anySolo = P.tracks.some(t => t.solo);
+  const off = new OAC(2, len, rate), anySolo = P.tracks.some(t => t.solo), reads = [];
   P.tracks.forEach(t => {
     const bus = makeTrackBus(off, t, off.destination, anySolo), fades = trackFades(t);
-    t.items.forEach(it => scheduleItem(off, it, fades.get(it.id), a, 0, bus.g, b));
+    t.items.forEach(it => { const j = makeJob(off, it, fades.get(it.id), a, 0, bus.g, b); if (j) pumpJob(off, j, Infinity, null, reads); });
   });
+  await Promise.all(reads);
   return off.startRendering();
 }
 async function encodeMp3(chs, rate, kbps, onProg) {
@@ -2622,52 +3205,72 @@ async function applyHandoff() {
 // ═══════════════════════════════════════════════════════════
 // KEYBOARD + BUTTONS
 // ═══════════════════════════════════════════════════════════
-$('play-btn').addEventListener('click', () => { if (rec) stopRecording(); else if (play) stopPlayback(); else startPlayback(ui.cursor); });
-$('stop-btn').addEventListener('click', () => { if (rec) stopRecording(); else stopPlayback(); });
+$('play-btn').addEventListener('click', togglePlay);
+$('stop-btn').addEventListener('click', () => { if (rec) stopRecording(); else stopPlayback(false, true); });
 $('rec-btn').addEventListener('click', () => startRecording());
-$('home-btn').addEventListener('click', () => { ui.cursor = 0; if (play && !rec) startPlayback(0); setView(0); updateTimeDisplay(); });
+$('home-btn').addEventListener('click', () => { seekTo(0); setView(0); });
 $('add-track-btn').addEventListener('click', addTrack);
 $('split-btn').addEventListener('click', splitAt);
 $('delete-btn').addEventListener('click', () => deleteSel(false));
 $('join-btn').addEventListener('click', () => deleteSel(true));
+$('gaps-btn').addEventListener('click', removeGaps);
 $('undo-btn').addEventListener('click', undo);
 $('redo-btn').addEventListener('click', redo);
 $('zoom-in-btn').addEventListener('click', () => zoomBy(1.6));
 $('zoom-out-btn').addEventListener('click', () => zoomBy(1 / 1.6));
 $('zoom-fit-btn').addEventListener('click', fitView);
+$('wave-up-btn').addEventListener('click', () => setWaveZoom(1.25));
+$('wave-down-btn').addEventListener('click', () => setWaveZoom(0.8));
 $('keys-btn').addEventListener('click', () => openModal('keys-modal'));
 
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { document.querySelectorAll('.modal-overlay.on').forEach(m => { if (m.id !== 'confirm-modal') closeModal(m.id); }); hideCtx(); }
+  if (e.key === 'Escape') {
+    const open = document.querySelector('.modal-overlay.on:not(#confirm-modal)');
+    if (open) { closeModal(open.id); return; }
+    hideCtx();
+  }
   if (!P || $('workspace').hidden) return;
   if (document.querySelector('.modal-overlay.on')) return;
   const tag = (e.target.tagName || '').toLowerCase();
   if (tag === 'input' && !['range', 'checkbox'].includes(e.target.type) || tag === 'select' || tag === 'textarea') return;
-  const mod = e.ctrlKey || e.metaKey, k = e.key.toLowerCase();
-  if (mod && k === 'z') { e.preventDefault(); e.shiftKey ? redo() : undo(); return; }
+  const mod = e.ctrlKey || e.metaKey, alt = e.altKey, shift = e.shiftKey, k = e.key.toLowerCase(), code = e.code;
+  const blur = () => { if (tag === 'button' || tag === 'input') e.target.blur(); };
+
+  // record / stop: R, Ctrl/Cmd + R, Shift + Space
+  if ((!mod && !alt && !shift && code === 'KeyR') || (mod && !alt && !shift && code === 'KeyR') || (shift && !alt && !mod && code === 'Space')) { e.preventDefault(); blur(); startRecording(); return; }
+  if (rec) { if (code === 'Space' || k === 'escape' || k === 'enter') { e.preventDefault(); blur(); stopRecording(); } return; }
+
+  if (mod && k === 'z') { e.preventDefault(); shift ? redo() : undo(); return; }
   if (mod && k === 'y') { e.preventDefault(); redo(); return; }
   if (mod && k === 's') { e.preventDefault(); saveNow().then(() => toast('Saved')); return; }
   if (mod && k === 'c') { e.preventDefault(); copySel(false); return; }
   if (mod && k === 'x') { e.preventDefault(); copySel(true); return; }
   if (mod && k === 'v') { e.preventDefault(); paste(); return; }
   if (mod && k === 'a') { e.preventDefault(); selectAll(); return; }
+  if (mod && (code === 'BracketLeft' || code === 'BracketRight')) { e.preventDefault(); jumpToEdge(code === 'BracketLeft' ? -1 : 1); return; }
   if (mod) return;
-  if (e.code === 'Space') { e.preventDefault(); togglePlay(); return; }
-  if (k === 'r') { e.preventDefault(); startRecording(); return; }
-  if (k === 's') { e.preventDefault(); splitAt(); return; }
-  if (k === 'delete' || k === 'backspace') { e.preventDefault(); deleteSel(e.shiftKey); return; }
+
+  if (alt && shift && code === 'Space') { e.preventDefault(); removeGaps(); return; }
+  if (alt && shift && code === 'KeyD') { e.preventDefault(); deleteSel(true); return; }
+  if (alt && (k === 'delete' || k === 'backspace')) { e.preventDefault(); deleteSel(true); return; }
+  if (code === 'Space') { e.preventDefault(); blur(); togglePlay(); return; }
+  if (k === 'enter') { e.preventDefault(); blur(); pausePlay(); return; }
+  if (shift && code === 'KeyD') { e.preventDefault(); deleteSel(false); return; }
+  if (!alt && code === 'KeyS') { e.preventDefault(); splitAt(); return; }
+  if (k === 'delete' || k === 'backspace') { e.preventDefault(); deleteSel(shift); return; }
   if (k === 'escape') { clearSelection(); return; }
-  if (k === 'home') { e.preventDefault(); $('home-btn').click(); return; }
-  if (k === 'end') { e.preventDefault(); ui.cursor = projectEnd(); followPlayhead(ui.cursor); updateTimeDisplay(); markOverlay(); return; }
-  if (k === 'arrowleft' || k === 'arrowright') {
-    e.preventDefault(); const step = e.shiftKey ? 1 : 0.1;
-    ui.cursor = Math.max(0, ui.cursor + (k === 'arrowleft' ? -step : step));
-    if (play && !rec) startPlayback(ui.cursor); followPlayhead(ui.cursor); updateTimeDisplay(); markOverlay(); return;
+  if (k === 'home' || (!alt && code === 'BracketLeft')) { e.preventDefault(); seekTo(0); return; }
+  if (k === 'end' || (!alt && code === 'BracketRight')) { e.preventDefault(); seekTo(projectEnd()); return; }
+  if (k === 'arrowleft' || k === 'arrowright') { e.preventDefault(); blur(); nudge(k === 'arrowleft' ? -1 : 1, shift); return; }
+  if (k === 'arrowup' || k === 'arrowdown') {
+    e.preventDefault(); blur();
+    if (shift) setWaveZoom(k === 'arrowup' ? 1.25 : 0.8); else zoomBy(k === 'arrowup' ? 1.25 : 0.8);
+    return;
   }
+  if (e.key === '?') { openModal('keys-modal'); return; }
   if (k === '+' || k === '=') { zoomBy(1.6); return; }
   if (k === '-' || k === '_') { zoomBy(1 / 1.6); return; }
-  if (k === 'f') { fitView(); return; }
-  if (k === '?' || (e.shiftKey && k === '/')) { openModal('keys-modal'); return; }
+  if (!alt && code === 'KeyF') { fitView(); return; }
 });
 
 window.addEventListener('resize', () => { if (P) resizeCanvases(); });
@@ -2680,8 +3283,9 @@ window.addEventListener('beforeunload', e => {
 // ═══════════════════════════════════════════════════════════
 (function init() {
   if (!AC || !OAC) { $('no-support').hidden = false; ['new-project-btn', 'open-folder-btn', 'open-backup-btn'].forEach(id => $(id).disabled = true); return; }
-  if (!HAS_FS) $('browser-banner').hidden = false;
-  document.querySelectorAll('.alt-key').forEach(el => el.textContent = /Mac|iPhone|iPad/.test(navigator.platform) ? 'Option' : 'Alt');
+  if (!HAS_FS) { $('browser-banner').hidden = false; $('start-drop-hint').textContent = 'You can also drag a backup .zip onto this card.'; }
+  document.querySelectorAll('.alt-key').forEach(el => el.textContent = IS_MAC ? 'Option' : 'Alt');
+  updateInstallUI();
   renderRecents();
   checkHandoff();
 })();
