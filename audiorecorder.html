@@ -420,6 +420,7 @@
         <button id="download-btn" class="btn-primary">Download MP3</button>
         <button id="upload-btn" class="btn-primary">Upload to Drive</button>
       </div>
+      <button id="open-daw-btn" class="btn-secondary" style="width:100%;margin-bottom:14px;" title="Carry this recording into The Audiobook Guy DAW for multitrack editing">Open in DAW ↗</button>
       <div id="encode-status"></div>
 
       <div id="share-box">
@@ -508,6 +509,7 @@
       <li><b>Hit it again to stop</b> — your recording appears as a waveform, ready to edit.</li>
       <li><b>Edit it</b> (see below), press <b>▶</b> or the <b>Space bar</b> to listen back.</li>
       <li><b>Download MP3</b> saves your edited version straight to your computer.</li>
+      <li><b>Open in DAW</b> carries your edited recording into The Audiobook Guy DAW in a new tab, ready to start a full project with tracks, punch-in modes and WAV, MP3 or FLAC export.</li>
       <li>Want to start over completely? <b>Clear Recording</b> (just under the Record button) clears everything and gives you a clean slate — nothing records until you hit Record again.</li>
     </ol>
 
@@ -539,7 +541,7 @@
       <li><b>Delete space between items</b> — <b>Alt/Opt + Shift + Space</b> closes every gap so the items sit back to back.</li>
       <li><b>Adjust the crossfade</b> — drag an item by its <b>orange top bar</b> to slide it. Overlap it more for a longer crossfade, pull it away for a gap.</li>
       <li><b>Reveal or hide audio</b> — drag the <b>left or right edge</b> of any item. Drag outwards and the original audio comes back.</li>
-      <li><b>Slide audio inside an item</b> — hold <b>Alt/Opt</b> and drag, either way. The item stays put; the recording moves within its boundaries (silence fills any space past the ends of the recording).</li>
+      <li><b>Slide audio inside an item</b> — hold <b>Alt/Opt</b> and drag, either way. The item stays put; the recording moves within its boundaries. The audio loops round, so you can always slide it — even when the item is the full length of the take (a faint dotted line shows where the take starts over).</li>
       <li><b>Split</b> — press <b>S</b> to split the item under the playhead into two.</li>
       <li><b>Undo / Redo</b> — <b>Ctrl/Cmd + Z</b> and <b>Ctrl/Cmd + Shift + Z</b>.</li>
       <li><b>Zoom</b> — use <b>+ / −</b>, <b>Fit</b>, or Ctrl/Cmd + scroll over the waveform. Shift + scroll (or a sideways trackpad swipe) moves along it.</li>
@@ -1286,7 +1288,17 @@ const itemEnd = it => it.pos + itemLen(it);
 const sortedItems = () => items.slice().sort((a, b) => a.pos - b.pos || a.id - b.id);
 const timelineEnd = () => items.reduce((m, it) => Math.max(m, itemEnd(it)), 0);
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
-const newItem = (src, srcStart, srcEnd, pos) => ({ id: nextItemId++, src, srcStart, srcEnd, pos });
+// An item's audio loops: slide it past the end of its take and it carries on
+// from the start, so there's always audio to slide within the item.
+const modN = (v, n) => ((v % n) + n) % n;
+function itemLoops(it) { const S = sources[it.src]; return !!S && (it.srcStart < -1e-6 || it.srcEnd > S.dur + 0.001); }
+// keeps a looped item's window starting inside its take (same sound, tidier numbers)
+function normItem(it) {
+  const S = sources[it.src];
+  if (S && S.dur > 0 && (it.srcStart >= S.dur || it.srcStart < 0)) { const k = Math.floor(it.srcStart / S.dur) * S.dur; it.srcStart -= k; it.srcEnd -= k; }
+  return it;
+}
+const newItem = (src, srcStart, srcEnd, pos) => normItem({ id: nextItemId++, src, srcStart, srcEnd, pos });
 
 function addSource(mono, rate) {
   sources.push({ mono, rate, dur: mono.length / rate, peaks: buildPeaks(mono) });
@@ -1401,6 +1413,15 @@ function srcMinMax(S, s0, s1) {
   return [mn, mx];
 }
 
+// min/max for a looped item — wraps round the end of the take
+function loopMinMax(S, s0, s1) {
+  const n = S.mono.length, span = Math.min(n, Math.max(1, s1 - s0)), a = modN(s0, n), b = a + span;
+  if (b <= n) return srcMinMax(S, a, b);
+  const p = srcMinMax(S, a, n), q = srcMinMax(S, 0, b - n);
+  if (!p) return q; if (!q) return p;
+  return [Math.min(p[0], q[0]), Math.max(p[1], q[1])];
+}
+
 // ── FADES + RENDER ─────────────────────────────────────────
 function computeFades(sorted, edgeFade) {
   const fades = new Map();
@@ -1423,7 +1444,7 @@ function renderMix(list, start, end, edgeFade) {
   const out = new Float32Array(total);
   const HALF_PI = Math.PI / 2;
   for (const it of sorted) {
-    const mono = sources[it.src].mono;
+    const mono = sources[it.src].mono, loop = itemLoops(it), M = mono.length;
     const s0 = Math.round(it.srcStart * srcRate);
     const o0 = Math.round((it.pos - start) * srcRate);
     const n  = Math.round(itemLen(it) * srcRate);
@@ -1431,7 +1452,7 @@ function renderMix(list, start, end, edgeFade) {
     const fi = Math.round(f.fi * srcRate);
     const fo = Math.round(f.fo * srcRate);
     for (let i = 0; i < n; i++) {
-      const si = s0 + i, oi = o0 + i;
+      const si = loop ? modN(s0 + i, M) : s0 + i, oi = o0 + i;
       if (si >= mono.length || oi >= total) break;
       if (si < 0 || oi < 0) continue;
       let g = 1;
@@ -1828,7 +1849,9 @@ function draw() {
       const t0 = Math.max(it.pos, xToTime(px));
       const t1 = Math.min(itemEnd(it), t0 + secPerPx);
       if (t1 <= t0) continue;
-      const mm = srcMinMax(S, (it.srcStart + t0 - it.pos) * srcRate, (it.srcStart + t1 - it.pos) * srcRate);
+      const mm = itemLoops(it)
+        ? loopMinMax(S, (it.srcStart + t0 - it.pos) * srcRate, (it.srcStart + t1 - it.pos) * srcRate)
+        : srcMinMax(S, (it.srcStart + t0 - it.pos) * srcRate, (it.srcStart + t1 - it.pos) * srcRate);
       if (!mm) continue;
       const y1 = Math.max(L.waveTop, mid - mm[1] * amp * waveZoom);
       const y2 = Math.min(L.waveBot, mid - mm[0] * amp * waveZoom);
@@ -1836,6 +1859,22 @@ function draw() {
     }
   }
   g.globalAlpha = 1;
+
+  // where a looped item's audio starts over from the top of its take
+  g.save(); g.strokeStyle = 'rgba(34,34,34,0.35)'; g.lineWidth = 1; g.setLineDash([3, 3]); g.beginPath();
+  for (const it of visible) {
+    const S = sources[it.src];
+    if (!itemLoops(it) || S.dur / secPerPx < 4) continue;
+    for (let k = Math.ceil(it.srcStart / S.dur - 1e-9); ; k++) {
+      const tl = it.pos + k * S.dur - it.srcStart;
+      if (tl >= itemEnd(it) - 1e-6) break;
+      if (tl <= it.pos + 1e-6) continue;
+      const xx = Math.round(timeToX(tl)) + 0.5;
+      if (xx > W + 2) break;
+      if (xx >= -2) { g.moveTo(xx, L.waveTop); g.lineTo(xx, L.waveBot); }
+    }
+  }
+  g.stroke(); g.restore();
 
   // item outlines + header bars (the bit you grab to slide an item)
   for (const it of visible) {
@@ -2092,11 +2131,13 @@ waveformCanvas.addEventListener('pointermove', (e) => {
       it.pos = Math.max(0, o.pos + dt);
     } else if (drag.type === 'slip') {
       // the item stays put; the audio slides inside it (drag right = audio moves right)
-      // it can slide past either end of the recording (silence fills in),
-      // as long as some audio stays inside the item
-      const d = clamp(-dt, MIN_ITEM - o.srcEnd, S.dur - MIN_ITEM - o.srcStart);
-      it.srcStart = o.srcStart + d;
-      it.srcEnd = o.srcEnd + d;
+      // the audio loops, so it can always slide — even when the item is the
+      // full length of its take; it clicks back into place at the take's start
+      let st = modN(o.srcStart - dt, S.dur);
+      const lim = 5 * viewDur / cssW;
+      if (st < lim || S.dur - st < lim) st = 0;
+      it.srcStart = st;
+      it.srcEnd = st + itemLen(o);
     } else if (drag.edge === 'L') {
       // moving the left edge reveals/hides audio but keeps it in place
       let d = clamp(dt, -Math.max(0, o.srcStart), itemLen(o) - MIN_ITEM);
@@ -2472,6 +2513,61 @@ downloadBtn.addEventListener('click', async () => {
     encodeStatus.textContent = 'Encoding failed — please try again.';
   } finally {
     downloadBtn.disabled = false;
+  }
+});
+
+// ═══════════════════════════════════════════════════════════
+// OPEN IN DAW — hands the edited recording to daw.html (same site)
+// ═══════════════════════════════════════════════════════════
+const openDawBtn = document.getElementById('open-daw-btn');
+function handoffWav(samples, rate) {
+  const n = samples.length, buf = new ArrayBuffer(44 + n * 3), v = new DataView(buf);
+  const str = (o, t) => { for (let i = 0; i < t.length; i++) v.setUint8(o + i, t.charCodeAt(i)); };
+  str(0, 'RIFF'); v.setUint32(4, 36 + n * 3, true); str(8, 'WAVE'); str(12, 'fmt ');
+  v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true); v.setUint32(24, rate, true);
+  v.setUint32(28, rate * 3, true); v.setUint16(32, 3, true); v.setUint16(34, 24, true); str(36, 'data'); v.setUint32(40, n * 3, true);
+  const out = new Uint8Array(buf); let o = 44;
+  for (let i = 0; i < n; i++) {
+    const f = Math.max(-1, Math.min(1, samples[i])), s = Math.round(f < 0 ? f * 8388608 : f * 8388607);
+    out[o++] = s & 255; out[o++] = (s >> 8) & 255; out[o++] = (s >> 16) & 255;
+  }
+  return new Blob([buf], { type: 'audio/wav' });
+}
+function handoffStore(record) {
+  return new Promise((res, rej) => {
+    const r = indexedDB.open('tag-handoff', 1);
+    r.onupgradeneeded = () => { if (!r.result.objectStoreNames.contains('files')) r.result.createObjectStore('files'); };
+    r.onerror = () => rej(r.error);
+    r.onsuccess = () => {
+      const tx = r.result.transaction('files', 'readwrite');
+      tx.objectStore('files').put(record, 'pending');
+      tx.oncomplete = () => { r.result.close(); res(); };
+      tx.onerror = () => rej(tx.error);
+    };
+  });
+}
+openDawBtn.addEventListener('click', async () => {
+  if (!hasAudio() && !recordedBlob) return;
+  const win = window.open('about:blank', '_blank');   // opened now so pop-up blockers allow it
+  openDawBtn.disabled = true;
+  encodeStatus.className = '';
+  encodeStatus.textContent = 'Preparing your recording for the DAW…';
+  try {
+    let samples, rate;
+    if (hasAudio()) { samples = renderTimeline(); rate = srcRate; }
+    else { const buf = await decodeForWaveform(recordedBlob); samples = audioBufferToMono(buf); rate = buf.sampleRate; }
+    await handoffStore({ blob: handoffWav(samples, rate), name: sanitizeFilename(filenameInput.value), created: Date.now() });
+    const url = 'daw.html?from=recorder';
+    if (win) win.location.href = url; else window.location.href = url;
+    encodeStatus.className = 'ok';
+    encodeStatus.textContent = 'Opened in the DAW — start a new project there, or open one to add it on a new track.';
+  } catch (err) {
+    console.error(err);
+    if (win) win.close();
+    encodeStatus.className = 'err';
+    encodeStatus.textContent = 'Couldn\'t hand this over to the DAW — please try again.';
+  } finally {
+    openDawBtn.disabled = false;
   }
 });
 
@@ -2972,7 +3068,7 @@ copyLinkBtn.addEventListener('click', async () => {
   }
 });
 </script>
-<div id="tool-version">v12.0</div>
+<div id="tool-version">v13.1</div>
 <div id="tag-footer"></div>
 <script src="/partials/inject-brand.js"></script>
 </body>
