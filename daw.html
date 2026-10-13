@@ -69,13 +69,14 @@
   .btn-danger:hover:not(:disabled) { background: #b91c1c; }
 
   .tb-btn {
-    height: 32px; min-width: 32px; padding: 0 11px; border-radius: 6px; border: 1.5px solid var(--rule);
+    height: 30px; min-width: 32px; padding: 0 10px; border-radius: 6px; border: 1.5px solid var(--rule);
     background: #fff; color: var(--ink); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-    font-family: 'Raleway', sans-serif; font-weight: 700; font-size: 0.72rem; letter-spacing: 0.03em; white-space: nowrap;
+    font-family: 'Raleway', sans-serif; font-weight: 700; font-size: 0.7rem; letter-spacing: 0.03em; white-space: nowrap;
     transition: border-color 0.15s, color 0.15s, background 0.15s;
   }
-  .tb-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
-  .tb-btn:disabled { color: #c9c9c9; cursor: not-allowed; }
+  .tb-btn:hover:not(:disabled) { border-color: var(--accent); background: var(--accent-bg); }
+  .tb-btn:disabled { color: #c9c9c9; cursor: not-allowed; background: #fff; }
+  #delete-btn:not(:disabled), #join-btn:not(:disabled) { border-color: var(--accent-brd); color: var(--accent); }
   .tb-btn.icon { padding: 0; width: 32px; font-size: 0.95rem; }
   .tb-btn svg { width: 15px; height: 15px; }
   .tb-sep { width: 1px; height: 22px; background: var(--rule); margin: 0 4px; }
@@ -121,10 +122,14 @@
   .transport-btn svg { width: 17px; height: 17px; }
   .transport-btn.sm { width: 34px; height: 34px; background: #fff; color: var(--ink); border: 1.5px solid var(--rule); }
   .transport-btn.sm:hover { border-color: var(--accent); color: var(--accent); background: #fff; }
-  #rec-btn { background: #fff; color: var(--red); border: 2px solid var(--red); }
-  #rec-btn:hover { background: var(--red-bg); }
-  #rec-btn.on { background: var(--red); color: #fff; animation: recpulse 1.4s ease-in-out infinite; }
-  #rec-btn.armed-wait { background: #fde2e2; }
+  #rec-btn { background: var(--ink); color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.18); }
+  #rec-btn:hover { background: var(--accent); }
+  #rec-btn.armed-wait { box-shadow: 0 0 0 2px #fecaca, 0 2px 8px rgba(0,0,0,0.18); }
+  #rec-btn.on { background: var(--red); color: #fff; animation: recpulse 1.6s ease-out infinite; }
+  #rec-btn.on:hover { background: #b91c1c; }
+  #rec-btn .stop { display: none; }
+  #rec-btn.on .stop { display: block; }
+  #rec-btn.on .dot { display: none; }
   @keyframes recpulse { 0%,100% { box-shadow: 0 0 0 0 rgba(220,38,38,0.45); } 50% { box-shadow: 0 0 0 7px rgba(220,38,38,0); } }
   #time-display { font-family: 'Raleway', sans-serif; font-weight: 800; font-size: 1.35rem; font-variant-numeric: tabular-nums; min-width: 132px; text-align: center; letter-spacing: 0.01em; }
   #rec-status { font-family: 'Raleway', sans-serif; font-weight: 700; font-size: 0.7rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--light); min-width: 90px; }
@@ -156,12 +161,12 @@
   /* ── TIMELINE ── */
   .timeline { overflow: hidden; margin-bottom: 10px; user-select: none; }
   .tl-grid { display: grid; grid-template-columns: var(--hdr-w) 1fr; }
-  .tl-corner { border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); display: flex; align-items: center; padding: 0 10px; gap: 6px; height: 30px; background: #fafafa; }
+  .tl-corner { border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); display: flex; align-items: center; padding: 0 10px; gap: 6px; height: 30px; background: #fff; }
   .tl-corner .ctl-lbl { flex: 1; }
-  .tl-ruler { height: 30px; border-bottom: 1px solid var(--rule); position: relative; background: #fafafa; cursor: text; }
+  .tl-ruler { height: 30px; border-bottom: 1px solid var(--rule); position: relative; background: #fff; cursor: text; }
   .tl-ruler canvas, .tl-lanes canvas { position: absolute; left: 0; top: 0; display: block; }
   #track-headers { border-right: 1px solid var(--rule); }
-  .tl-lanes { position: relative; min-height: 96px; cursor: text; }
+  .tl-lanes { position: relative; min-height: 96px; cursor: text; background: var(--bg); }
   .tl-lanes.drag-over::after { content: 'Drop audio to import it here'; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(255,243,237,0.88); border: 2px dashed var(--accent); color: var(--accent); font-family: 'Raleway', sans-serif; font-weight: 800; z-index: 5; pointer-events: none; }
   #hscroll { overflow-x: auto; overflow-y: hidden; height: 14px; border-top: 1px solid var(--rule); }
   #hscroll-inner { height: 1px; }
@@ -371,7 +376,7 @@
       <button class="transport-btn sm" id="home-btn" title="Go to start ([ or Home)"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="5" width="2.4" height="14" rx="1"/><path d="M19 5.8v12.4a.8.8 0 01-1.24.67L9.3 12.67a.8.8 0 010-1.34l8.46-5.86A.8.8 0 0119 5.8z"/></svg></button>
       <button class="transport-btn" id="play-btn" title="Play / Stop (Space) · Pause (Enter)"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.8v14.4a.8.8 0 001.22.68l11.4-7.2a.8.8 0 000-1.36L8.22 4.12A.8.8 0 007 4.8z"/></svg></button>
       <button class="transport-btn" id="stop-btn" title="Stop (Space)"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="1.5"/></svg></button>
-      <button class="transport-btn" id="rec-btn" title="Record (R, Ctrl/Cmd + R or Shift + Space)"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="6.5"/></svg></button>
+      <button class="transport-btn" id="rec-btn" title="Record (R, Ctrl/Cmd + R or Shift + Space)"><svg class="dot" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="7"/></svg><svg class="stop" viewBox="0 0 24 24" fill="currentColor"><rect x="6.5" y="6.5" width="11" height="11" rx="2"/></svg></button>
       <div id="time-display">0:00.000</div>
       <div id="rec-status"></div>
       <span class="tb-sep"></span>
@@ -383,7 +388,7 @@
         </select>
       </label>
       <label class="switch-lbl" title="Play a few seconds before the record point"><input type="checkbox" id="preroll-on" checked><span class="switch"></span>Pre-roll</label>
-      <span class="ctl"><input type="number" id="preroll-secs" min="0" max="30" step="0.5" value="3"> s</span>
+      <span class="ctl"><input type="number" id="preroll-secs" min="0.5" max="30" step="0.5" value="2"> s</span>
       <span class="spacer"></span>
       <div class="meter-wrap" title="Input level (when a track is armed) or output level">
         <div class="meter" id="main-meter"><div class="fill"></div><div class="peak"></div></div>
@@ -466,7 +471,7 @@
     <ul>
       <li><b>Space</b> plays and stops — stopping returns the cursor to where you pressed Play. <b>Enter</b> pauses right where you are.</li>
       <li><b>[</b> and <b>]</b> jump to the start and end of the project; <b>Ctrl/Cmd + [</b> or <b>]</b> hop to the nearest item edge. <b>← →</b> nudge the cursor a little (hold <b>Shift</b> for bigger steps).</li>
-      <li><b>↑ ↓</b> (or <b>+ / −</b>, or <b>Ctrl/Cmd + scroll</b>) zoom in and out; <b>Shift + scroll</b> moves along the timeline; <b>F</b> fits the whole project.</li>
+      <li><b>↑ ↓</b> (or <b>+ / −</b>, or <b>scroll</b> over the timeline) zoom in and out around the mouse; <b>Shift + scroll</b> (or a sideways swipe) moves along the timeline; <b>F</b> fits the whole project.</li>
       <li><b>Make a track taller</b> — drag the bottom edge of the track (in its header or on the timeline) to see its waveform bigger. Double-click the edge to reset it. This only changes the view, never the volume.</li>
       <li><b>Shift + ↑ ↓</b> (or the ↥ ↧ buttons) makes the waveforms taller or shorter so quiet bits are easier to see — again, display only.</li>
     </ul>
@@ -482,7 +487,7 @@
 </section>
 
 <div id="disclaimer">The Audiobook Guy DAW is still under construction. While we work on it, we can't guarantee its stability and can't be held responsible for lost recordings, projects or files. Please keep backups of anything important.</div>
-<div id="tool-version">v2.0</div>
+<div id="tool-version">v3.0</div>
 <div id="tag-footer"></div>
 
 <!-- ═══ MODALS ═══ -->
@@ -906,14 +911,15 @@ async function readZip(file) {
 }
 
 // ═══════════════════════════════════════════════════════════
-// THE AUDIOBOOK GUY DAW — v2.0
+// THE AUDIOBOOK GUY DAW — v3.0
 // ═══════════════════════════════════════════════════════════
 'use strict';
-const APP_VERSION = '2.0';
+const APP_VERSION = '3.0';
 const PROJECT_EXT = '.tagdaw';
 const AUDIO_DIR   = 'Audio Files';
 const DEF_TRACK_H = 96, MIN_TRACK_H = 60, MAX_TRACK_H = 480;
 const BAR_H = 16, EDGE_PX = 6, MIN_LEN = 0.01, EDGE_FADE = 0.005, XFADE = 0.010;
+const PUNCH_XF = 0.020;   // crossfade at punch-in / punch-out points (half each side)
 const LS_DEVICES = 'audiobookguy.daw.devices.v1';
 const LS_PREFS   = 'audiobookguy.daw.prefs.v1';
 const $ = id => document.getElementById(id);
@@ -1571,7 +1577,9 @@ async function startRecording() {
   startPlayback(from, { clip: { trackId: track.id, at: a } });
   const c = ctx;
   const comp = (c.outputLatency || 0) + (c.baseLatency || 0) + (inp.latency || 0) + (P.settings.offsetMs || 0) / 1000;
+  const half = PUNCH_XF / 2;
   rec = { trackId: track.id, mode, a, b, from, t0: play.t0, comp, rate, nCh, bits, file, writer, len: 0,
+          capA: Math.max(from, a - half), capB: b === Infinity ? Infinity : b + half,
           targetId: target ? target.item.id : null, pk: new PeakBuilder(), stopping: false };
   inp.worklet.port.postMessage('start');
   $('rec-btn').classList.add('on');
@@ -1586,8 +1594,8 @@ function onCaptureMessage(e) {
   const rate = rec.rate, n = m.data[0].length;
   // timeline time of the chunk's first sample, with latency compensation
   const tl0 = rec.from + (m.frame / rate - rec.t0) - rec.comp;
-  let k0 = Math.ceil((rec.a - tl0) * rate - 1e-6);
-  let k1 = rec.b === Infinity ? n : Math.floor((rec.b - tl0) * rate + 1e-6);
+  let k0 = Math.ceil((rec.capA - tl0) * rate - 1e-6);
+  let k1 = rec.capB === Infinity ? n : Math.floor((rec.capB - tl0) * rate + 1e-6);
   k0 = clamp(k0, 0, n); k1 = clamp(k1, 0, n);
   if (k1 <= k0) return;
   const pick = (c) => m.data[c].subarray(k0, k1);
@@ -1635,16 +1643,34 @@ async function finishRecording() {
   if (!track) { markStatic(); return; }
   const L = s.dur;
   edit(() => {
-    const it = newItem(r.file, r.a, 0, L);
+    const it = newItem(r.file, r.capA, 0, L);
+    const lead = r.a - r.capA;                 // take audio recorded before the punch-in point
+    // the old audio just before the punch point carries on under the new take for a moment
+    const extendLeft = x => { const hl = Math.max(0, Math.min(PUNCH_XF / 2, srcDur(x.src) - (x.offset + x.len))); x.len += hl; return hl; };
+    let left = null;
     if (r.mode === 'punch') {
       track.items = track.items.filter(x => x.start < r.a - 1e-6);
-      track.items.forEach(x => { if (itemEnd(x) > r.a) { x.len = r.a - x.start; x.fadeOut = Math.min(Math.max(x.fadeOut, EDGE_FADE), x.len); } });
-      it.fadeIn = EDGE_FADE;
+      track.items.forEach(x => { if (itemEnd(x) > r.a) x.len = r.a - x.start; });
     } else {
-      const winEnd = r.b === Infinity ? r.a + L : r.b;
-      clearRange(track, r.a, winEnd, true);
-      it.len = Math.min(L, winEnd - r.a);
-      it.fadeIn = EDGE_FADE; it.fadeOut = EDGE_FADE;
+      clearRange(track, r.a, r.b, false);
+    }
+    left = track.items.filter(x => x.start < r.a - 1e-6 && Math.abs(itemEnd(x) - r.a) < 1e-6).sort((p, q) => q.start - p.start)[0] || null;
+    const hl = left ? extendLeft(left) : 0;
+    if (lead + hl > 1e-6) { it.fadeIn = 0; if (left) left.fadeOut = 0; }      // overlap → automatic crossfade
+    else { it.fadeIn = EDGE_FADE; if (left) left.fadeOut = Math.min(Math.max(left.fadeOut, EDGE_FADE), left.len); }
+    if (r.mode !== 'punch') {
+      it.len = Math.min(L, r.capB - r.capA);
+      const right = track.items.find(x => Math.abs(x.start - r.b) < 1e-6 && x !== left);
+      if (right && itemEnd(it) >= r.b - 1e-6) {
+        // reveal a little of the old audio under the end of the take so the punch-out crossfades too
+        const hr = Math.max(0, Math.min(PUNCH_XF / 2, right.offset, right.start));
+        right.start -= hr; right.offset -= hr; right.len += hr;
+        if (itemEnd(it) - right.start > 1e-6) { it.fadeOut = 0; right.fadeIn = 0; }
+        else { it.fadeOut = EDGE_FADE; right.fadeIn = Math.max(right.fadeIn, EDGE_FADE); }
+      } else {
+        it.fadeOut = EDGE_FADE;
+        if (right) right.fadeIn = Math.max(right.fadeIn, EDGE_FADE);
+      }
     }
     track.items.push(it);
     ui.selItems.clear(); ui.selItems.add(it.id);
@@ -1718,7 +1744,7 @@ function loop() {
   if (play) {
     pump();
     const t = currentTime();
-    if (rec && !rec.stopping && rec.b !== Infinity && t >= rec.b + Math.max(0.05, rec.comp)) stopRecording();
+    if (rec && !rec.stopping && rec.b !== Infinity && t >= rec.capB + Math.max(0.05, rec.comp)) stopRecording();
     if (!rec && t > projectEnd() + 0.3 && t > play.from + 0.3) stopPlayback();
     else followPlayhead(t);
   }
@@ -1753,7 +1779,7 @@ function resizeCanvases() {
 function markStatic() { staticDirty = true; markOverlay(); }
 function markOverlay() { if (overlayQueued) return; overlayQueued = true; requestAnimationFrame(() => { overlayQueued = false; drawOverlay(); }); }
 
-function viewSpan() { return Math.max(projectEnd(), ui.cursor, rec ? rec.a + rec.len / rec.rate : 0) + W / ui.pps * 0.5 + 5; }
+function viewSpan() { return Math.max(projectEnd(), ui.cursor, rec ? rec.capA + rec.len / rec.rate : 0) + W / ui.pps * 0.5 + 5; }
 function updateScrollbar() {
   const inner = $('hscroll-inner'), sc = $('hscroll');
   inner.style.width = Math.max(W, viewSpan() * ui.pps) + 'px';
@@ -1794,24 +1820,30 @@ function niceStep() {
   return 3600;
 }
 
+// Drawing matches the Audio Recorder: white items with orange waveforms,
+// light-orange top bars (solid orange when selected), grey X-shaded
+// crossfades, a grey time selection and a dark playhead (red while recording).
+function rulerLabel(t, precise) {
+  t = Math.max(0, t || 0);
+  const m = Math.floor(t / 60), s = t - m * 60;
+  return precise ? `${m}:${s.toFixed(2).padStart(5, '0')}` : `${m}:${String(Math.floor(s + 1e-6)).padStart(2, '0')}`;
+}
 function drawRuler() {
   const g = rulerCv.getContext('2d'); g.setTransform(DPR, 0, 0, DPR, 0, 0);
-  g.clearRect(0, 0, W, 30); g.fillStyle = '#fafafa'; g.fillRect(0, 0, W, 30);
-  const step = niceStep(), sub = step / 5;
-  if (ui.timeSel) { const x0 = tToX(ui.timeSel.a), x1 = tToX(ui.timeSel.b); g.fillStyle = 'rgba(224,90,0,0.18)'; g.fillRect(x0, 0, x1 - x0, 30); }
-  g.strokeStyle = '#cfcfcf'; g.fillStyle = '#777'; g.font = '600 10px "Open Sans", sans-serif'; g.textBaseline = 'top';
-  const tStart = Math.floor(ui.t0 / sub) * sub, tEnd = xToT(W);
-  g.beginPath();
-  for (let t = tStart; t <= tEnd; t += sub) {
-    const x = Math.round(tToX(t)) + 0.5, major = Math.abs(t / step - Math.round(t / step)) < 1e-6;
-    g.moveTo(x, major ? 14 : 23); g.lineTo(x, 30);
-    if (major) g.fillText(fmtTime(Math.round(t / step) * step, step < 1).replace(/\.?0+$/, m => m.startsWith('.') ? '' : m), x + 3, 3);
+  g.clearRect(0, 0, W, 30); g.fillStyle = '#ffffff'; g.fillRect(0, 0, W, 30);
+  if (ui.timeSel) { const x0 = tToX(ui.timeSel.a), x1 = tToX(ui.timeSel.b); g.fillStyle = 'rgba(34,34,34,0.10)'; g.fillRect(x0, 0, x1 - x0, 30); }
+  const steps = [0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1, 2, 5, 10, 15, 30, 60, 120, 300, 600, 900, 1800, 3600];
+  const step = steps.find(s => s * ui.pps >= 64) || 3600;
+  g.font = '600 9.5px "Open Sans", sans-serif'; g.textBaseline = 'middle';
+  for (let t = Math.ceil(ui.t0 / step) * step; t <= xToT(W); t += step) {
+    const x = tToX(t);
+    g.fillStyle = '#c9c9c9'; g.fillRect(Math.round(x), 24, 1, 6);
+    g.fillStyle = '#999999'; g.fillText(rulerLabel(t, step < 1), x + 3, 14);
   }
-  g.stroke();
 }
 
 function drawWave(g, item, s, x0, x1, top, h, color) {
-  const rate = s.rate, mid = top + h / 2, amp = (h / 2 - 1) * ui.waveZoom, n = s.frames;
+  const rate = s.rate, mid = top + h / 2, amp = (h / 2) * 0.95 * ui.waveZoom, n = s.frames;
   const { mins, maxs } = s.peaks;
   const ix0 = tToX(item.start), spp = rate / ui.pps;
   let detail = null;
@@ -1837,105 +1869,145 @@ function drawWave(g, item, s, x0, x1, top, h, color) {
   }
 }
 
-function drawItem(g, t, it, fades, rTop, rH) {
-  const top = rTop + 3, h = rH - 6;
-  let x0 = tToX(it.start), x1 = tToX(itemEnd(it));
+
+function itemGeom(rTop, rH) { const top = rTop + 3, h = rH - 6; return { top, h, bottom: top + h, waveTop: top + BAR_H + 2, waveBot: top + h - 2 }; }
+
+function drawItem(g, t, it, fades, rTop, rH, multi) {
+  const G = itemGeom(rTop, rH), top = G.top, h = G.h;
+  const x0 = tToX(it.start), x1 = tToX(itemEnd(it));
   if (x1 < 0 || x0 > W) return;
   const sel = ui.selItems.has(it.id), src = sources.get(it.src), missing = !src || src.missing;
   const cx0 = Math.max(x0, -2), cx1 = Math.min(x1, W + 2);
-  g.fillStyle = missing ? '#fde2e2' : (sel ? '#fff3ed' : '#ffffff');
+  // body
+  g.fillStyle = missing ? '#fde2e2' : '#ffffff';
   g.fillRect(cx0, top, cx1 - cx0, h);
-  g.fillStyle = sel ? '#e05a00' : '#4a4a4a';
-  g.fillRect(cx0, top, cx1 - cx0, BAR_H);
-  if (!missing) { g.save(); g.beginPath(); g.rect(cx0, top + BAR_H, cx1 - cx0, h - BAR_H); g.clip(); drawWave(g, it, src, Math.max(cx0, 0), Math.min(cx1, W), top + BAR_H + 2, h - BAR_H - 4, sel ? '#c44e00' : '#555'); g.restore(); }
-  else { g.fillStyle = '#b91c1c'; g.font = '600 11px "Open Sans", sans-serif'; g.fillText('Audio file missing', Math.max(cx0, 0) + 6, top + BAR_H + 18); }
-  // fades
-  const f = fades.get(it.id) || { fi: it.fadeIn, fo: it.fadeOut };
-  g.strokeStyle = sel ? 'rgba(196,78,0,0.9)' : 'rgba(0,0,0,0.45)'; g.lineWidth = 1; g.beginPath();
-  if (f.fi > 0) { g.moveTo(x0, top + h); g.lineTo(x0 + f.fi * ui.pps, top + BAR_H); }
-  if (f.fo > 0) { g.moveTo(x1 - f.fo * ui.pps, top + BAR_H); g.lineTo(x1, top + h); }
+  // waveform
+  if (!missing) {
+    g.save(); g.beginPath(); g.rect(cx0, G.waveTop, cx1 - cx0, G.waveBot - G.waveTop); g.clip();
+    g.globalAlpha = multi ? 0.85 : 1;
+    drawWave(g, it, src, Math.max(cx0, 0), Math.min(cx1, W), G.waveTop, G.waveBot - G.waveTop, '#e05a00');
+    g.restore();
+  } else { g.fillStyle = '#b91c1c'; g.font = '600 11px "Open Sans", sans-serif'; g.textBaseline = 'alphabetic'; g.fillText('Audio file missing', Math.max(cx0, 0) + 6, top + BAR_H + 18); }
+  // fades you've drawn yourself (crossfades get the X instead)
+  g.strokeStyle = 'rgba(34,34,34,0.45)'; g.lineWidth = 1; g.beginPath();
+  if (it.fadeIn > EDGE_FADE) { g.moveTo(x0, G.bottom); g.lineTo(x0 + it.fadeIn * ui.pps, top + BAR_H); }
+  if (it.fadeOut > EDGE_FADE) { g.moveTo(x1 - it.fadeOut * ui.pps, top + BAR_H); g.lineTo(x1, G.bottom); }
   g.stroke();
-  if (f.fi > 0) { g.fillStyle = 'rgba(0,0,0,0.05)'; g.beginPath(); g.moveTo(x0, top + BAR_H); g.lineTo(x0 + f.fi * ui.pps, top + BAR_H); g.lineTo(x0, top + h); g.fill(); }
-  if (f.fo > 0) { g.fillStyle = 'rgba(0,0,0,0.05)'; g.beginPath(); g.moveTo(x1, top + BAR_H); g.lineTo(x1 - f.fo * ui.pps, top + BAR_H); g.lineTo(x1, top + h); g.fill(); }
-  // label + fade handles
+  g.fillStyle = 'rgba(34,34,34,0.05)';
+  if (it.fadeIn > EDGE_FADE) { g.beginPath(); g.moveTo(x0, top + BAR_H); g.lineTo(x0 + it.fadeIn * ui.pps, top + BAR_H); g.lineTo(x0, G.bottom); g.fill(); }
+  if (it.fadeOut > EDGE_FADE) { g.beginPath(); g.moveTo(x1, top + BAR_H); g.lineTo(x1 - it.fadeOut * ui.pps, top + BAR_H); g.lineTo(x1, G.bottom); g.fill(); }
+  // outline + top bar (the bit you grab to slide an item)
+  g.strokeStyle = sel ? '#e05a00' : '#cfcfcf'; g.lineWidth = sel ? 2 : 1;
+  if (sel) g.strokeRect(x0 + 1, top + 1, Math.max(1, x1 - x0 - 2), h - 2);
+  else g.strokeRect(x0 + 0.5, top + 0.5, Math.max(1, x1 - x0 - 1), h - 1);
+  g.lineWidth = 1;
+  g.fillStyle = sel ? '#e05a00' : '#f5c9ae';
+  g.fillRect(x0 + 1, top + 1, Math.max(1, x1 - x0 - 2), BAR_H);
   if (x1 - x0 > 30) {
-    g.save(); g.beginPath(); g.rect(cx0, top, cx1 - cx0, BAR_H); g.clip();
-    g.fillStyle = '#fff'; g.font = '600 10px "Open Sans", sans-serif'; g.textBaseline = 'middle';
-    g.fillText(itemLabel(it), Math.max(x0, 0) + 12, top + BAR_H / 2 + 0.5); g.restore();
+    g.save(); g.beginPath(); g.rect(cx0, top, cx1 - cx0, BAR_H + 1); g.clip();
+    g.fillStyle = sel ? '#ffffff' : '#7a3300'; g.font = '600 10px "Open Sans", sans-serif'; g.textBaseline = 'middle';
+    g.fillText(itemLabel(it), Math.max(x0, 0) + 12, top + 1 + BAR_H / 2 + 0.5); g.restore();
   }
-  g.fillStyle = '#fff';
-  const hx1 = x0 + it.fadeIn * ui.pps, hx2 = x1 - it.fadeOut * ui.pps;
-  if (x1 - x0 > 14) { g.fillRect(hx1 + (it.fadeIn ? -3 : 1), top + 4, 6, 6); g.fillRect(hx2 - (it.fadeOut ? 3 : 7), top + 4, 6, 6); }
-  g.strokeStyle = sel ? '#e05a00' : '#bdbdbd'; g.lineWidth = sel ? 1.5 : 1;
-  g.strokeRect(x0 + 0.5, top + 0.5, x1 - x0 - 1, h - 1);
+  // fade handles
+  if (x1 - x0 > 14) {
+    const hx1 = x0 + it.fadeIn * ui.pps, hx2 = x1 - it.fadeOut * ui.pps;
+    g.fillStyle = '#ffffff'; g.strokeStyle = sel ? 'rgba(255,255,255,0.0)' : 'rgba(196,78,0,0.55)';
+    const sq = (x) => { g.fillRect(x, top + 4, 6, 6); if (!sel) g.strokeRect(x + 0.5, top + 4.5, 5, 5); };
+    sq(hx1 + (it.fadeIn ? -3 : 1)); sq(hx2 - (it.fadeOut ? 3 : 7));
+  }
+}
+
+// crossfades — shaded with an X wherever two items on a track overlap
+function drawCrossfades(g, t, rTop, rH) {
+  const G = itemGeom(rTop, rH), items = t.items.slice().sort((a, b) => a.start - b.start || a.id - b.id);
+  for (let i = 0; i < items.length; i++) {
+    for (let j = i + 1; j < items.length; j++) {
+      const a = items[i], b = items[j];
+      if (b.start >= itemEnd(a)) break;
+      const oEnd = Math.min(itemEnd(a), itemEnd(b));
+      const xa = tToX(b.start), xb = Math.max(tToX(oEnd), xa + 2);
+      if (xb < 0 || xa > W) continue;
+      g.fillStyle = 'rgba(34,34,34,0.08)'; g.fillRect(xa, G.top, xb - xa, G.h);
+      g.strokeStyle = 'rgba(34,34,34,0.6)'; g.lineWidth = 1; g.beginPath();
+      g.moveTo(xa, G.waveTop); g.lineTo(xb, G.waveBot); g.moveTo(xa, G.waveBot); g.lineTo(xb, G.waveTop); g.stroke();
+    }
+  }
 }
 
 function drawStatic() {
   const g = staticLayer.getContext('2d'); g.setTransform(DPR, 0, 0, DPR, 0, 0);
   g.clearRect(0, 0, W, H);
   if (!P) return;
-  const step = niceStep();
   let y = 0;
-  P.tracks.forEach((t, row) => {
+  P.tracks.forEach(t => {
     const th = trackH(t);
-    g.fillStyle = ui.selTracks.has(t.id) ? '#fffaf6' : (row % 2 ? '#fbfbfb' : '#f7f7f7');
+    g.fillStyle = ui.selTracks.has(t.id) ? '#f9ece3' : '#f2f2f2';
     g.fillRect(0, y, W, th);
-    g.fillStyle = '#e6e6e6'; g.fillRect(0, y + th - 1, W, 1);
+    g.fillStyle = '#e0e0e0'; g.fillRect(0, y + th - 1, W, 1);
     y += th;
   });
-  g.strokeStyle = 'rgba(0,0,0,0.045)'; g.beginPath();
-  for (let t = Math.floor(ui.t0 / step) * step; t <= xToT(W); t += step) { const x = Math.round(tToX(t)) + 0.5; g.moveTo(x, 0); g.lineTo(x, H); }
-  g.stroke();
+  y = 0;
+  P.tracks.forEach(t => {
+    const f = trackFades(t), th = trackH(t), multi = t.items.length > 1;
+    t.items.forEach(it => drawItem(g, t, it, f, y, th, multi));
+    drawCrossfades(g, t, y, th);
+    y += th;
+  });
   if (ui.timeSel) {
     const x0 = tToX(ui.timeSel.a), x1 = tToX(ui.timeSel.b);
     let yy = 0;
     P.tracks.forEach(t => {
       const on = !ui.selTracks.size || ui.selTracks.has(t.id), th = trackH(t);
-      g.fillStyle = on ? 'rgba(224,90,0,0.13)' : 'rgba(224,90,0,0.04)';
+      g.fillStyle = on ? 'rgba(34,34,34,0.16)' : 'rgba(34,34,34,0.05)';
       g.fillRect(x0, yy, x1 - x0, th); yy += th;
     });
-  }
-  y = 0;
-  P.tracks.forEach(t => { const f = trackFades(t), th = trackH(t); t.items.forEach(it => drawItem(g, t, it, f, y, th)); y += th; });
-  if (ui.timeSel) {
-    g.fillStyle = 'rgba(224,90,0,0.7)';
-    g.fillRect(Math.round(tToX(ui.timeSel.a)), 0, 1, H); g.fillRect(Math.round(tToX(ui.timeSel.b)), 0, 1, H);
+    g.fillStyle = '#222222';
+    [x0, x1].forEach(x => { g.fillRect(x - 1, 0, 2, H); g.beginPath(); g.moveTo(x - 6, 0); g.lineTo(x + 6, 0); g.lineTo(x, 7); g.closePath(); g.fill(); });
   }
   $('empty-hint').hidden = P.tracks.some(t => t.items.length) || !!rec;
 }
 
 function drawOverlay() {
   if (!P || $('workspace').hidden) return;
-  if (staticDirty) { drawStatic(); drawRuler(); staticDirty = false; }
+  if (staticDirty) { drawStatic(); staticDirty = false; }
   const g = lanesCv.getContext('2d'); g.setTransform(1, 0, 0, 1, 0, 0);
   g.clearRect(0, 0, lanesCv.width, lanesCv.height); g.drawImage(staticLayer, 0, 0);
   g.setTransform(DPR, 0, 0, DPR, 0, 0);
   if (rec && !rec.finished) {
     const row = P.tracks.findIndex(t => t.id === rec.trackId);
     if (row >= 0) {
-      const rTop = rowTop(row), rH = trackH(P.tracks[row]);
-      const top = rTop + 3, h = rH - 6, x0 = tToX(rec.a), x1 = tToX(rec.a + rec.len / rec.rate);
-      g.fillStyle = '#fef2f2'; g.fillRect(x0, top, x1 - x0, h);
-      g.fillStyle = '#dc2626'; g.fillRect(x0, top, x1 - x0, BAR_H);
-      const mid = top + BAR_H + (h - BAR_H) / 2, amp = ((h - BAR_H) / 2 - 2) * ui.waveZoom, binDur = PEAK_BIN / rec.rate;
-      const mins = rec.pk.mins, maxs = rec.pk.maxs, wTop = top + BAR_H, wBot = top + h;
-      g.fillStyle = '#b91c1c';
-      for (let x = Math.max(0, Math.floor(x0)); x < Math.min(W, x1); x++) {
-        const b0 = Math.floor((xToT(x) - rec.a) / binDur), b1 = Math.max(b0 + 1, Math.floor((xToT(x + 1) - rec.a) / binDur));
-        let lo = 127, hi = -127; for (let b = Math.max(0, b0); b < b1 && b < mins.length; b++) { if (mins[b] < lo) lo = mins[b]; if (maxs[b] > hi) hi = maxs[b]; }
-        if (hi >= lo) { const ya = Math.max(wTop, mid - hi / 127 * amp), yb = Math.min(wBot, mid - lo / 127 * amp); g.fillRect(x, ya, 1, Math.max(1, yb - ya)); }
+      const rTop = rowTop(row), rH = trackH(P.tracks[row]), G = itemGeom(rTop, rH);
+      const xa = tToX(rec.a);
+      if (rec.len > 0) {
+        // the new take growing over what it replaces
+        const xs = tToX(rec.capA), x1 = tToX(rec.capA + rec.len / rec.rate);
+        g.fillStyle = 'rgba(242,242,242,0.7)'; g.fillRect(xs, G.top, x1 - xs, G.h);
+        g.fillStyle = 'rgba(220,38,38,0.16)'; g.fillRect(xs, G.top, x1 - xs, G.h);
+        g.fillStyle = '#dc2626'; g.fillRect(xs, G.top + 1, x1 - xs, BAR_H);
+        const mid = (G.waveTop + G.waveBot) / 2, amp = (G.waveBot - G.waveTop) / 2 * 0.95 * ui.waveZoom, binDur = PEAK_BIN / rec.rate;
+        const mins = rec.pk.mins, maxs = rec.pk.maxs;
+        g.fillStyle = 'rgba(185,28,28,0.85)';
+        for (let x = Math.max(0, Math.floor(xs)); x < Math.min(W, x1); x++) {
+          const b0 = Math.floor((xToT(x) - rec.capA) / binDur), b1 = Math.max(b0 + 1, Math.floor((xToT(x + 1) - rec.capA) / binDur));
+          let lo = 127, hi = -127; for (let b = Math.max(0, b0); b < b1 && b < mins.length; b++) { if (mins[b] < lo) lo = mins[b]; if (maxs[b] > hi) hi = maxs[b]; }
+          if (hi >= lo) { const ya = Math.max(G.waveTop, mid - hi / 127 * amp), yb = Math.min(G.waveBot, mid - lo / 127 * amp); g.fillRect(x, ya, 1, Math.max(1, yb - ya)); }
+        }
       }
-      if (rec.b !== Infinity) { g.fillStyle = 'rgba(220,38,38,0.6)'; g.fillRect(Math.round(tToX(rec.b)), rTop, 2, rH); }
+      // the punch-in point — shown from the moment you press Record, through the pre-roll
+      g.fillStyle = '#dc2626'; g.fillRect(xa - 1, 0, 2, H);
+      if (rec.b !== Infinity) { g.fillStyle = 'rgba(220,38,38,0.6)'; g.fillRect(Math.round(tToX(rec.b)) - 1, rTop, 2, rH); }
     }
   }
-  const t = play ? currentTime() : ui.cursor, x = Math.round(tToX(t));
-  if (x >= -1 && x <= W + 1) {
-    g.fillStyle = rec && !rec.stopping ? '#dc2626' : '#e05a00'; g.fillRect(x, 0, 1.5, H);
-    const rg = rulerCv.getContext('2d'); drawRuler(); rg.setTransform(DPR, 0, 0, DPR, 0, 0);
-    rg.fillStyle = g.fillStyle; rg.beginPath(); rg.moveTo(x - 5, 22); rg.lineTo(x + 5, 22); rg.lineTo(x, 30); rg.fill();
-  } else drawRuler();
+  drawRuler();
+  const t = play ? currentTime() : ui.cursor, x = tToX(t);
+  if (x >= -2 && x <= W + 2) {
+    const col = rec && !rec.stopping ? '#dc2626' : '#222222';
+    g.strokeStyle = col; g.lineWidth = 1.5; g.beginPath(); g.moveTo(x, 0); g.lineTo(x, H); g.stroke();
+    const rg = rulerCv.getContext('2d'); rg.setTransform(DPR, 0, 0, DPR, 0, 0);
+    rg.strokeStyle = col; rg.lineWidth = 1.5; rg.beginPath(); rg.moveTo(x, 0); rg.lineTo(x, 30); rg.stroke();
+    rg.fillStyle = col; rg.beginPath(); rg.moveTo(x - 5, 30); rg.lineTo(x + 5, 30); rg.lineTo(x, 24); rg.closePath(); rg.fill();
+  }
 }
-
 // ── HIT TESTING ─────────────────────────────────────────────
 function hitTest(x, y) {
   const row = rowAt(y), track = P.tracks[row];
@@ -2078,6 +2150,7 @@ lanesCv.addEventListener('pointerup', e => {
   if (d.kind === 'resize') { if (d.moved) scheduleSave(); return; }
   if (d.kind === 'seledge') {
     if (ui.timeSel && ui.timeSel.b - ui.timeSel.a < 0.002) ui.timeSel = null;
+    else if (ui.timeSel && !play) ui.cursor = ui.timeSel.a;
   } else if (d.kind === 'range') {
     if (!d.moved) {
       // simple click: place cursor, select item under it (or clear)
@@ -2087,6 +2160,7 @@ lanesCv.addEventListener('pointerup', e => {
       selectTrackOnly(d.track.id, d.shift);
       if (play && !rec) startPlayback(ui.cursor);
     } else if (ui.timeSel && ui.timeSel.b - ui.timeSel.a < 0.002) ui.timeSel = null;
+    else if (ui.timeSel && !play) ui.cursor = ui.timeSel.a;
     updateTimeDisplay();
   } else if (d.moved) {
     P.tracks.forEach(sortItems);
@@ -2134,22 +2208,24 @@ rulerCv.addEventListener('pointermove', e => {
 rulerCv.addEventListener('pointerup', () => {
   if (!rulerDrag) return;
   if (!rulerDrag.moved) { ui.cursor = Math.max(0, xToT(rulerDrag.x0)); if (play && !rec) startPlayback(ui.cursor); updateTimeDisplay(); markOverlay(); }
+  else if (ui.timeSel && !play) { ui.cursor = ui.timeSel.a; updateTimeDisplay(); markOverlay(); }
   rulerDrag = null; scheduleSaveView();
 });
 
-// wheel: Ctrl/Cmd zooms, horizontal / Shift scrolls
-lanesBox.addEventListener('wheel', e => {
+// wheel: scrolling up/down zooms around the mouse (no key needed, same as the
+// Audio Recorder); sideways or Shift + scroll moves along the timeline.
+function timelineWheel(e) {
   if (!P) return;
-  if (e.ctrlKey || e.metaKey) {
-    e.preventDefault();
-    const x = e.clientX - lanesBox.getBoundingClientRect().left;
-    zoomBy(Math.exp(-e.deltaY * 0.0025), xToT(x));
-  } else if (e.shiftKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
-    e.preventDefault();
-    setView(ui.t0 + (e.shiftKey ? e.deltaY : e.deltaX) / ui.pps);
+  e.preventDefault();
+  if (e.shiftKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+    setView(ui.t0 + (e.shiftKey ? (e.deltaY || e.deltaX) : e.deltaX) / ui.pps);
+  } else {
+    const dy = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY;
+    zoomBy(Math.exp(-dy * 0.0025), xToT(e.clientX - lanesBox.getBoundingClientRect().left));
   }
-}, { passive: false });
-$('ruler-box').addEventListener('wheel', e => { if (e.ctrlKey || e.metaKey) { e.preventDefault(); zoomBy(Math.exp(-e.deltaY * 0.0025), xToT(e.clientX - rulerCv.getBoundingClientRect().left)); } }, { passive: false });
+}
+lanesBox.addEventListener('wheel', timelineWheel, { passive: false });
+$('ruler-box').addEventListener('wheel', timelineWheel, { passive: false });
 
 let viewSaveTimer = null;
 function scheduleSaveView() { clearTimeout(viewSaveTimer); viewSaveTimer = setTimeout(() => { if (P && !dirty) saveNow(); }, 4000); }
@@ -2157,6 +2233,8 @@ function scheduleSaveView() { clearTimeout(viewSaveTimer); viewSaveTimer = setTi
 // ── READOUT ─────────────────────────────────────────────────
 function updateReadout() {
   if (!P) return;
+  const canDel = !!ui.timeSel || ui.selItems.size > 0;
+  $('delete-btn').disabled = !canDel; $('join-btn').disabled = !canDel;
   const parts = [];
   if (ui.timeSel) parts.push(`Selection <b>${fmtTime(ui.timeSel.a)}</b> – <b>${fmtTime(ui.timeSel.b)}</b> (${(ui.timeSel.b - ui.timeSel.a).toFixed(3)} s)`);
   if (ui.selItems.size === 1) { const f = findItem([...ui.selItems][0]); if (f) parts.push(`Item <b>${itemLabel(f.item)}</b> · ${fmtTime(f.item.start)} · length ${f.item.len.toFixed(3)} s`); }
@@ -2504,7 +2582,7 @@ const SHORTCUTS = [
   ]],
   ['View & project', [
     ['Zoom in / out', [['↑'], ['↓'], ['+'], ['−']]],
-    ['Zoom around the mouse', [[MOD, 'Scroll']]],
+    ['Zoom around the mouse', [['Scroll']]],
     ['Scroll along the timeline', [['Shift', 'Scroll']]],
     ['Fit the whole project', [['F']]],
     ['Taller / shorter waveforms (display only — volume doesn\'t change)', [['Shift', '↑'], ['Shift', '↓']]],
@@ -3216,8 +3294,8 @@ $('join-btn').addEventListener('click', () => deleteSel(true));
 $('gaps-btn').addEventListener('click', removeGaps);
 $('undo-btn').addEventListener('click', undo);
 $('redo-btn').addEventListener('click', redo);
-$('zoom-in-btn').addEventListener('click', () => zoomBy(1.6));
-$('zoom-out-btn').addEventListener('click', () => zoomBy(1 / 1.6));
+$('zoom-in-btn').addEventListener('click', () => zoomBy(2));
+$('zoom-out-btn').addEventListener('click', () => zoomBy(0.5));
 $('zoom-fit-btn').addEventListener('click', fitView);
 $('wave-up-btn').addEventListener('click', () => setWaveZoom(1.25));
 $('wave-down-btn').addEventListener('click', () => setWaveZoom(0.8));
@@ -3268,8 +3346,8 @@ document.addEventListener('keydown', e => {
     return;
   }
   if (e.key === '?') { openModal('keys-modal'); return; }
-  if (k === '+' || k === '=') { zoomBy(1.6); return; }
-  if (k === '-' || k === '_') { zoomBy(1 / 1.6); return; }
+  if (k === '+' || k === '=') { zoomBy(2); return; }
+  if (k === '-' || k === '_') { zoomBy(0.5); return; }
   if (!alt && code === 'KeyF') { fitView(); return; }
 });
 
