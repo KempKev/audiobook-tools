@@ -1,0 +1,42 @@
+{
+  "name": "The Audiobook Guy DAW",
+  "short_name": "TAG DAW",
+  "description": "Multitrack Recording & Editing for Narrators and Voice Over Artists",
+  "id": "daw.html",
+  "start_url": "daw.html",
+  "scope": "daw",
+  "display": "standalone",
+  "background_color": "#f2f2f2",
+  "theme_color": "#e05a00",
+  "icons": [
+    {
+      "src": "daw-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "daw-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "file_handlers": [
+    {
+      "action": "daw.html",
+      "accept": {
+        "application/x-tagdaw+json": [
+          ".tagdaw"
+        ]
+      },
+      "icons": [
+        {
+          "src": "daw-icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
+  ]
+}
