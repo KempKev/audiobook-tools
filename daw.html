@@ -547,7 +547,7 @@
     <h3>Track effects &amp; analysis</h3>
     <ul>
       <li>Open <b>Effects</b> (<b>Alt/Opt + F</b>, the <b>FX</b> button on a track, or right-click) to build an effects chain for a whole track. Use <b>＋ Add effect</b> to add Noise Reduction, EQ, a Compressor or a Limiter — as many as you like, even two of the same — and the <b>✕</b> on an effect to remove it (Undo brings it back). Drag the <b>⋮⋮</b> handle to change the order: the sound flows from the top effect to the bottom one. Press <b>▾</b> (or click an empty part of an effect's title bar) to fold its settings away, and <b>↺</b> to reset an effect to its starting settings — a learned noise profile is kept.</li>
-      <li>Each effect has its own on/off switch, and <b>Effects chain</b> switches them all on or off at once (<b>Alt/Opt + Shift + F</b>) so you can hear before and after. Effects run whenever you play or export; your takes are never changed. A track with effects on shows an orange <b>FX</b> button — crossed out while the chain is switched off.</li>
+      <li>Each effect has its own on/off switch, and <b>Effects chain</b> switches them all on or off at once (<b>Alt/Opt + Shift + F</b>) so you can hear before and after. Every new track comes with a ready-made chain — EQ (High-pass 80 Hz), Noise Reduction (press <b>Learn</b> to give it a profile), Compressor and Limiter (−3.5 dB) — with <b>Effects chain</b> switched off until you want it. Effects run whenever you play or export; your takes are never changed. A track with effects on shows an orange <b>FX</b> button — crossed out while the chain is switched off.</li>
       <li><b>Noise Reduction</b> — press <b>Learn</b>, then play a few seconds of just room tone (no voice) and stop. The DAW learns that noise and takes it out. <b>Amount</b> sets how much: 0% leaves the audio as it is, 100% is complete silence. Use the least that sounds clean — too much can make a voice sound watery.</li>
       <li><b>EQ</b> — start from a preset (High-pass 80 Hz, Male or Female voice, Harsh sibilance, Boxy space and more), then fine-tune each band. The curve shows what you're doing to the sound.</li>
       <li><b>Compressor</b> — <b>Strength</b> evens out loud and quiet moments and <b>Boost</b> raises the level afterwards. <b>Make ACX-ready</b> measures the track and sets the compressor, boost and limiter for you, aiming for about −20 dB RMS with peaks no higher than −3.5 dB. If there's no Limiter after the compressor, it adds one.</li>
@@ -575,7 +575,7 @@
 </section>
 
 <div id="disclaimer">The Audiobook Guy DAW is still under construction. While we work on it, we can't guarantee its stability and can't be held responsible for lost recordings, projects or files. Please keep backups of anything important.</div>
-<div id="tool-version">v5.1</div>
+<div id="tool-version">v5.2</div>
 <div id="tag-footer"></div>
 
 <!-- ═══ MODALS ═══ -->
@@ -1036,10 +1036,10 @@ async function readZip(file) {
 }
 
 // ═══════════════════════════════════════════════════════════
-// THE AUDIOBOOK GUY DAW — v5.1
+// THE AUDIOBOOK GUY DAW — v5.2
 // ═══════════════════════════════════════════════════════════
 'use strict';
-const APP_VERSION = '5.1';
+const APP_VERSION = '5.2';
 const PROJECT_EXT = '.tagdaw';
 const AUDIO_DIR   = 'Audio Files';
 const DEF_TRACK_H = 96, MIN_TRACK_H = 60, MAX_TRACK_H = 480;
@@ -1681,7 +1681,16 @@ const FX_TYPES = {
 };
 function fxId() { return 'fx' + Date.now().toString(36).slice(-4) + Math.random().toString(36).slice(2, 7); }
 function newFx(type, extra) { return Object.assign(FX_TYPES[type].make(), { id: fxId(), type, on: true }, extra || {}); }
-function defaultFx() { return { on: true, list: [] }; }
+// New tracks start with a ready-made voice chain, switched off until wanted:
+// EQ (High-pass 80 Hz) → Noise Reduction (no profile yet) → Compressor (Medium) → Limiter (−3.5 dB).
+function defaultFx() {
+  return { on: false, list: [
+    newFx('eq', eqFrom('hpf', true)),
+    newFx('nr'),
+    newFx('comp'),
+    newFx('lim'),
+  ] };
+}
 function normInst(f) {
   const d = newFx(f.type);
   if (f.type === 'eq') {
