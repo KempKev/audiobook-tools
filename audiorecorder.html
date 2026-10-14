@@ -75,6 +75,25 @@
   #timer { font-family: 'Raleway', sans-serif; font-size: 1.9rem; font-weight: 800; letter-spacing: 0.02em; margin-bottom: 4px; font-variant-numeric: tabular-nums; }
   #status-text { font-size: 0.85rem; color: var(--mid); margin-bottom: 14px; }
 
+  /* ── MICROPHONE PICKER ── */
+  #mic-row { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; margin: 0 0 6px; }
+  .mic-lbl {
+    font-family: 'Raleway', sans-serif; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.06em;
+    text-transform: uppercase; color: var(--light); display: inline-flex; align-items: center; gap: 5px;
+  }
+  .mic-lbl svg { width: 13px; height: 13px; }
+  #mic-select {
+    max-width: 270px; min-width: 0; flex: 0 1 270px; padding: 6px 28px 6px 10px; border: 1.5px solid var(--rule); border-radius: 6px;
+    font-family: 'Open Sans', sans-serif; font-size: 0.78rem; color: var(--ink); background: #fff; outline: none; cursor: pointer;
+    text-overflow: ellipsis; appearance: none; -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23999' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 10px center; transition: border-color 0.15s;
+  }
+  #mic-select:hover:not(:disabled), #mic-select:focus { border-color: var(--accent); }
+  #mic-select:disabled { color: #c9c9c9; cursor: not-allowed; }
+  #mic-names-btn { margin: 0; font-size: 0.68rem; }
+  #fmt-line { font-size: 0.7rem; color: var(--light); margin: 0 0 14px; font-variant-numeric: tabular-nums; }
+
   /* ── PUNCH & ROLL OPTIONS ── */
   #rec-options { display: none; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; margin: 0 0 14px; font-size: 0.76rem; color: var(--mid); }
   #rec-options.on { display: flex; }
@@ -340,7 +359,7 @@
   <img src="data:image/jpeg;base64,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Xd6OrZa2baf7rdKAMOipJ4ZIH2yoVPv3qOgAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACigDJwOta1hpJfEl1lV7J3P1oAoWlpLdNiNeO7HoK3rPTobbDEeZJ/ebt9BVxEVFCooVR0ApaACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAGTRJMhSVQy+hrGvdIZMvbEsv9w9fwrcooA40ggkEYI7GiunvbCK6GSNsnZx/Wufu7WW1fbKvHZh0NAEFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFPgheeQJEpZjUtlaSXcm1BhR95j0FdJaW0drHsjH1J6mgCvp+nR2oDNh5fXsPpV6iigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACmyxpKhSRQynqDTqKAOe1HTXt8yRZeL9VrOrsqx9T0vOZbYc9Sg7/SgDFooPB5ooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKt6fZPdyf3Yx95v6CjTrJruTuIx95v6CulijWKMJGoVR0AoASGJIYxHGuFFPoooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigDN1TThODLCAJe4/vf/Xrn2BUkMCCOCDXZVnapp4uFMkQAmH/AI9QBz1FBBBIIwR1BooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACrFjavdzBF4Ucs3oKjt4XnlWOMZY/pXUWlultCI0/E+poAfDEkMaxxjCin0UUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRTJ5o4ImlndY41GWZjgAV5x4q+KljYs0Gixi9mGQZScRj6etAHpLusalpGVVHUscAVy2s+PvD+lble8E8o/ggG/n0z0FeF614l1rxBOftd1NIG4EMfCj2CitTQ/h3r+q7XNt9lhb/lpcHbx646n8qAOt1L4wckabpnGOGmfkfgP8a527+KXiGfIje3gHbZHz+tdZpfwgtUCtqeoSSt/EkK7R+Z/wrpLP4deGrZcGxM59ZZCf5YoA8dfx94mfOdUmAPHCqP6VHH448SxkldVuPxwf6V73B4U0GDHl6TaDHTMYP8AOpH8N6K6lW0qywf+mKigDwq2+I3iaFgWv/N9pI1P9K27D4uatER9stLadf8AZyh/rXptx4I8OT5L6TbgnuuV/kaw9Q+FWg3AY2zXNs56FX3Afgf8aAINK+LGj3JC30E9o3dsb1/Tmu30vWdO1WPfp95DOPRGGR+FeQ6v8I9Rg3Npl3DdKOiP8jH+n61xF/peseH7ofaYLmzlH3XGV/JhQB9SUV4R4Z+KOqacUi1QfbrYcbjxIB9e/wCNet+G/FOleIYgdPuFMoGWhfh1/CgDcooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAMvV7DzVM0I/eD7wH8Q/xrBrsqxNZsdhNxCPlP3wO3vQBkUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUAEkAck0Vr6JZ7j9okHA+4Pf1oAvaXZi1hy4/et9729qu0UUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABWF4r8U6d4atPNvZA0zD93Ap+d/wDAe9ZnxA8aW/hi08qHbNqco/dxZ4Qf3m9vbvXharqvirW8Dzby+uG/L+gA/KgC/wCK/GGqeJpttw5jts/JbR/dHPGfU1t+EfhnqOrhLjUybGzPIDD9449h2+pr0HwP8PbLQVS6vgl3qPXcRlIz/sj1961/FHjDSfDsZF5OJLnHFvFy5+vp+NAE3h/wrpGgoosLRBKOsz/M5/Ht+GKtarrul6UudQvoID2VnGT+HWvEvEnxM1nVS8VkwsbY8Yi++R7t/hXN6Zomsa9OzWdrcXLMctIQSM+pY0Aevan8WNGt8iyhuLpscHGxf15rm7v4v37gi1063i9C7Fv8Kj0r4R6lMFbUbuC2B6ovzsP6frXUWXwl0WJR9quLudh1IIQH9DQBw8nxV8ROMD7InPVYv/r0xfil4jBB8y3OOxir1GH4ceGohg2LPxj55GqQ/D3wyR/yDV/7+N/jQB5rbfFrW0fM8FpKvoEK/wBa3NP+MMbNjUNMZR6wyZ/Q10Fz8L/Dkw+SK4iOP4Jf8QawdT+D8LBm03UmQ9lmTI/Mf4UAdZpHxA8PamwRb0QSHHyzjZz6Z6V0ksdtf2xSRYbiB+oIDqa+fdZ+HPiDTCzJbfaoh/Hbnd+nX9Kx9J17WPD8+LO5ngKnmJvun6qaAPWfFPwssL4NNoriynx/qjkxt/UV5Jqel6t4Y1JVuo5bW4Q7kkU8H3Vh1r1Lwr8Vre5ZLfX4hbyHjz4wShPuOorv7200zxFpmydIby0lGVYEEfUHsaAPOPA3xPEhjsvEbBW4VbvoD/vjt9a9YR1kRXRgysMgg5BFeAePvAF14eL3ljvudMz97+KL2b296f8ADzx7PoMsdlqLNNpbHHq0PuPb2/KgD32io7aeK6t457eRZYZFDI6nIYHuKkoAKKKKACiiigAooooAKKKKACiiigAooooAKGAYEMAQeCDRRQBzOqWZtZvl/wBU3Kn09qp11t1AtzA0b9D0PofWuVniaCVo5BhlNADKKKKACiiigAooooAKKKKACiiigCxY2xurhYx93qx9BXUooRAqjCgYAqnpNr9mtgWH7x+W9vartABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAVy/j7xXB4X0ouCr38wIgiPc/3j7CtzWNRt9I0y4vrxtsEClm9T6Ae5PFfNWv6re+KfED3Mis887hIYV52jOFUf560AMs7bU/FWveWhe5vrltzOx6epJ7AV9A+D/DFj4U0zahRrgrme5bgt7ey1V8BeF7fwnoxe4Mf22Rd9zMTwo67QfQfrXmnxL8dya1cSafpcrJpifKzDgzH1P+z7UAbfjr4nEPJY+HGGBlXu8df9z/ABrzvQtD1XxPqBSzjknkJzJM54X3ZjXRfD/wBceIdl7flrfTM8Ho0uP7vt717rpun2mmWiW1hAkECdFQfqfU0AcP4X+F+maaqy6qRf3Q52niNfoO/wCNd/DDHBEscEaRxrwFRQAPwFPooAKKKKACiiigAooooAKxte8M6TrsZXUbON3IwJVG1x+I/rWzRQB4V4u+GF/piyXOkMb21GSUxiRR9O/4VznhbxZqnhi5/wBFkLQZ/eW8mdp/DsfevpiuI8d+ALPxBG9zZBLXUhzvAwsvsw9fegDX8K+JtO8VaezW5XzMbZraTBK59R3B9a8v+J3gL+yd+qaPGTYE/vYhz5J9R/s/yrjFbVPCmu/8tLS+t25B7j+oNe9eCvFVn4s0xlZUW7VdtxbtzweCR6qaAPLPhj41fQbtbDUZCdLlbqT/AKlj3Ht6/nXvasGUMpBUjII6EV8+fE7wg3hzUvtNmh/sy5YmP/pm3dD/AE9vpXX/AAb8Wm4iGg38mZYxm1cn7yjqn4dR7fSgD1WiiigAooooAKKKKACiiigAooooAKKKKACiiigArN1q086LzkHzoOfcVpUUAcbRVzVLX7NcnaP3b8r/AIVToAKKKKACiiigAooooAKv6Pbefc7mGY4+T7ntVCup063+zWqoR855b60AWaKKKACiiigAooooAKKKKACiiigAooooAKKKKACiisrxTqyaHoF7qD4zDGdin+Jzwo/MigDyf40+JGu9SXRbZ/8AR7Uh5sH70hHT8AfzJ9K0Pgt4WBB1+9jz1S1Vh+DP/QfjXnGhafc+JPEdvab2aa6lzJIeSB1Zj+GTXunjrWovB3hFItPCxzFRb2qD+Hj734D9cUAcV8XvGRnmk0LTZMQxnF1Ip++39wew7+/0rI+GPgk6/c/b9RRhpcTcDp5zDt9PU/hXPeD9Bn8T6/FZqzBCTJPKedqZ5P1OcfU19LWFnBYWUNpaRiOCFQiKOwFAEsUaRRJHEipGgCqqjAAHYU6iigAooooAKKKKACiiigAooooAKKKKACiiigDlvHnhG28UaeeFj1CIHyJv/ZW9j+leCWN1qPhXxAJEDwXtq+10bv6qfUGvqSvNfjD4UGo2B1myT/S7Zf3ygf6yMd/qv8voKAOktZ9N8eeEG3D9zcLtderQyD+oPI9R9a+f762vvDPiF4WYxXlnKCrj25DD2IwfxrofhX4mbQdfS3nfFheMI5ATwjfwv+uD7H2rsvjf4f8APsoNbt0/eQYinwOqE/KfwJx+PtQB3nhPW4vEGhW2oQ4BdcSJ/ccfeH5/pitevEPgjrn2TWZtJmb9zeDfHk8CRR/UZ/IV7fQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAVdStvtNqygfOvK/WuXrsq53Wrbybreo+STn8e9AGfRRRQAUUUUAFFFFAF7R7fz7sEj5I/mP9K6SqGjQeTZhiPmk+Y/TtV+gAooooAKKKKACiiigAooooAKKKKACiiigAooooAK8j+O+rYGn6TG3XNzKPzVf/Zv0r1yvmr4j6j/afjTU5Q2Y45PIT0wny8fiCfxoA7n4E6ONl9rEq8k/ZoifwLH/ANBH51yXxW1s6x4suI0fNtZ/6PGO2R94/ic/gBXq2nY8J/C9ZB8k0FmZef8Anq4yAf8AgTAV4h4T0xtc8TWFk2WWaYGQ99g5Y/kDQB7V8JPD66P4ajupUxeXwErk9Qn8A/Ln8a7ikVQqhVACgYAHaloAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACkZQylWAKkYIPelooA+afiFoP8Awj3ie4tYlItZP30H+4e34HI/CvY/A9/H4u8B+RfHfJ5bWdwT1JAwG+uCD9ayvjhpP2rw9BqMa5ks5MMf9h+P/Qtv5muY+Bmpm31+7092xHdQ71H+2n/1i35UAcL/AKToGv8AXbd2Fx2/vI38uK+otPuo76xt7uA5injWRT7EZFeE/GjTfsXi83KLiO8iWXjpuHyn+QP416L8HNQN94LhiY5e0laA+uPvD9Gx+FAHcUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFVNUt/tFm4Ay6/MtW6KAONoq1qcHkXjqBhT8y/Q1VoAKKKKACpbWIz3EcY/iPP071FWt4fh3SySnoo2j6mgDcAAAAGAOBRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAQ3k62tnPcP92KNpD9AM18t6RA2q+ILOCT5murlFb33MM/zr6P8AG8/2fwfrMgOD9kkUH3Kkf1rwf4ZQifx3pCEZxIz/APfKM39KAPUfjdd/Z/CEVuhwbi5RSB3UAt/MLXI/Aqx87xDe3jDK21vtHsznj9Fatb4/SERaJGOjNMx/DZ/ia5XwL4th8KaJqbRRedqN1Iixofuqqg/MT/wLpQB75fXtrYQNPe3EUEQ6tIwArjNT+KOgWbFYDPdsDg+UuB+ZrxfUNS1fxNqINxJPd3Dn5I1BIHsFHSumsfhhrMljLd3zQ2aJGZNjnc5AGeg6UAdY3xgsMnbptxjtlxQvxgsNw3abche+GGa8i0azGo6xY2RfYLmeOHdjO3cwGf1r0HxL8L10fQrzUE1Iym3TfsMWM8+uaAPVvDXiHT/EVl9o06XdtwHjbhkPoRWvXz78G72W38b20CMRHdRyRuvY4QsP1WvoKgAooooAKKKKACiiigAoPAyelFcz8S7yWx8DatPbsVk8tY8jqA7qp/RjQBja58UtH067e3to5b1k4Z4yAmfYnrWZ/wALgsf+gbcf99ivNPBegf8ACSa7Hp5n8gMjOX256D0rf8e+Ak8LaPDerfG4Mk4h2mPbjKsc9f8AZoA7K3+L2luwE9jdRgnqCpArrND8YaHrTBLK+j80/wDLOT5G/I9a8I8GeFZ/FM13DazxQyQIH/eA4bJxjimeIPCWteHm33tq4iB4mjO5fzHSgD6G8UWP9peHNSs8ZaW3dVH+1j5f1xXzt4FuzZeMNHmDbR9pRGP+yx2n9Ca6bwR8SL3SZI7XWGe7sCQu88vEPUeo9q4QukGo+ZCSY45dyEdwDxQB7D8ebMPpOmXoAzFO0JP+8uf/AGSqHwEu8TavZk8FY5VH0yD/ADFdT8ZIRL4FuXIJ8mWNx7fNt/8AZq8++B83l+MJo8jEto649wyn+hoA94ooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAMvX4N0CzAcocH6GsGuuuIhNBJGf4gRXIsCpIPBHBoAKKKKACul0eLyrCPPV/mP4//WrnIkMkiIOrEAV16qFUKvQDAoAWiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooA5r4lP5fgbVyRnMQX82A/rXjnwhQN4+08nqqykf9+2H9a9g+J//ACIer/8AXNf/AENa+dtNv7rTboXNjM0M4BUOvUAjB/SgD074+/8AH3o3+5L/ADWvN9B0m61vVILCxTdNKep6KO5PsKbqeqX2ptGdQuZbgxghTI2cZ616p8BtPj+zanqLAGUusCnuoA3H88j8qAO68JeFNP8ADVmI7SMPcEfvLhh87/4D2rU1j/kEX3/XB/8A0E1bqprH/IIvv+uD/wDoJoA+Z/B3/I3aJ/1/Qf8Aoxa+gPiL/wAiRrH/AFwP8xXz/wCDv+Ru0T/r+g/9GLX0B8Rf+RI1j/rgf5igDxb4S/8AJQdK/wC2v/op6+jK+c/hL/yUHSv+2v8A6KevoygAooooAKKKKACiiigArkfi1/yT7Vf+2X/o1K66uR+LX/JPtV/7Zf8Ao1KAPLfgx/yO8X/XCT+Vd18df+RRtP8Ar+T/ANFyVwvwY/5HeL/rhJ/Ku6+Ov/Io2n/X8n/ouSgDnPgL/wAhfVf+uC/+hV7PLGk0bRyorxsMMrDII9xXjHwF/wCQvqv/AFwX/wBCr2mgDxP4o+A00uN9X0ZCLTP76Ef8ss/xD2/lXmNfW11BHdW0tvOoeGVCjqe4IwRXyjqNsbPULq2JyYZWjJ+hI/pQB7/8UGLfDW/ZjlikBJ/7apXmXwY/5HeL/rhJ/KubuvEOr3VlJaXN/PJbSABo3bIIBBH6gV0nwY/5HeL/AK4SfyoA+gKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigArmdXi8q/kx0b5h+P/18101Y/iGL5YpR6lT/ADH9aAMWiiigC7o8fmX8fouWNdLWJ4eTMkz+gA/P/wDVW3QAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFAHL/E//AJEPV/8Armv/AKGteK/DTTbbVfGdhbXqCSD53ZD0bapIB/HFe1fE/wD5EPV/+ua/+hrXkPwe/wCR8sv+ucv/AKAaANz45WdrZ3WkC0toYAyS7hFGFzyvXFb/AMB/+Rd1D/r7/wDZFrH+Pn/H3o3/AFzl/mtbHwH/AORd1D/r7/8AZFoA9LqprH/IIvv+uD/+gmrdVNY/5BF9/wBcH/8AQTQB8z+Dv+Ru0T/r+g/9GLX0B8Rf+RI1j/rgf5ivn/wd/wAjdon/AF/Qf+jFr6A+Iv8AyJGsf9cD/MUAeLfCX/koOlf9tf8A0U9fRlfOfwl/5KDpX/bX/wBFPX0ZQAUUUUAFFFFABRRRQAVyPxa/5J9qv/bL/wBGpXXVyPxa/wCSfar/ANsv/RqUAeW/Bj/kd4v+uEn8q7r46/8AIo2n/X8n/ouSuF+DH/I7xf8AXCT+Vd18df8AkUbT/r+T/wBFyUAc58Bf+Qvqv/XBf/Qq9prxb4C/8hfVf+uC/wDoVe00AFfK3iT/AJGLVf8Ar7l/9DNfVNfK3iT/AJGLVf8Ar7l/9DNAHs/xI0HTW8BT3UVnbw3NukciSRxhTklQc468E1wPwY/5HeL/AK4Sfyr1L4h/8k41D/rhH/6EteW/Bj/kd4v+uEn8qAPoCiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKp6vH5lhJ6rhhVymyp5kToejAigDj6KCMHBooA6DQE22bN3ZzWlVPSF26fF75P61coAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigDl/if/yIer/9c1/9DWvIfg9/yPll/wBc5f8A0A17V44sZNS8JarawKXleAlFHViPmA/SvnzwZrQ8PeJLTUZIzJHEWV0HUqykHHvzn8KAO8+Pn/H3o3/XOX+a1sfAf/kXdQ/6+/8A2Ra4v4q+J9P8Sz6c+mtIRArh9646lcfyrtPgP/yLuof9ff8A7ItAHpdVNY/5BF9/1wf/ANBNW6qax/yCL7/rg/8A6CaAPmfwd/yN2if9f0H/AKMWvoD4i/8AIkax/wBcD/MV8/8Ag7/kbtE/6/oP/Ri19AfEX/kSNY/64H+YoA8W+Ev/ACUHSv8Atr/6KevoyvnP4S/8lB0r/tr/AOinr6MoAKKKKACiiigAooooAK5H4tf8k+1X/tl/6NSuurkfi1/yT7Vf+2X/AKNSgDy34Mf8jvF/1wk/lXdfHX/kUbT/AK/k/wDRclcL8GP+R3i/64Sfyruvjr/yKNp/1/J/6LkoA5z4C/8AIX1X/rgv/oVe014t8Bf+Qvqv/XBf/Qq9poAK+VvEn/Ixar/19y/+hmvqmvlbxJ/yMWq/9fUv/oZoA97+If8AyTjUP+uEf/oS15b8GP8Akd4v+uEn8q3PHPxA07UvCjaXpqyvNMqI7Mu0IFIJ+ucYrN+CFlLN4qlulB8m3gbc3bLEAD+Z/CgD3aiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAOTvU8u8mX0c0VPrK7dQk98H9KKAN+yG2zgH+wP5VNTYRtiQeigU6gAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACvN/GHwvttVu5LzSJks55DueJl/dk9yMdK9IooA+dPFngLUvDemLfXMkM0JkEbeUSSuQcE5HTjH410fwN1qO3vrzSZ3C/acSw5PVgOR9SMflXrms6db6vpdzYXi7oJ0Kt6j0I9wcH8K+a9f0i/8K66YJS0csTb4Zl4DjPDKaAPqCqmsf8gi+/64P/6Ca4TwR8SrPUoktdbdLW9GAJTwkn+BrudVdX0a9ZGDKYHwQcg/KaAPmnwd/wAjdon/AF/Qf+jFr6A+Iv8AyJGsf9cD/MV8/wDg7/kbtE/6/oP/AEYtfQHxF/5EjWP+uB/mKAPFvhL/AMlB0r/tr/6KevoyvnP4S/8AJQdK/wC2v/op6+jKACiiigAooooAKKKKACuR+LX/ACT7Vf8Atl/6NSuurkfi1/yT7Vf+2X/o1KAPLfgx/wAjvF/1wk/lXdfHX/kUbT/r+T/0XJXC/Bj/AJHeL/rhJ/Ku6+Ov/Io2n/X8n/ouSgDnPgL/AMhfVf8Argv/AKFXtNeLfAX/AJC+q/8AXBf/AEKvVNe8QaboVsZtSukj9Ezl29gKAJfEGqwaJo91qF0QI4ULAZxubso9ycCvmTT7S513W4reH5rm8mxk9Mk5JPsOTW5488ZXXim7CgNDp8RzFDn/AMeb1P8AKu9+DvhF7KP+3NRjKzyrtto2HKqerH3PQe31oAx7T4Qai06/a9Qto4c/MUBZsewwK9U8M6BY+HdNWz09CFzud2+9I3qTWtRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQBg66hN4pHdB/M0VoX0PmTA/7OKKALy8KB7UUDkUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFZPiXw/YeIrA2uoxBscpIPvRn1BrWooA+e/FPw61fRZHktYzfWY5EkQ+YD/AGl7VgWWu6xpcb29veXEMbKUaInK4PbB6V9R1n3+i6ZqBLXthbTMerPGCfz60AfLdlcy2V7BdW52zQSLKhx0ZTkfqK6LVPHevapp81ld3QaCYbXAQDIr3A+CfDZOf7Htf++TSr4K8NqwZdHtMjp8tAHlvwV0S4uPEP8AarRlbW0RgrkfedgVwPwJr3Oo7eCK2hWG3iSKJRhURQAPwqSgAooooAKKKKACiiigArE8a6VJrfhbUdPhx50sYKZOMspDAfiQBW3RQB8saZqGoeHNWM9sWt7yLcjBl5GeCCDV3xB4u1fX7JLXUp1khSQSgBAPmAI/kTX0Nqfh7SNUl8zUNOtp5O7snJ/GqP8AwhHhr/oD2v8A3yaAPnbSdY1DSTMdNuXtzMoVynUip7HTNX8Q3f8Ao8FzeTN1c5b8STX0Pb+EfD9u26LSLQH3TP8AOtqCGKCMRwRpFGOiooUD8BQB5v4I+GUGmvHe66UubpcMsA5jQ+/94/p9a9LoooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAI5Vy34UU9mANFAAhyin2pajtTutoj6oD+lSUAFFFFABRXmvxI07xfd69FJ4be9WyFuqsIboRLv3NnjcOcY5rlf7E+JX/AD11T/wYL/8AF0Ae6UV4X/YnxK/566p/4MF/+Lo/sT4lf89dU/8ABgv/AMXQB7pRXhf9ifEr/nrqn/gwX/4uj+xPiV/z11T/AMGC/wDxdAHulFeF/wBifEr/AJ66p/4MF/8Ai6P7E+JX/PXVP/Bgv/xdAHulFeF/2J8Sv+euqf8AgwX/AOLo/sT4lf8APXVP/Bgv/wAXQB7pRXhf9ifEr/nrqn/gwX/4uj+xPiV/z11T/wAGC/8AxdAHulFeF/2J8Sv+euqf+DBf/i6P7E+JX/PXVP8AwYL/APF0Ae6UV4X/AGJ8Sv8Anrqn/gwX/wCLo/sT4lf89dU/8GC//F0Ae6UV4X/YnxK/566p/wCDBf8A4uj+xPiV/wA9dU/8GC//ABdAHulFeF/2J8Sv+euqf+DBf/i6P7E+JX/PXVP/AAYL/wDF0Ae6UV4X/YnxK/566p/4MF/+Lo/sT4lf89dU/wDBgv8A8XQB7pRXhf8AYnxK/wCeuqf+DBf/AIuj+xPiV/z11T/wYL/8XQB7pRXhf9ifEr/nrqn/AIMF/wDi6P7E+JX/AD11T/wYL/8AF0Ae6UV4X/YnxK/566p/4MF/+Lo/sT4lf89dU/8ABgv/AMXQB7pRXhf9ifEr/nrqn/gwX/4uj+xPiV/z11T/AMGC/wDxdAHulFeF/wBifEr/AJ66p/4MF/8Ai6P7E+JX/PXVP/Bgv/xdAHulFeF/2J8Sv+euqf8AgwX/AOLo/sT4lf8APXVP/Bgv/wAXQB7pRXhf9ifEr/nrqn/gwX/4uj+xPiV/z11T/wAGC/8AxdAHulFeF/2J8Sv+euqf+DBf/i6P7E+JX/PXVP8AwYL/APF0Ae6UV4X/AGJ8Sv8Anrqn/gwX/wCLo/sT4lf89dU/8GC//F0Ae6UV4X/YnxK/566p/wCDBf8A4uj+xPiV/wA9dU/8GC//ABdAHulFeF/2J8Sv+euqf+DBf/i6P7E+JX/PXVP/AAYL/wDF0Ae6UV4X/YnxK/566p/4MF/+Lo/sT4lf89dU/wDBgv8A8XQB7pRXhf8AYnxK/wCeuqf+DBf/AIuj+xPiV/z11T/wYL/8XQB7pRXhf9ifEr/nrqn/AIMF/wDi6P7E+JX/AD11T/wYL/8AF0Ae6UV4X/YnxK/566p/4MF/+Lo/sT4lf89dU/8ABgv/AMXQB7pRXhf9ifEr/nrqn/gwX/4uj+xPiV/z11T/AMGC/wDxdAHulFZ/h6O6i0HTo9RLm9W3jWYu25t+0bsnuc55rQoAKKKKAK9w+1wM9qKoavN5dyoz/AD+pooAvaa26xgP+yB+XFWaoaI27T1H90kf1/rV+gAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigDnddbN+R/dUD+tFQ6o2/UJj74/LiigDR8PPmKZPQhvz/8A1Vr1z+gybbxkP8a/qP8AJroKACiiigArym5+MEcNzLENFZgjlc/acZwcdNlerV5jrPwr0lLa+vFvb7eqPMFLJjOCcfdoApf8LlT/AKAbf+BX/wBhW14Q+JKeItdh00aW1uZVYiTz9+MKT02j0rxfw3YR6pr9hYzM6R3EyxsydQCe2a908MfDrTfD2sRaja3V5LNGGCrIV28gjsPegCn4v+JKeHddn006W1wYlUmTz9mdyg9Np9a7Hw/qY1jRbPUFiMQuIw+wnO32z3rwj4v/API+3/8AuRf+i1r2X4df8iRo/wD1wH8zQBx4+LkZ1EWv9jPt83y9/wBpHrjONv8AWuw8c+Jl8K6VFetam68yYQhBJsxlWOc4P92vnZf+Q+P+vn/2evZPjt/yKll/1+r/AOi3oAy/+Fyp/wBANv8AwK/+wo/4XKn/AEA2/wDAr/7CuW+GnhC08VtqIvLieH7MI9vlY53bs5yD/druP+FP6T/0EL//AMc/woA7Lwfrq+JNCi1Fbc2+9mXyy+7GDjrgVtVleF9Dg8O6PFp1rJLJEjM26TGSSc9hWrQAVz3jfxNH4V0lL2S3Ny0koiWMPsySCc5wewroa8d+PV9m60qwU/cR52H1IUf+gtQBqaL8WIdR1ezspNJaBbiVYvM+0btpY4BxtHc16dXyWvnWk8MuCjjbKh/UGvq2wuUvbG2uo/uTxrKv0YAj+dAHP+O/FqeE7S1maza6M7lAok2YwM5zg03wH4vTxbb3ci2bWrW7KpBk37sg98D0rlfj3/yDNJ/67P8A+gio/gH/AMees/8AXSL+TUAbvjf4gp4X1dLA6c10zRCUv52wDJIxjafSt3SvESah4Q/t4W7Rp5EkxhLZPybsjOP9n0ryP43/API5R/8AXon/AKE1d14S/wCSNn/ryuv5yUAYf/C5U/6Abf8AgV/9hTk+MkRYb9EcL3IuQT/6DXmfhXTYtY8Q2Gnzu6RXEmxmTGQMds12vxA+Htl4c0H+0LK8uZGWRUZJtpBB9MAUAeseF/EVj4l077XpzNhTtkjcYaNvQ/41yfiv4mJoGv3Wmf2U1wYNuZPP2ZyobptPrXN/AWVhq2qxA/I0CsR7hsD+Zrmviv8A8j/qv1j/APRSUAe/6LqC6no1nqGzyluIVl2k525GcZrgtY+Lem2l08On2U16iHHmlxGrfTgnH4VprK0PwdDocN/ZWM/VMf1rxrwRosXiHxLaadcSvFDLuLMmN2FUnjP0oA9Fi+MkBcCXRZFTuVuAx/LaK9F8Oa5ZeIdMS+05y0RO1lYYZGHUEevNeQfEfwDp/hrRYr7T7m6kYzCJknKnggnIwB6Vq/AKVsa3ET8g8lgPQ/OP8KANPxD8U00fW7zT/wCyWm+zyGPzPtG3dj22ms7/AIXKn/QDb/wK/wDsK4H4hf8AI7az/wBfDV31n8K9NuvD8F6t9eJcS2yzYO0qGKg9MZx+NAHV+DvH2m+Jrk2iRyWt7gssUhBDgddpHX6V0Gv6xZ6Fpkl9qMhSBMDAGWYnoAO5r5w8DyNF4x0VkJBN3EvHoWAP6GvSfj5KwsNHiB+RpJGI9wFA/maAEm+MluHIh0aV07F7gKfyCmrWlfF7Tri5SPULCazjY4MquJAvuRgHH0zXJ/DTwPY+KLG8udQuLmMRSCNVgKjtkkkg+tYXxA8Pw+GvELWNrNJLCY1kUyY3DOeDjA7UAfSqOsiK8bBkYZDA5BHrXnWv/FbTNOvZbaxtJb4xkq0gcIhI64OCT9cVqeG7mQfCmKfd+8j06TafTarAfyFeGeFNLTWvENjp0sjRxzybWZeoGCTj8qAPTI/jJCXHmaLIq9ytyCfy2ivQfC3iKx8S6d9r05mwp2yRuMNG3of8a8s+IHw707w94dk1Gwurt5I3VWWYqwIJxxhRinfAWVhq+qxA/I0CsR7hsD+ZoA6XxZ8TE8P6/c6Z/ZbXBg25k8/ZnKhum0+tdvol+uqaRZ36xmNbmJZdhOduRnGa+f8A4r/8j/qv1j/9FJXoWra//YXwl0vyX23l3aRwQ46jK/M34D9SKAItW+LltZ6lc21rpjXUUTlFm+0bQ+OMgbTxXpOnzyXNjbzzQtBLLGrtExyUJGSpPtXz78LNA/tzxRE0ybrOzxPLkcEg/Kv4n9Aa+iaACszxFrdl4f0x77UXKxAhVVRlnY9FA9a068k+PsrBNEiB+QmZiPcbAP5mgB8vxkgDkRaLKydi1wFP5bTU1j8YbKSdVvdLngjJwXSUSY98YFcv8N/A1p4p0+6u726niEUvlKsOPQEkkg+tZfxG8LQeFtVt7e1uJZoZovMBkA3A5Ixx9KAPoi0uobyziurWQSQSoJEde4IzXmumfFqK+1S1tP7HdFnmWIP9oBI3EDONvv61sfB+Rn8B24YkhJJVX2G4n+prw/w1/wAjHpX/AF9xf+higD6W8Saquh6Hd6k8RmFuu7yw2N3IHXt1rlfBXxETxPrJ0/8As1rVvLaQP52/pjjG0etanxO/5ETV/wDrmv8A6GteVfBX/kdR/wBe0n9KAO08R/E86Jrd3p02iu7QPt3m427h1DY2nqCDXfaRqEOq6Xa31sf3VxGJFB6jI6H3HSvK/jrou2Sy1mFeG/0ebHryVP8A6EPwFaHwN1n7RpN1pMrfvLVvNiB/uN1A+jf+hUAdL478ZQeE4rXfbG6nuCdsYk2YUdSTg+oo8B+LW8WQXcw09rSOBlQMZd4ckEkdB04/OvG/ifrH9teMLto23QWx+zRY9F6n8Wz+le3eA9F/sHwtZWbLtnK+bN/vtyR+HA/CgDoKKKKACiioL6TyrOZ/RTj60ActK/mSu/8AeYmim0UAT2MnlXkL9gwz9K6uuNrrLOXzrWKTuVGfr3oAmooooAKpa5/yBdQ/695P/QTV2qWuf8gXUP8Ar3k/9BNAHzf4E/5HPRf+vqP+dfTtfMXgT/kc9F/6+o/519O0AfPHxf8A+R9v/wDci/8ARa13/gvx14c07wtptne6j5dxDEFdPIkOD9QuK4D4v/8AI+3/APuRf+i1qTRvhprWraXbX9tPYLDOm9Q8jBgPfCmgDloXWTW0dDlWuAQfbdXsvx2/5FSy/wCv1f8A0W9eL2cZi1aCNsbknVTj2avaPjt/yKll/wBfq/8Aot6AOQ+EPiTSvDzaqdXuvs/niLy/3bvu278/dB9RXptp8QPDN5dw21vqW6aZxGimCQZYnAGSuOteH+EfCWoeKTdDTpLZPs23f5zFc7s4xgH+6a6/RPhbrllrNhdT3Gn+VBcRyvtkcnCsCcfL14oA9qooooAK+dfizffbfHF8AcpbhYF/Ac/+PE19EyOscbO5AVQSSewr5gsg2v8AjGHzBk316C2fR3yf0NAG78T9I/sp9BAXbu06ONvd0+8f1Fer/Cy++3eB9OJOXhDQN7bSQP8Ax3Fc58eLPzNE028AyYZzGfYOuf8A2QVF8Bb7fp2qWBP+qlWZR/vDB/8AQR+dAC/Hv/kGaT/12f8A9BFR/AP/AI89Z/66RfyapPj3/wAgzSf+uz/+gio/gH/x56z/ANdIv5NQBzvxv/5HKP8A69E/9Cau68Jf8kbP/Xldfzkrhfjf/wAjlH/16J/6E1d14S/5I2f+vK6/nJQB5P8ADn/kd9H/AOu4/ka9e+M//Ijzf9d4/wCdeQ/Dn/kd9H/67j+Rr174z/8AIjzf9d4/50AcZ8Bv+Q7qX/XsP/QhXPfFf/kf9V+sf/opK6H4Df8AId1L/r2H/oQrnviv/wAj/qv1j/8ARSUAepSf8kZH/YLH/oNeZ/CD/kfbD/cl/wDRbV6ZJ/yRkf8AYLH/AKDXmfwg/wCR9sP9yX/0W1AHo3xw/wCROi/6+0/9BesD4A/67W/92H/2et/44f8AInRf9faf+gvWB8Af9drf+7D/AOz0AcN8Qv8AkdtZ/wCvhq9X0/4g+G7Xwxa2735a5is0jMSwSZLBAMZ246++K8o+IX/I7az/ANfDVrxfDLXZtKjv4pLF43hE6oJG3kFcgfdxn8aAMLwQjSeMdFCKWIvImwPQMCf0FejfH3/j30X/AH5v5JXE/DLVpNL8XWCpFE6XUq27b0BZQxxlW6jr26123x9/499F/wB+b+SUAXPgP/yANR/6+R/6AK5H42/8joP+vWP+bV13wH/5AGo/9fI/9AFcj8bf+R0H/XrH/NqAPQvDn/JIB/2Dp/5PXkvwz/5HrSP+up/9BNeteHP+SQD/ALB0/wDJ68l+Gf8AyPWkf9dT/wCgmgD174xf8iJd/wDXSL/0MVxHwG/5Dupf9ew/9CFdv8Yv+REu/wDrpF/6GK4j4Df8h3Uv+vYf+hCgDnviv/yP+q/WP/0UlZPiDWpNVi02DkW9japbxqfUAbj+J/QCtb4r/wDI/wCq/WP/ANFJXLPDKkMczxsIpCQjEcMRjOPpkUAfRHwv0D+wvC8PnJtvLrE82eoyPlX8B+pNddXL/DfXf7e8K2s0j7rqD9xPnqWXofxGD+JrqKACvIfj99/QvpP/AO069eryH4/ff0L6T/8AtOgDT+BH/Iuah/19n/0Ba6LxHo3hnxDcRTarNBJLEpRSt1t4znHBrmPgkrP4S1ZEGWa4YAe/lrXkWq6Tf6RKkWpWsttI43KsgwSPWgD6Z0DTdP0nSFtdHA+yAswIk35J685r5r8Nf8jHpX/X3F/6GK9t+Dn/ACIkf/XaX+deJeGv+Rj0r/r7i/8AQxQB9AfE7/kRNX/65r/6GteVfBX/AJHUf9e0n9K9V+J3/Iiav/1zX/0Na8q+Cv8AyOo/69pP6UAe0eKtJTXPD97p74zNGdhP8LjlT+YFfOOgaxeeGtWkuLcFLhY5IGVuMEgjn6Ng/hX1HXz18X9Mj03xnM0OAl3Gt1tHYkkN+ZUn8aAK/wAMNFOt+LrYSrut7b/SZc99p4H4tj8M19G1518ENMjtvDM1/wAGa8lIJ9FTgD89x/GvRaACiiigArN16TbZhB1dv0H+RWlWBr8u66WMdEX9T/kUAZlFFFABW9oEu63eI9UOR9DWDV3R5vJvkyflf5T/AE/WgDpaKKKACqWuf8gXUP8Ar3k/9BNXaqawjS6TexxqWd4HVVHUkqcCgD5t8Cf8jnov/X1H/Ovp2vnbwV4e1q38W6TLPpGoRRR3KM7yWzqqgHkkkYFfRNAHzx8X/wDkfb//AHIv/Ra17L8Ov+RI0f8A64D+Zryv4p6Fq1741vZ7PS764gdI9skNu7qcIAeQPUV6z4Et5rXwfpUFzE8MyQANG67WU+hB6UAfOK/8h8f9fP8A7PXsnx2/5FSy/wCv1f8A0W9eZL4a13+3Q39jajs+053fZn243dc4xj3r1b4z6feaj4ZtY9PtZ7qRbtWKQxl2A2OM4HbkUAc98AmAfXMkDiDr/wBtK9e3r/eX86+Xf+EY17/oCap/4CSf4Uf8Ixr3/QE1T/wEk/woA+owQRkciiuQ+FNndWPgy1gvoJreYSSHy5UKsAWOODzXX0Ac/wDEC+/s/wAGatODhjAY1Pu/yj/0KvnPR9Lv9WujBpdvJPOimQrH1CggZ/UV7h8Y4b+78NQWmm2dzdNLcAyCCJnIVQTyAPXH5Vi/BPQr7T7nVLvUbK5tWKJFGJ4mQsCSWxkey0Aee3vhPxJb2ks93p10tvEpd2YghQBknrW58Fb77L4yEBPy3cDx49xhh/6Cfzr3W/tlvLG5tn+5NG0Z+hBH9a+evC2ia/pfijTbltG1ILDcpvb7M+NucNzjGMZ5oA7n49/8gzSf+uz/APoIqD4CTRrBrEbSKJC0TBSeSMNzXX/Erw1L4l8PiC0Ki8gkEsQY4DcEFc9sg/mBXhc/hLxDBIUfRdRJH9y3Zx+YBFAHRfGuWOXxmBG6vstkVtpzg5Y4P4EV33hL/kjZ/wCvK5/nJXk2m+CfEV/cJEmk3UO44L3EZiVfclq93OjnTPAk+k226Z47GSJcDl2KHoPcmgDwn4dHHjfRyf8AnuP5GvWvjRNEPBboZE3vPGFXPJwSeK8Z/wCEY17/AKAmqf8AgJJ/hTo/CviB2CrompAn+9bOB+ZFAHa/Ab/kO6l/17D/ANCFc98V/wDkf9V+sf8A6KSvTvhN4SuvD1ndXWpqI7u62gRAg+Wg9SO5J6ewrg/iboOr3fjfUp7TSr+eB/LKyRW7urYjUcEDHUGgD0CT/kjI/wCwWP8A0CvMPhI6R+PdO3sFBEijJxkmNsCvaNB0xrjwFZ6ZfJJC0tgIJVYYZMpg8HoRmvDtY8C+IdMuni/s24uUU/LLbIZFYevHI/GgD1D44ui+EYELAO12mFzycK2awvgD/rtb/wB2H/2evP4/C3iGZwo0XUs+r27qPzIr2v4WeFrjw1pE7X+1b27YM6KQQiqDgZ9eT+dAHjfxC/5HbWf+vhq9+0ieKHwbYySyIiLYRlmZsADyxXivjvw9rNx4v1Wa30nUJoXnLLJHbOysPUEDBrB/4RjX/wDoCap/4CSf4UAO8F/8jfon/X7D/wChivSPj7/x76L/AL838krM+GvgTUxr1tqWrWz2ltat5irJw7uOnHUAHnJ9K7z4neGJvEuhxpZFftts/mRqxwHBGCue3b8qAMD4DOh0TUoww3i4DFc84Kjn9DXIfGqRH8akIwYpbxq2D0PJx+ornpfCniGCQq2i6luHdLd2H5gYqzpfgjxFqNykS6XcwBjzJcxmJV9zn+lAHrvhz/kkA/7B038nryP4bukfjjSGkYKvm4yTjkqQP1r6E03SYbLQINJyXhjgEBboWGME/jzXgWv+Ade0u9liisLi8twT5c1uhfcvbIHIPtQB6t8ZJETwNcKzAM8sYUE9Tuzx+ANcX8Bv+Q7qX/XsP/QhXFp4X8QysFGi6nn/AGrZwPzIr2H4TeErrw9Z3V1qaiO7utoEQIPloPUjuSensKAPMfiv/wAj/qv1j/8ARSV22veH49Q+EGlTWsQE9lbrcjaOoIzJ+ed34VzfxN0DWLvxvqVxaaVfTwSeWVkit3dTiNQeQPUGvYfCNq8PhHSrW8hKOtoiSRSDBHy8gj+lAHjvwb13+zPEv2GZsW9+BHz0Eg+6fx5H4ivfK+cde8H61pPiG5j07Tr+aGGXfbzQwO425ypyB1HH4ivf9Bu577RrO5vLeS2uZIgZYpFKsrd+D05oAv15D8fvv6F9J/8A2nXr1cV8UvC1x4l0eA2G03tq5ZEYgB1I5Gex4H5UAYvwImiGg6jEZEEgudxXPOCgwf0Nc/8AHWWOTxBYIjqzJbfMAc4yx61x0vhTxBE5VtE1Ikf3bZ2H5gVLY+DfEV5OsUej3sZY43TRGNR9S2KAPYPg3/yIkf8A12l/nXh/h6RItf0ySRgqJdRMzE4AAcZNfSXg7RR4f8O2enbw8kalpGHQuTk49snA9hXivi74f6zpuq3BsLKa8sXctE8C7yFJ6EDnI+lAHq/xQuIV8CapmVBvRQvzD5jvXpXl3wU/5HUf9e0n9K5pfC+vswA0TU8n1tXH9K9V+Efg6+0We41TVo/Imkj8qKEkFgpIJLeh4GB9aAPTa8K+Ov8AyN1p/wBeKf8AoySvda8a+M+japqHie1nsNOvLqEWaoXghZwGDucHA9xQB2Hwd/5ESz/66S/+hmu1rkfhXZ3Nh4LtIL23lt5g8hMcqlWALHGQeRXXUAFFFFAATgZPSuSupfOuZJP7zZH0rodWm8mxkwfmb5R+NczQAUUUUAFAJBBHBFFFAHW2kwnto5B/EOfr3qWsbQLj78DH/aX+tbNABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRTJpFiieR/uqMmgDE16ffcLEDwgyfqay6dLIZZXkb7zHJptABRRRQAUUUUASW0pgnSReqnNdbG6yIrqcqwyDXHVuaDc7o2gY8ryv0oA1qKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKydfuNsawKeW+Zvp2rUkdY42dzhVGTXJ3MzTzvI3Vj+QoAjooooAKKKKACiiigAqS3maCZJE6qc/Wo6KAOvhkWaJZEOVYZFPrD0O72ubdz8rcr9fStygAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKiup1t4Gkft0HqfSgDM166wBboeTy/9BWLTpZGlkZ3OWY5NNoAKKKKACiiigAooooAKKKKAAEqQQcEcg11GnXQurcMT+8Xhh71y9WLG5a1nDjlejD1FAHVUU2N1kRXQ5VhkGnUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFc5q939on2If3SdPc+taGtXnlR+TGf3jjk+grAoAKKKKACiiigAooooAKKKKACiiigAooooA0tHvfIfyZT+6Y8E/wAJroK42tzR7/eBBMfmHCMe/tQBrUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABVa/ultIC55c8KvqaluJkt4mkkOFH61zF5cvdTGR+B0A9BQBFI7SSM7nLMck02iigAooooAKKKKACiiigAooooAKKKKACiiigAoBIIIOCKKKAOh0rUBcKIpTiUdD/AHv/AK9aNccpKsCpII5BFdBpeoC4AjlIEw/8eoA0aKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKbLIkUbPIQqjqaJZEhjLyMFUdTXNajevdyd1iH3V/qaAE1C8a7lz0jX7q/1qrRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABQCQQQcEdCKKKAN7TNTEuIrggSdA3Zv8A69alcbWvpuqFMRXJJXoH9PrQBt0UKQwBUgg9CKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACo7ieO3jLytgD8zUV7ex2iZc5c9FHU1zl3cyXUu+Q/QDoKAJL+9e7kyfljH3VqrRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFAFyw1CS1O378XdT2+ldDbXMVzHuibPqO4rkqfDK8MgeJirDuKAOvorLsdWSXCXGEf+92P+Fag5HFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRUNzcxWybpWx6DuaAJqy7/VViylvh37t2H+NZ99qUtzlV+SL0HU/WqNADpHaRy7sWY9SabRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFW7O/mtcBTuj/ut/SqlFAHT2moQXOAG2P/AHW/pVuuNq9aanPBgMfMT0br+dAHSUVTtdRt7jADbH/utxVygAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiimSyxwrulcKvqTQA+mySJEhaRgqjuTWVdayoytsuT/AHm6flWRPNJO+6Vyx9+1AGreax1W1H/AyP5CsiR2kctIxZj3NNooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAq1bX9xb4CPlR/C3IqrRQBu2+sxNgToUPqORWjDPFMMxSK30NcjQCVIKkgjuKAOyormYdSuov+Wm8ej81eh1odJoiPdT/AEoA2KKpxalayf8ALUKfRhirSSI4yjqw9jmgB1FFFABRRRQAUUUUAFFFFABRRRQAUUVDJd28X35kHtnJoAmorOl1i3T7gdz7DA/WqM2sztxEqxj8zQBvk4GT0qnPqVtDkGTe3onNc9NcTTf62Rm9iePyqKgDUuNYlfIhURj1PJrNkkeVt0jMzepNNooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACgEg5HBoooAmS7uE+7NIB6bqnTVLtf+WmfqooooAni1e4LAFYj+B/xrRt7p5Blgv4CiigCyrk+lPY4oooAieVgDgCs651KaLO1Y/wAQf8aKKAKj6vdN0KL9F/xqF9Qun6zN+HH8qKKAK7yySf6x2b6nNNoooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAP/9k=" alt="The Audiobook Guy" style="height:40px;width:40px;border-radius:50%;object-fit:cover;flex-shrink:0;">
   <div class="header-text">
     <h1>Audio Recorder</h1>
-    <p>Quick Voice Recording &amp; MP3 Capture Tool</p>
+    <p>Quick Voice Recording · 24-bit WAV Capture · MP3 Export</p>
   </div>
 </header>
 
@@ -348,7 +367,7 @@
   <div class="rec-card">
 
     <div id="no-support">
-      This browser doesn't support in-browser audio recording. Please use a recent version of Chrome, Edge, or Firefox.
+      This browser doesn't support in-browser audio recording. Please use a recent version of Chrome, Edge, Firefox or Safari.
     </div>
 
     <div class="rec-btn-wrap">
@@ -363,6 +382,18 @@
 
     <div id="timer">00:00</div>
     <div id="status-text">Tap to start recording</div>
+
+    <div id="mic-row">
+      <label class="mic-lbl" for="mic-select">
+        <svg viewBox="0 0 24 24" fill="none"><rect x="9" y="3" width="6" height="11" rx="3" stroke="currentColor" stroke-width="1.8"/><path d="M5.5 11a6.5 6.5 0 0013 0M12 17.5V21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        Mic
+      </label>
+      <select id="mic-select" aria-label="Choose your microphone">
+        <option value="">Default microphone</option>
+      </select>
+      <button class="keys-link" id="mic-names-btn" type="button" title="Allow microphone access so your microphones show by name" style="display:none;">Show mic names</button>
+    </div>
+    <div id="fmt-line">Records 24-bit WAV · exports MP3</div>
 
     <div id="rec-options">
       <label class="switch-lbl" title="Play back a few seconds before the punch-in point, then start recording">
@@ -488,7 +519,7 @@
     <div id="keys-overlay" class="modal-overlay">
       <div id="keys-modal" role="dialog" aria-labelledby="keys-title">
         <div class="folder-modal-title" id="keys-title">Keyboard shortcuts</div>
-        <div class="folder-modal-hint">Keys for recording and editing. Press <kbd>?</kbd> any time to open this list.</div>
+        <div class="folder-modal-hint">Keys for recording and editing. Press <kbd>?</kbd> any time to open or close this list.</div>
         <div id="keys-list"></div>
         <p class="keys-note">Shortcuts don't fire while you're typing in a text box. If your browser keeps one for itself (some browsers reserve <span class="mod-name">Ctrl</span> + R or <span class="mod-name">Ctrl</span> + [ ), use the alternative — Shift + Space always records.</p>
         <button id="keys-close" class="btn-secondary" style="width:100%; margin-top:16px;">Done</button>
@@ -505,13 +536,22 @@
 
     <h3>The basics</h3>
     <ol>
-      <li><b>Hit Record</b> — it starts capturing from your microphone. Already have a file? Click <b>Open an MP3 to edit</b>, or drag and drop it onto the recorder — it opens in the editor just like a recording, and you can punch in on it too. Once there's audio in the editor, a new file is <b>added after it</b> instead (see Adding more audio below).</li>
+      <li><b>Choose your microphone</b> from the <b>Mic</b> list under the timer — handy if you have a USB mic or audio interface as well as your computer's built-in mic. If the list only says "Default microphone", click <b>Show mic names</b> and allow access, and every connected mic appears by name. Your choice is remembered next time.</li>
+      <li><b>Hit Record</b> — it starts capturing from your chosen microphone. Already have a file? Click <b>Open an MP3 to edit</b>, or drag and drop it onto the recorder — it opens in the editor just like a recording, and you can punch in on it too. Once there's audio in the editor, a new file is <b>added after it</b> instead (see Adding more audio below).</li>
       <li><b>Hit it again to stop</b> — your recording appears as a waveform, ready to edit.</li>
       <li><b>Edit it</b> (see below), press <b>▶</b> or the <b>Space bar</b> to listen back.</li>
       <li><b>Download MP3</b> saves your edited version straight to your computer.</li>
       <li><b>Open in DAW</b> carries your edited recording into The Audiobook Guy DAW in a new tab, ready to start a full project with tracks, punch-in modes and WAV, MP3 or FLAC export.</li>
       <li>Want to start over completely? <b>Clear Recording</b> (just under the Record button) clears everything and gives you a clean slate — nothing records until you hit Record again.</li>
     </ol>
+
+    <h3>Recording quality</h3>
+    <ul>
+      <li>Everything you record is captured as <b>uncompressed 24-bit WAV</b>, straight from your microphone — no compression, auto-gain or noise suppression added along the way. The sample rate is shown under the Mic list once you've recorded.</li>
+      <li>All your editing happens on that full-quality audio, and it's only turned into an MP3 at the very end, when you download or upload it — so every punch-in and edit stays clean.</li>
+      <li><b>Open in DAW</b> hands over the full-quality 24-bit WAV, so nothing is lost if you want to carry on there.</li>
+      <li>Using an audio interface with your mic plugged into just one input? That's fine — the recorder picks up the channel your voice is on, so it won't come out quieter.</li>
+    </ul>
 
     <h3>Punch &amp; roll</h3>
     <p>Once you have a recording, the Record button <b>punches in</b>.</p>
@@ -579,7 +619,7 @@
 
 <script>
 // ── BROWSER SUPPORT CHECK ─────────────────────────────────
-const hasSupport = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder);
+const hasSupport = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && (window.AudioContext || window.webkitAudioContext));
 if (!hasSupport) {
   document.getElementById('no-support').classList.add('on');
   document.getElementById('rec-btn').disabled = true;
@@ -591,13 +631,12 @@ const ALT_KEY = IS_MAC ? 'Opt' : 'Alt';
 
 // ── STATE ──────────────────────────────────────────────────
 let stream = null;
-let mediaRecorder = null;
-let chunks = [];
 let isRecording = false;
 let recStarting = false;
+let recFinishing = false;
 let timerId = null;
-let recordedBlob = null;     // the first (fresh) take, kept as a fallback for export
-let audioCtx = null;
+let recordedBlob = null;     // the first (fresh) take as a 24-bit WAV (or the opened file), kept as a fallback for export
+let audioCtx = null;         // capture + meter engine (lives only while recording)
 let analyser = null;
 let meterRAF = null;
 let rec = null;              // details of the take in progress (fresh or punch-in)
@@ -609,6 +648,9 @@ const recIcon       = document.getElementById('rec-icon');
 const pulseRing     = document.getElementById('pulse-ring');
 const timerEl       = document.getElementById('timer');
 const statusEl      = document.getElementById('status-text');
+const micSelect     = document.getElementById('mic-select');
+const micNamesBtn   = document.getElementById('mic-names-btn');
+const fmtLine       = document.getElementById('fmt-line');
 const recOptions    = document.getElementById('rec-options');
 const prerollToggle = document.getElementById('preroll-toggle');
 const prerollSecs   = document.getElementById('preroll-secs');
@@ -705,6 +747,256 @@ prerollSecs.addEventListener('change', () => {
 });
 
 // ═══════════════════════════════════════════════════════════
+// MICROPHONE PICKER
+// ═══════════════════════════════════════════════════════════
+// Browsers only reveal microphone names once the page has been allowed to
+// use the mic. Until then the list just shows "Default microphone" and a
+// "Show mic names" link that asks for access. The choice is remembered.
+const MIC_KEY = 'audiobookguy.audioRecorder.mic.v1';
+let micId = '';
+try { micId = localStorage.getItem(MIC_KEY) || ''; } catch (e) { /* fine */ }
+
+async function refreshMics() {
+  const md = navigator.mediaDevices;
+  if (!md || !md.enumerateDevices) { document.getElementById('mic-row').style.display = 'none'; return; }
+  let devs = [];
+  try { devs = (await md.enumerateDevices()).filter(d => d.kind === 'audioinput'); } catch (e) { devs = []; }
+  const named = devs.some(d => d.label);
+  const real = devs.filter(d => d.deviceId && d.deviceId !== 'default' && d.deviceId !== 'communications');
+  const def = devs.find(d => d.deviceId === 'default');
+
+  micSelect.innerHTML = '';
+  const optDef = document.createElement('option');
+  optDef.value = '';
+  optDef.textContent = (def && def.label) ? def.label.replace(/^Default\s*-\s*/i, 'Default — ') : 'Default microphone';
+  micSelect.appendChild(optDef);
+  real.forEach((d, i) => {
+    const o = document.createElement('option');
+    o.value = d.deviceId;
+    o.textContent = d.label || `Microphone ${i + 1}`;
+    micSelect.appendChild(o);
+  });
+
+  if (micId && named && !real.some(d => d.deviceId === micId)) {
+    // the remembered mic isn't plugged in right now — keep the choice, show it as missing
+    const o = document.createElement('option');
+    o.value = micId;
+    o.textContent = 'Saved mic (not connected) — default will be used';
+    micSelect.appendChild(o);
+  }
+  micSelect.value = micId;
+  if (micSelect.value !== micId) micSelect.value = '';
+  micNamesBtn.style.display = named ? 'none' : '';
+}
+
+micSelect.addEventListener('change', () => {
+  micId = micSelect.value;
+  try { localStorage.setItem(MIC_KEY, micId); } catch (e) { /* fine */ }
+  micSelect.blur();
+  if (!isRecording) statusEl.textContent = hasAudio() ? 'Microphone changed — ready to punch in' : 'Microphone changed — tap to start recording';
+});
+
+micNamesBtn.addEventListener('click', async () => {
+  try {
+    const s = await navigator.mediaDevices.getUserMedia({ audio: true });
+    s.getTracks().forEach(t => t.stop());
+  } catch (e) {
+    statusEl.textContent = 'Microphone access denied — check browser permissions.';
+    return;
+  }
+  await refreshMics();
+});
+
+if (navigator.mediaDevices && navigator.mediaDevices.addEventListener) {
+  navigator.mediaDevices.addEventListener('devicechange', () => { if (!isRecording) refreshMics(); });
+}
+refreshMics();
+
+function micConstraints(id) {
+  const c = { echoCancellation: false, noiseSuppression: false, autoGainControl: false };
+  if (id) c.deviceId = { exact: id };
+  return c;
+}
+
+async function openMic() {
+  // Processing off: auto-gain / noise suppression would make punch-ins
+  // sound different from the take they're joining.
+  if (micId) {
+    try { return { stream: await navigator.mediaDevices.getUserMedia({ audio: micConstraints(micId) }), fellBack: false }; }
+    catch (e) {
+      if (e && (e.name === 'NotAllowedError' || e.name === 'SecurityError')) throw e;
+      // the chosen mic isn't available — carry on with the default one
+    }
+  }
+  try { return { stream: await navigator.mediaDevices.getUserMedia({ audio: micConstraints('') }), fellBack: !!micId }; }
+  catch (e) {
+    if (e && (e.name === 'NotAllowedError' || e.name === 'SecurityError')) throw e;
+    return { stream: await navigator.mediaDevices.getUserMedia({ audio: true }), fellBack: !!micId };
+  }
+}
+
+function micLabel(s) {
+  const t = s && s.getAudioTracks()[0];
+  return (t && t.label) ? t.label : '';
+}
+
+// ═══════════════════════════════════════════════════════════
+// LOSSLESS CAPTURE — raw PCM from the mic, kept as 24-bit
+// ═══════════════════════════════════════════════════════════
+// The mic is captured sample-for-sample (no lossy codec), stored at 24-bit,
+// and everything is edited at that quality. MP3 only happens on export.
+const CAPTURE_WORKLET = `
+class TagCapture extends AudioWorkletProcessor {
+  constructor() {
+    super();
+    this.size = 2048; this.n = 0;
+    this.L = new Float32Array(this.size); this.R = new Float32Array(this.size); this.stereo = false;
+    this.port.onmessage = (e) => { if (e.data === 'flush') { this.send(); this.port.postMessage('flushed'); } };
+  }
+  send() {
+    if (!this.n) return;
+    const l = this.L.slice(0, this.n), r = this.stereo ? this.R.slice(0, this.n) : null;
+    this.port.postMessage(r ? [l, r] : [l, null], r ? [l.buffer, r.buffer] : [l.buffer]);
+    this.n = 0;
+  }
+  process(inputs) {
+    const ch = inputs[0];
+    if (ch && ch.length && ch[0]) {
+      const a = ch[0], b = ch[1];
+      if (b) this.stereo = true;
+      for (let i = 0; i < a.length; i++) {
+        this.L[this.n] = a[i];
+        this.R[this.n] = b ? b[i] : a[i];
+        if (++this.n >= this.size) this.send();
+      }
+    }
+    return true;
+  }
+}
+registerProcessor('tag-capture', TagCapture);`;
+
+let cap = null;   // { ctx, src, node, sink, L: [], R: [], frames, rate, worklet }
+
+async function startCapture(ctx, mediaStream, onFirst) {
+  const c = { ctx, src: null, node: null, sink: null, L: [], R: [], frames: 0, rate: ctx.sampleRate, worklet: false };
+  const onData = (l, r) => {
+    if (cap !== c) return;
+    c.L.push(l); c.R.push(r);
+    const first = c.frames === 0;
+    c.frames += l.length;
+    if (first) onFirst(l.length / c.rate);
+  };
+  c.src = ctx.createMediaStreamSource(mediaStream);
+  if (ctx.audioWorklet && window.AudioWorkletNode) {
+    try {
+      const url = URL.createObjectURL(new Blob([CAPTURE_WORKLET], { type: 'application/javascript' }));
+      await ctx.audioWorklet.addModule(url);
+      URL.revokeObjectURL(url);
+      c.node = new AudioWorkletNode(ctx, 'tag-capture', { numberOfInputs: 1, numberOfOutputs: 1, outputChannelCount: [1] });
+      c.node.port.onmessage = (e) => {
+        if (e.data === 'flushed') { if (c.onFlushed) c.onFlushed(); return; }
+        onData(e.data[0], e.data[1]);
+      };
+      c.worklet = true;
+    } catch (e) { c.node = null; }
+  }
+  if (!c.node) {
+    // older browsers
+    c.node = ctx.createScriptProcessor(4096, 2, 1);
+    c.node.onaudioprocess = (e) => {
+      const ib = e.inputBuffer;
+      const l = new Float32Array(ib.getChannelData(0));
+      const r = ib.numberOfChannels > 1 ? new Float32Array(ib.getChannelData(1)) : null;
+      onData(l, r);
+    };
+  }
+  c.sink = ctx.createGain();
+  c.sink.gain.value = 0;               // keeps the capture running without playing the mic back
+  cap = c;
+  c.src.connect(c.node);
+  c.node.connect(c.sink);
+  c.sink.connect(ctx.destination);
+}
+
+function flushCapture() {
+  const c = cap;
+  if (!c || !c.worklet) return Promise.resolve();
+  return new Promise(res => {
+    const done = () => { c.onFlushed = null; res(); };
+    c.onFlushed = done;
+    try { c.node.port.postMessage('flush'); } catch (e) { done(); }
+    setTimeout(done, 250);
+  });
+}
+
+function endCapture() {
+  const c = cap;
+  if (!c) return null;
+  cap = null;
+  try { c.src.disconnect(); } catch (e) { /* fine */ }
+  try { c.node.disconnect(); } catch (e) { /* fine */ }
+  try { c.sink.disconnect(); } catch (e) { /* fine */ }
+  if (c.node.port) c.node.port.onmessage = null;
+  if (!c.worklet) c.node.onaudioprocess = null;
+  return { mono: captureToMono(c), rate: c.rate };
+}
+
+function concatF32(list, total) {
+  const out = new Float32Array(total);
+  let o = 0;
+  for (const a of list) { out.set(a, o); o += a.length; }
+  return out;
+}
+
+// Interfaces often send a mic on one input as a stereo pair with the other
+// side silent — averaging would make it 6 dB quieter, so use the live side.
+function captureToMono(c) {
+  const L = concatF32(c.L, c.frames);
+  const hasR = c.R.length === c.L.length && c.R.every(Boolean);
+  if (!hasR) return quantize24(L);
+  const R = concatF32(c.R, c.frames);
+  let eL = 0, eR = 0;
+  for (let i = 0; i < L.length; i += 4) { eL += L[i] * L[i]; eR += R[i] * R[i]; }
+  if (eR < eL * 0.01) return quantize24(L);
+  if (eL < eR * 0.01) return quantize24(R);
+  const out = new Float32Array(L.length);
+  for (let i = 0; i < L.length; i++) out[i] = (L[i] + R[i]) / 2;
+  return quantize24(out);
+}
+
+// Rounds every sample onto the 24-bit grid, so the take is exactly a 24-bit recording.
+function quantize24(a) {
+  const M = 8388607;
+  for (let i = 0; i < a.length; i++) {
+    const v = a[i] > 1 ? 1 : (a[i] < -1 ? -1 : a[i]);
+    a[i] = Math.round(v * M) / M;
+  }
+  return a;
+}
+
+async function resampleMono(mono, from, to) {
+  if (from === to || !mono.length) return mono;
+  const OAC = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+  const off = new OAC(1, Math.max(1, Math.ceil(mono.length * to / from)), to);
+  const b = off.createBuffer(1, mono.length, from);
+  b.getChannelData(0).set(mono);
+  const s = off.createBufferSource();
+  s.buffer = b;
+  s.connect(off.destination);
+  s.start();
+  const out = await off.startRendering();
+  return quantize24(new Float32Array(out.getChannelData(0)));
+}
+
+function updateFmtLine() {
+  if (hasAudio() && sources.length) {
+    fmtLine.textContent = `Records 24-bit WAV · ${(srcRate / 1000).toFixed(srcRate % 1000 ? 1 : 0)} kHz · exports MP3`;
+  } else {
+    fmtLine.textContent = 'Records 24-bit WAV · exports MP3';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
 // RECORDING — fresh takes and punch & roll
 // ═══════════════════════════════════════════════════════════
 // With nothing recorded, Record makes a fresh take. Once there's audio,
@@ -717,6 +1009,7 @@ prerollSecs.addEventListener('change', () => {
 recBtn.addEventListener('click', toggleRecord);
 
 function toggleRecord() {
+  if (recStarting || recFinishing) return;
   if (isRecording) stopRecording();
   else beginRecording(hasAudio() ? 'punch' : 'fresh');
 }
@@ -726,7 +1019,7 @@ function punchPoint() {
 }
 
 async function beginRecording(mode) {
-  if (isRecording || recStarting || !hasSupport) return;
+  if (isRecording || recStarting || recFinishing || !hasSupport) return;
   recStarting = true;
   stopPlayback(false);
   // iOS only lets audio start inside the tap itself, so wake everything now,
@@ -734,24 +1027,24 @@ async function beginRecording(mode) {
   if (IS_IOS) { setAudioSession('auto'); iosCaptureUsed = true; }
   if (mode === 'punch') ensurePlayCtx();
   const AC0 = window.AudioContext || window.webkitAudioContext;
-  try { audioCtx = new AC0(); audioCtx.resume().catch(() => {}); } catch (e) { audioCtx = null; }
-
-  try {
-    // Processing off: auto-gain / noise suppression would make punch-ins
-    // sound different from the take they're joining.
-    stream = await navigator.mediaDevices.getUserMedia({
-      audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false }
-    });
-  } catch (e) {
-    try {
-      stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    } catch (e2) {
-      statusEl.textContent = 'Microphone access denied — check browser permissions.';
-      if (audioCtx) { audioCtx.close().catch(() => {}); audioCtx = null; }
-      recStarting = false;
-      return;
-    }
+  try { audioCtx = new AC0({ latencyHint: 'interactive' }); audioCtx.resume().catch(() => {}); } catch (e) { audioCtx = null; }
+  if (!audioCtx) {
+    statusEl.textContent = 'Couldn\'t start the audio engine — please reload the page.';
+    recStarting = false;
+    return;
   }
+
+  let fellBack = false;
+  try {
+    const m = await openMic();
+    stream = m.stream; fellBack = m.fellBack;
+  } catch (e) {
+    statusEl.textContent = 'Microphone access denied — check browser permissions.';
+    audioCtx.close().catch(() => {}); audioCtx = null;
+    recStarting = false;
+    return;
+  }
+  refreshMics();   // names appear once access is granted
 
   const at = mode === 'punch' ? clamp(punchPoint(), 0, timelineEnd()) : 0;
   const pre = (mode === 'punch' && preroll.on) ? Math.min(preroll.secs, at) : 0;
@@ -761,30 +1054,28 @@ async function beginRecording(mode) {
     recStartPerf: null, punchPerf: null, prerollStartPerf: null,
     node: null, stopPerf: null, live: false
   };
-
-  chunks = [];
-  let mimeType = '';
-  // iPhone/iPad: record as MP4/AAC — the format Safari reliably plays back and decodes
-  const mimeChoices = IS_IOS
-    ? ['audio/mp4', 'audio/mp4;codecs=mp4a.40.2', 'audio/aac', 'audio/webm;codecs=opus', 'audio/webm']
-    : ['audio/webm;codecs=opus', 'audio/webm', 'audio/ogg;codecs=opus'];
-  for (const t of mimeChoices) {
-    if (MediaRecorder.isTypeSupported(t)) { mimeType = t; break; }
-  }
-  mediaRecorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
   const thisRec = rec;
-  mediaRecorder.ondataavailable = e => { if (e.data && e.data.size > 0) chunks.push(e.data); };
-  mediaRecorder.onstop = () => handleStop(thisRec);
-  mediaRecorder.onstart = () => {
-    if (rec !== thisRec || !isRecording) return;
-    thisRec.recStartPerf = performance.now();
-    if (thisRec.pre > 0.01) startPreroll(thisRec);
-    else { thisRec.punchPerf = thisRec.recStartPerf; thisRec.live = true; }
-  };
-  mediaRecorder.start();
+
+  try {
+    await startCapture(audioCtx, stream, (firstSecs) => {
+      if (rec !== thisRec || thisRec.stopPerf != null) return;
+      thisRec.recStartPerf = performance.now() - firstSecs * 1000;
+      if (thisRec.pre > 0.01) startPreroll(thisRec);
+      else { thisRec.punchPerf = thisRec.recStartPerf; thisRec.live = true; }
+    });
+  } catch (e) {
+    console.error(e);
+    statusEl.textContent = 'Couldn\'t start recording — please try again.';
+    stream.getTracks().forEach(t => t.stop()); stream = null;
+    audioCtx.close().catch(() => {}); audioCtx = null;
+    rec = null;
+    recStarting = false;
+    return;
+  }
 
   isRecording = true;
   recStarting = false;
+  micSelect.disabled = true;
 
   if (mode === 'fresh') {
     postRec.classList.remove('on');
@@ -806,7 +1097,10 @@ async function beginRecording(mode) {
   recBtn.title = 'Stop recording (Space)';
   recIcon.innerHTML = STOP_ICON;
   pulseRing.classList.add('on');
-  statusEl.textContent = pre > 0.01 ? 'Pre-roll…' : (mode === 'punch' ? `Punched in at ${fmtTenths(at)} — recording…` : 'Recording…');
+  const lead = fellBack ? 'Saved mic not found — using the default · ' : '';
+  statusEl.textContent = lead + (pre > 0.01 ? 'Pre-roll…' : (mode === 'punch' ? `Punched in at ${fmtTenths(at)} — recording…` : 'Recording…'));
+  const lbl = micLabel(stream);
+  fmtLine.textContent = `Recording 24-bit WAV · ${(audioCtx.sampleRate / 1000).toFixed(audioCtx.sampleRate % 1000 ? 1 : 0)} kHz` + (lbl ? ` · ${lbl}` : '');
   timerEl.textContent = '00:00';
   timerId = setInterval(updateTimer, 100);
 
@@ -827,48 +1121,63 @@ function startPreroll(r) {
   node.onended = () => { if (r.node === node) r.node = null; };
 }
 
-function stopRecording() {
+async function stopRecording() {
   if (!isRecording) return;
-  if (rec) {
-    rec.stopPerf = performance.now();
-    if (rec.node) { try { rec.node.stop(); } catch (e) { /* already ended */ } rec.node = null; }
+  const r = rec;
+  if (r) {
+    r.stopPerf = performance.now();
+    if (r.node) { try { r.node.stop(); } catch (e) { /* already ended */ } r.node = null; }
   }
-  if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
-  if (stream) stream.getTracks().forEach(t => t.stop());
-  stream = null;
-  if (IS_IOS) setAudioSession('playback');
+  isRecording = false;
+  recFinishing = true;
   clearInterval(timerId);
   if (recRAF) cancelAnimationFrame(recRAF);
   recRAF = null;
-  isRecording = false;
 
   recBtn.classList.remove('recording');
   recIcon.innerHTML = MIC_ICON;
-  updateClearBtn();
   pulseRing.classList.remove('on');
-  updateRecTitle();
+  statusEl.textContent = 'Finishing up…';
 
+  await flushCapture();
+  const got = endCapture();
+  if (stream) stream.getTracks().forEach(t => t.stop());
+  stream = null;
   stopMeter();
+  if (IS_IOS) setAudioSession('playback');
+  micSelect.disabled = false;
+
+  try {
+    await handleStop(r, got ? got.mono : new Float32Array(0), got ? got.rate : srcRate);
+  } finally {
+    recFinishing = false;
+    updateClearBtn();
+    updateRecTitle();
+    updateFmtLine();
+  }
 }
 
-async function handleStop(r) {
-  const type = chunks[0] && chunks[0].type ? chunks[0].type : 'audio/webm';
-  const blob = new Blob(chunks, { type });
+async function handleStop(r, mono, rate) {
   if (rec === r) rec = null;
 
   if (!r || r.mode === 'fresh') {
-    recordedBlob = blob;
+    if (!mono.length) {
+      statusEl.textContent = 'Nothing was recorded — check your microphone and try again.';
+      setActionsEnabled(true);
+      return;
+    }
+    recordedBlob = encodeWav24(mono, rate);
     statusEl.textContent = 'Recording complete';
     filenameInput.value = defaultFilename();
     postRec.classList.add('on');
     setActionsEnabled(true);
-    await buildEditor(blob);
+    buildEditorFromSamples(mono, rate);
     return;
   }
 
   // ── punch-in ──
   setActionsEnabled(true);
-  const reached = r.punchPerf && r.stopPerf && (r.stopPerf - r.punchPerf) > 60;
+  const reached = r.punchPerf && r.stopPerf && (r.stopPerf - r.punchPerf) > 60 && mono.length;
   if (!reached) {
     statusEl.textContent = 'Punch-in cancelled — nothing was changed';
     playhead = r.at;
@@ -879,8 +1188,8 @@ async function handleStop(r) {
   }
   statusEl.textContent = 'Adding your punch-in…';
   try {
-    const buf = await decodeAtRate(blob, srcRate);
-    const id = addSource(audioBufferToMono(buf), srcRate);
+    const take = await resampleMono(mono, rate, srcRate);
+    const id = addSource(take, srcRate);
     const S = sources[id];
     const trim = clamp((r.punchPerf - r.recStartPerf) / 1000, 0, Math.max(0, S.dur - MIN_ITEM));
     applyPunch(r.at, id, trim);
@@ -936,7 +1245,7 @@ function updateClearBtn() {
 }
 
 clearBtn.addEventListener('click', () => {
-  if (isRecording || recStarting) return;
+  if (isRecording || recStarting || recFinishing) return;
   if (hasAudio() && !confirm('Clear everything recorded so far and start again with a clean slate?')) return;
   clearRecording();
 });
@@ -956,6 +1265,7 @@ function clearRecording() {
   statusEl.textContent = 'Tap to start recording';
   clearBtn.blur();
   updateClearBtn();
+  updateFmtLine();
 }
 
 // ── OPEN / DROP AN AUDIO FILE ──────────────────────────────
@@ -973,7 +1283,7 @@ const AUDIO_EXT   = /\.(mp3|wav|wave|m4a|aac|ogg|oga|opus|flac|webm|aif|aiff)$/i
 let ghost = null;   // file being dragged over the waveform: { anchorPos, anchorX, pos, over }
 
 openFileBtn.addEventListener('click', () => {
-  if (isRecording) return;
+  if (isRecording || recFinishing) return;
   fileInput.value = '';
   fileInput.click();
 });
@@ -1038,7 +1348,7 @@ recCard.addEventListener('drop', (e) => {
   e.preventDefault();
   const pos = (ghost && ghost.over) ? ghost.pos : null;
   endFileDrag();
-  if (isRecording) return;
+  if (isRecording || recFinishing) return;
   const file = [...e.dataTransfer.files].find(f => (f.type && f.type.startsWith('audio/')) || AUDIO_EXT.test(f.name));
   if (!file) { statusEl.textContent = 'That isn\'t an audio file — try an MP3, WAV or M4A.'; return; }
   openAudioFile(file, pos);
@@ -1058,7 +1368,7 @@ window.addEventListener('dragover', (e) => { if (isFileDrag(e)) e.preventDefault
 window.addEventListener('drop', (e) => { if (isFileDrag(e)) e.preventDefault(); });
 
 async function openAudioFile(file, pos) {
-  if (isRecording) return;
+  if (isRecording || recFinishing) return;
   stopPlayback(false);
   encodeStatus.textContent = '';
   encodeStatus.className = '';
@@ -1102,6 +1412,7 @@ async function openAudioFile(file, pos) {
     recordedBlob = null;
     statusEl.textContent = `Couldn't read "${file.name}" — try an MP3, WAV or M4A.`;
   }
+  updateFmtLine();
 }
 
 // ── TIMER ──────────────────────────────────────────────────
@@ -1109,7 +1420,7 @@ function updateTimer() {
   if (!rec) return;
   const now = performance.now();
   if (rec.punchPerf && now >= rec.punchPerf) {
-    if (rec.pre > 0.01 && statusEl.textContent === 'Pre-roll…') {
+    if (rec.pre > 0.01 && /Pre-roll…$/.test(statusEl.textContent)) {
       statusEl.textContent = `Punched in at ${fmtTenths(rec.at)} — recording…`;
     }
     const totalSec = Math.floor((now - rec.punchPerf) / 1000);
@@ -1148,8 +1459,9 @@ function drawMeter() {
 
 function stopMeter() {
   if (meterRAF) cancelAnimationFrame(meterRAF);
+  meterRAF = null;
   meterBars.forEach(b => { b.style.height = '6px'; b.classList.remove('active'); });
-  if (audioCtx) { audioCtx.close(); audioCtx = null; }
+  if (audioCtx) { audioCtx.close().catch(() => {}); audioCtx = null; }
 }
 
 // ── FILENAME HELPERS ───────────────────────────────────────
@@ -1172,7 +1484,7 @@ async function decodeForWaveform(blob) {
   return buffer;
 }
 
-// Punch-in takes are decoded at the project's sample rate so every item
+// Added files are decoded at the project's sample rate so every item
 // lines up sample-for-sample with the first take.
 async function decodeAtRate(blob, rate) {
   const OAC = window.OfflineAudioContext || window.webkitOfflineAudioContext;
@@ -1235,6 +1547,21 @@ function floatTo16BitPCM(floatSamples) {
     int16[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
   }
   return int16;
+}
+
+// 24-bit PCM WAV (mono) — how every take is kept, and what goes to the DAW
+function encodeWav24(samples, rate) {
+  const n = samples.length, buf = new ArrayBuffer(44 + n * 3), v = new DataView(buf);
+  const str = (o, t) => { for (let i = 0; i < t.length; i++) v.setUint8(o + i, t.charCodeAt(i)); };
+  str(0, 'RIFF'); v.setUint32(4, 36 + n * 3, true); str(8, 'WAVE'); str(12, 'fmt ');
+  v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true); v.setUint32(24, rate, true);
+  v.setUint32(28, rate * 3, true); v.setUint16(32, 3, true); v.setUint16(34, 24, true); str(36, 'data'); v.setUint32(40, n * 3, true);
+  const out = new Uint8Array(buf); let o = 44;
+  for (let i = 0; i < n; i++) {
+    const f = Math.max(-1, Math.min(1, samples[i])), s = Math.round(f < 0 ? f * 8388608 : f * 8388607);
+    out[o++] = s & 255; out[o++] = (s >> 8) & 255; out[o++] = (s >> 16) & 255;
+  }
+  return new Blob([buf], { type: 'audio/wav' });
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -1311,22 +1638,31 @@ async function buildEditor(blob) {
   editReadout.textContent = 'Loading waveform…';
   try {
     const buf = await decodeForWaveform(blob);
-    srcRate = buf.sampleRate;
-    const id = addSource(audioBufferToMono(buf), srcRate);
-    items = [newItem(id, 0, sources[id].dur, 0)];
-    markEdited();
-    applyExpanded(loadExpanded());
-    fitView();
-    setEditorEnabled(true);
-    updateReadout();
+    buildEditorFromSamples(audioBufferToMono(buf), buf.sampleRate);
   } catch (err) {
     console.error(err);
     sources = []; items = [];
     editReadout.textContent = 'Waveform unavailable — full recording will be used.';
+    updateRecTitle();
+    updatePunchInfo();
+    updateFileLinks();
   }
+}
+
+function buildEditorFromSamples(mono, rate) {
+  resetEditor();
+  srcRate = rate;
+  const id = addSource(mono, srcRate);
+  items = [newItem(id, 0, sources[id].dur, 0)];
+  markEdited();
+  applyExpanded(loadExpanded());
+  fitView();
+  setEditorEnabled(true);
+  updateReadout();
   updateRecTitle();
   updatePunchInfo();
   updateFileLinks();
+  updateFmtLine();
 }
 
 function resetEditor() {
@@ -2258,7 +2594,7 @@ const SHORTCUTS = [
     ['Make the waveform taller / shorter (display only — volume doesn\'t change)', [['Shift', '↑'], ['Shift', '↓']]],
     ['Zoom around the mouse', [[MOD_KEY, 'Scroll']]],
     ['Scroll along the waveform', [['Shift', 'Scroll']]],
-    ['Show this list', [['?']]],
+    ['Show / hide this list', [['?']]],
   ]},
 ];
 
@@ -2328,6 +2664,7 @@ document.addEventListener('keydown', (e) => {
     if (code === 'Space' || e.key === 'Escape') { e.preventDefault(); blurButton(); stopRecording(); }
     return;
   }
+  if (recFinishing) return;
   if (!hasAudio() || !postRec.classList.contains('on')) return;
 
   const k = e.key.toLowerCase();
@@ -2520,19 +2857,6 @@ downloadBtn.addEventListener('click', async () => {
 // OPEN IN DAW — hands the edited recording to daw.html (same site)
 // ═══════════════════════════════════════════════════════════
 const openDawBtn = document.getElementById('open-daw-btn');
-function handoffWav(samples, rate) {
-  const n = samples.length, buf = new ArrayBuffer(44 + n * 3), v = new DataView(buf);
-  const str = (o, t) => { for (let i = 0; i < t.length; i++) v.setUint8(o + i, t.charCodeAt(i)); };
-  str(0, 'RIFF'); v.setUint32(4, 36 + n * 3, true); str(8, 'WAVE'); str(12, 'fmt ');
-  v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true); v.setUint32(24, rate, true);
-  v.setUint32(28, rate * 3, true); v.setUint16(32, 3, true); v.setUint16(34, 24, true); str(36, 'data'); v.setUint32(40, n * 3, true);
-  const out = new Uint8Array(buf); let o = 44;
-  for (let i = 0; i < n; i++) {
-    const f = Math.max(-1, Math.min(1, samples[i])), s = Math.round(f < 0 ? f * 8388608 : f * 8388607);
-    out[o++] = s & 255; out[o++] = (s >> 8) & 255; out[o++] = (s >> 16) & 255;
-  }
-  return new Blob([buf], { type: 'audio/wav' });
-}
 function handoffStore(record) {
   return new Promise((res, rej) => {
     const r = indexedDB.open('tag-handoff', 1);
@@ -2556,7 +2880,7 @@ openDawBtn.addEventListener('click', async () => {
     let samples, rate;
     if (hasAudio()) { samples = renderTimeline(); rate = srcRate; }
     else { const buf = await decodeForWaveform(recordedBlob); samples = audioBufferToMono(buf); rate = buf.sampleRate; }
-    await handoffStore({ blob: handoffWav(samples, rate), name: sanitizeFilename(filenameInput.value), created: Date.now() });
+    await handoffStore({ blob: encodeWav24(samples, rate), name: sanitizeFilename(filenameInput.value), created: Date.now() });
     const url = 'daw.html?from=recorder';
     if (win) win.location.href = url; else window.location.href = url;
     encodeStatus.className = 'ok';
@@ -3068,7 +3392,7 @@ copyLinkBtn.addEventListener('click', async () => {
   }
 });
 </script>
-<div id="tool-version">v13.1</div>
+<div id="tool-version">v14.0</div>
 <div id="tag-footer"></div>
 <script src="/partials/inject-brand.js"></script>
 </body>
