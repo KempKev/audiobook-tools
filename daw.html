@@ -338,6 +338,18 @@
   .fx-grip:active { cursor: grabbing; }
   .fx-del { margin-left: 6px; border: none; background: none; color: var(--light); cursor: pointer; font-size: 0.85rem; padding: 2px 6px; border-radius: 4px; }
   .fx-del:hover { color: var(--red); background: var(--red-bg); }
+  .fx-reset { border: none; background: none; color: var(--light); cursor: pointer; font-size: 0.95rem; padding: 0 6px; border-radius: 4px; line-height: 1.4; }
+  .fx-reset:hover { color: var(--accent); background: var(--accent-bg); }
+  .fx-col { border: none; background: none; cursor: pointer; color: var(--mid); width: 18px; height: 18px; padding: 0; font-size: 0.8rem; line-height: 1; transition: transform 0.15s; flex-shrink: 0; }
+  .fx-col:hover { color: var(--accent); }
+  .fx-sec.collapsed .fx-col { transform: rotate(-90deg); }
+  .fx-sec.collapsed .fx-body { display: none; }
+  .fx-sec.collapsed .fx-sec-head { border-bottom: none; }
+  .fx-sec.collapsed .fx-step { display: none; }
+  #fx-list .fx-sec-head { cursor: pointer; gap: 6px; }
+  #fx-list .fx-sec-head .switch-lbl { flex-shrink: 0; }
+  .fx-sum { flex: 1; min-width: 0; font-size: 0.68rem; color: var(--mid); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: right; }
+  #fx-list .fx-step { margin-left: 4px; }
   .fx-sec.dragging { opacity: 0.35; }
   .fx-sec.drop-before { box-shadow: 0 -3px 0 var(--accent); }
   .fx-sec.drop-after { box-shadow: 0 3px 0 var(--accent); }
@@ -534,7 +546,7 @@
 
     <h3>Track effects &amp; analysis</h3>
     <ul>
-      <li>Open <b>Effects</b> (<b>Alt/Opt + F</b>, the <b>FX</b> button on a track, or right-click) to build an effects chain for a whole track. Use <b>＋ Add effect</b> to add Noise Reduction, EQ, a Compressor or a Limiter — as many as you like, even two of the same — and the <b>✕</b> on an effect to remove it (Undo brings it back). Drag the <b>⋮⋮</b> handle to change the order: the sound flows from the top effect to the bottom one.</li>
+      <li>Open <b>Effects</b> (<b>Alt/Opt + F</b>, the <b>FX</b> button on a track, or right-click) to build an effects chain for a whole track. Use <b>＋ Add effect</b> to add Noise Reduction, EQ, a Compressor or a Limiter — as many as you like, even two of the same — and the <b>✕</b> on an effect to remove it (Undo brings it back). Drag the <b>⋮⋮</b> handle to change the order: the sound flows from the top effect to the bottom one. Press <b>▾</b> (or click an empty part of an effect's title bar) to fold its settings away, and <b>↺</b> to reset an effect to its starting settings — a learned noise profile is kept.</li>
       <li>Each effect has its own on/off switch, and <b>Effects chain</b> switches them all on or off at once (<b>Alt/Opt + Shift + F</b>) so you can hear before and after. Effects run whenever you play or export; your takes are never changed. A track with effects on shows an orange <b>FX</b> button — crossed out while the chain is switched off.</li>
       <li><b>Noise Reduction</b> — press <b>Learn</b>, then play a few seconds of just room tone (no voice) and stop. The DAW learns that noise and takes it out. <b>Amount</b> sets how much: 0% leaves the audio as it is, 100% is complete silence. Use the least that sounds clean — too much can make a voice sound watery.</li>
       <li><b>EQ</b> — start from a preset (High-pass 80 Hz, Male or Female voice, Harsh sibilance, Boxy space and more), then fine-tune each band. The curve shows what you're doing to the sound.</li>
@@ -563,7 +575,7 @@
 </section>
 
 <div id="disclaimer">The Audiobook Guy DAW is still under construction. While we work on it, we can't guarantee its stability and can't be held responsible for lost recordings, projects or files. Please keep backups of anything important.</div>
-<div id="tool-version">v5.0</div>
+<div id="tool-version">v5.1</div>
 <div id="tag-footer"></div>
 
 <!-- ═══ MODALS ═══ -->
@@ -1024,10 +1036,10 @@ async function readZip(file) {
 }
 
 // ═══════════════════════════════════════════════════════════
-// THE AUDIOBOOK GUY DAW — v5.0
+// THE AUDIOBOOK GUY DAW — v5.1
 // ═══════════════════════════════════════════════════════════
 'use strict';
-const APP_VERSION = '5.0';
+const APP_VERSION = '5.1';
 const PROJECT_EXT = '.tagdaw';
 const AUDIO_DIR   = 'Audio Files';
 const DEF_TRACK_H = 96, MIN_TRACK_H = 60, MAX_TRACK_H = 480;
@@ -1476,7 +1488,7 @@ class TagNR extends AudioWorkletProcessor {
     this.re = new Float32Array(N); this.im = new Float32Array(N); this.g = new Float32Array(NB);
     this.st = []; this.amount = p.amount || 0; this.noise = p.noise ? Float32Array.from(p.noise) : null; this.learn = !!p.learn;
     this.lm = []; this.le = [];
-    this.port.onmessage = e => { const d = e.data || {}; if (d.amount != null) this.amount = d.amount; if (d.dump) this.dump(); };
+    this.port.onmessage = e => { const d = e.data || {}; if (d.amount != null) this.amount = d.amount; if (d.dump) this.dump(); if (d.kill) this.dead = true; };
   }
   state(c) { return this.st[c] || (this.st[c] = { inF: new Float32Array(N), outF: new Float32Array(HOP), acc: new Float32Array(N), rover: LAT, gp: new Float32Array(NB).fill(1) }); }
   // the quietest 40% of what was heard becomes the profile, so a little voice in the mix doesn't spoil it
@@ -1525,6 +1537,7 @@ class TagNR extends AudioWorkletProcessor {
     inF.copyWithin(0, HOP);
   }
   process(inputs, outputs) {
+    if (this.dead) return false;   // playback stopped — shut down
     const inp = inputs[0], out = outputs[0];
     for (let c = 0; c < out.length; c++) {
       const o = out[c], d = chIn(inp, c), s = this.state(c);
@@ -1548,8 +1561,9 @@ class TagComp extends AudioWorkletProcessor {
     this.aA = Math.exp(-1 / (0.008 * sampleRate)); this.aR = Math.exp(-1 / (0.16 * sampleRate));
     this.port.onmessage = e => this.set(e.data || {});
   }
-  set(p) { if (p.thr != null) this.thr = p.thr; if (p.ratio != null) this.ratio = p.ratio; if (p.knee != null) this.knee = p.knee; if (p.makeup != null) this.makeup = p.makeup; }
+  set(p) { if (p.kill) this.dead = true; if (p.thr != null) this.thr = p.thr; if (p.ratio != null) this.ratio = p.ratio; if (p.knee != null) this.knee = p.knee; if (p.makeup != null) this.makeup = p.makeup; }
   process(inputs, outputs) {
+    if (this.dead) return false;   // playback stopped — shut down
     const inp = inputs[0], out = outputs[0], nc = out.length, len = out[0].length;
     const T = this.thr, R = this.ratio, K = this.knee, mk = this.makeup, aA = this.aA, aR = this.aR;
     for (let i = 0; i < len; i++) {
@@ -1580,9 +1594,10 @@ class TagLim extends AudioWorkletProcessor {
     this.qv = new Float32Array(W + 1); this.qi = new Float64Array(W + 1); this.qh = 0; this.qt = 0; this.qn = 0;
     this.er = new Float32Array(W).fill(1); this.sum = W; this.env = 1; this.t = 0;
     this.rel = Math.exp(-1 / (0.08 * sampleRate));
-    this.port.onmessage = e => { const d = e.data || {}; if (d.ceiling != null) this.ceil = Math.pow(10, d.ceiling / 20); };
+    this.port.onmessage = e => { const d = e.data || {}; if (d.ceiling != null) this.ceil = Math.pow(10, d.ceiling / 20); if (d.kill) this.dead = true; };
   }
   process(inputs, outputs) {
+    if (this.dead) return false;   // playback stopped — shut down
     const inp = inputs[0], out = outputs[0], nc = Math.min(out.length, 2), len = out[0].length, W = this.W, cap = W + 1;
     const ceil = this.ceil * 0.9999;
     for (let i = 0; i < len; i++) {
@@ -1608,8 +1623,9 @@ registerProcessor('tag-lim', TagLim);
 
 // Level meter for Audio Analysis (peak + RMS, silence included).
 class TagMeter extends AudioWorkletProcessor {
-  constructor() { super(); this.pk = 0; this.ss = 0; this.n = 0; this.f = 0; }
+  constructor() { super(); this.pk = 0; this.ss = 0; this.n = 0; this.f = 0; this.port.onmessage = e => { if (e.data && e.data.kill) this.dead = true; }; }
   process(inputs) {
+    if (this.dead) return false;
     const inp = inputs[0];
     if (inp && inp.length) {
       const len = inp[0].length;
@@ -1669,7 +1685,7 @@ function defaultFx() { return { on: true, list: [] }; }
 function normInst(f) {
   const d = newFx(f.type);
   if (f.type === 'eq') {
-    d.id = f.id || d.id; d.on = f.on !== false; d.preset = f.preset || d.preset;
+    d.id = f.id || d.id; d.on = f.on !== false; d.preset = f.preset || d.preset; d.collapsed = !!f.collapsed;
     ['hp', 'ls', 'p1', 'p2', 'p3', 'hs'].forEach(k => Object.assign(d[k], f[k] || {}));
     return d;
   }
@@ -1785,8 +1801,9 @@ function requestDump(p) {
   if (!nr) return;
   learnHold.push(nr);
   learnDumps.push(new Promise(res => {
-    const to = setTimeout(() => res(null), 2000);
-    nr.port.onmessage = e => { if (e.data && 'profile' in e.data) { clearTimeout(to); res(e.data); } };
+    const to = setTimeout(() => { nr.port.postMessage({ kill: true }); res(null); }, 2000);
+    const done = d => { clearTimeout(to); nr.port.postMessage({ kill: true }); res(d); };
+    nr.port.onmessage = e => { if (e.data && 'profile' in e.data) done(e.data); };
     nr.port.postMessage({ dump: true });
   }));
 }
@@ -1828,7 +1845,7 @@ async function scanTrack(t, fx, withVol, onProg) {
   if (!t.items.length) return null;
   const rate = P.settings.rate, ts = Math.min(...t.items.map(i => i.start)), te = Math.max(...t.items.map(itemEnd));
   const SEG = 60, PRE = 1, winN = Math.round(0.5 * rate);
-  let pk = 0, ss = 0, n = 0, wss = 0, wn = 0, minW = Infinity;
+  let pk = 0, ss = 0, n = 0, wss = 0, wn = 0, minW = Infinity, zr = 0, wbad = false;
   for (let s0 = ts; s0 < te - 1e-6; s0 += SEG) {
     const e = Math.min(te, s0 + SEG), a = Math.max(ts, s0 - PRE);
     const [L, R] = await renderTrackRange(t, fx, a, e, rate, withVol);
@@ -1837,7 +1854,9 @@ async function scanTrack(t, fx, withVol, onProg) {
       const l = L[i], r = R[i], al = l < 0 ? -l : l, ar = r < 0 ? -r : r;
       if (al > pk) pk = al; if (ar > pk) pk = ar;
       const p = (l * l + r * r) * 0.5; ss += p; n++; wss += p;
-      if (++wn === winN) { const m = wss / wn; if (m > 1e-12 && m < minW) minW = m; wss = 0; wn = 0; }
+      // a run of exact zeros is digital silence (a gap between items, not room tone)
+      if (l === 0 && r === 0) { if (++zr >= 64) wbad = true; } else zr = 0;
+      if (++wn === winN) { const m = wss / wn; if (!wbad && m > 1e-12 && m < minW) minW = m; wss = 0; wn = 0; wbad = zr >= 64; }
     }
     if (onProg) onProg((e - ts) / (te - ts));
     await new Promise(r => setTimeout(r, 0));
@@ -1987,7 +2006,7 @@ function startPlayback(from, opts) {
     bus.chain = chain;
     if (c.__fxOk) {
       const m = new AudioWorkletNode(c, 'tag-meter', { numberOfInputs: 1, numberOfOutputs: 1, outputChannelCount: [1] });
-      m.port.onmessage = e => addLive(t.id, e.data);
+      m.port.onmessage = e => { const cur = play && play.trackNodes.get(t.id); if (cur && cur.meter === m) addLive(t.id, e.data); };
       bus.g.connect(m); m.connect(meterSink(c)); bus.meter = m;
     }
     t.fx.list.forEach(x => { const n = x.type === 'comp' && chain.byId.get(x.id); if (n) n.port.onmessage = e => liveGr.set(x.id, e.data.gr); });
@@ -2016,7 +2035,12 @@ function stopPlayback(keepState, toStart) {
   if (p.learnId != null && ui.learnTrack === p.learnId && ui.learnFx === p.learnFx) { requestDump(p); if (!keepState) finishLearn(p.learnId, p.learnFx, ctx.sampleRate); }
   p.nodes.forEach(n => { try { n.stop(); } catch (e) {} try { n.disconnect(); } catch (e) {} });
   p.jobs.forEach(j => { try { j.g.disconnect(); } catch (e) {} });
-  p.trackNodes.forEach(b => [b.g, b.meter, b.chain && b.chain.in, ...(b.chain ? b.chain.nodes : [])].forEach(n => { if (n) try { n.disconnect(); } catch (e) {} }));
+  p.trackNodes.forEach(b => [b.g, b.meter, b.chain && b.chain.in, ...(b.chain ? b.chain.nodes : [])].forEach(n => {
+    if (!n) return;
+    try { n.disconnect(); } catch (e) {}
+    // effect processors and meters keep running until told to stop — a learning noise reduction stops once it has reported
+    if (n.port && !learnHold.includes(n)) try { n.port.postMessage({ kill: true }); } catch (e) {}
+  }));
   play = null;
   if (!keepState) { ui.cursor = toStart ? p.userFrom : Math.max(0, t); $('play-btn').classList.remove('on'); followPlayhead(ui.cursor); markOverlay(); updateTimeDisplay(); updateFxLive(); }
 }
@@ -4049,8 +4073,10 @@ function buildFxCard(x) {
   const id = x.id, el = document.createElement('section');
   el.className = 'fx-sec'; el.dataset.id = id; el.dataset.type = x.type;
   el.innerHTML = `<div class="fx-sec-head"><span class="fx-grip" title="Drag to change the order">⋮⋮</span>
+    <button class="fx-col" title="Show / hide the settings">▾</button>
     <label class="switch-lbl" title="Switch this effect on or off"><input type="checkbox" class="fx-on"><span class="switch"></span><span class="fx-name"></span></label>
-    <span class="fx-step"></span><button class="fx-del" title="Remove this effect">✕</button></div>
+    <span class="fx-sum"></span><span class="fx-step"></span>
+    <button class="fx-reset" title="Reset this effect's settings">↺</button><button class="fx-del" title="Remove this effect">✕</button></div>
     <div class="fx-body">${FX_BODY[x.type]}</div>`;
   const q = sel => el.querySelector(sel), inst = t => findFx(t, id);
 
@@ -4069,6 +4095,23 @@ function buildFxCard(x) {
   });
 
   // drag the handle to reorder
+  // collapse: the ▾ button, or a click on an empty part of the header
+  const toggleCol = () => {
+    const t = fxTrack(), f = inst(t); if (!f) return;
+    f.collapsed = !f.collapsed; el.classList.toggle('collapsed', f.collapsed); scheduleSave();
+    if (!f.collapsed && f.type === 'eq') drawEqCurve(q('.eq-curve'), f, t.fx.on !== false);
+  };
+  q('.fx-col').addEventListener('click', toggleCol);
+  q('.fx-sec-head').addEventListener('click', e => { if (!e.target.closest('button, input, label, .fx-grip')) toggleCol(); });
+  // reset: back to the effect's starting settings (a learned noise profile is kept)
+  q('.fx-reset').addEventListener('click', () => {
+    const t = fxTrack(), f = inst(t); if (!f) return;
+    const d = FX_TYPES[f.type].make(); delete d.on;
+    if (f.type === 'nr') { delete d.profile; delete d.rate; delete d.secs; }
+    const before = snapshot(); Object.assign(f, d); applyFxLive(t); pushUndo(before, true);
+    toast(FX_TYPES[f.type].name + ' reset' + (f.type === 'nr' && f.profile ? ' — the learned noise profile is kept' : '') + '. Undo brings the old settings back.');
+  });
+
   // only the handle is draggable, so sliders inside the card still slide normally
   const grip = q('.fx-grip');
   grip.draggable = true;
@@ -4131,7 +4174,9 @@ function buildFxCard(x) {
 function updateFxCard(el, x, i, t, name) {
   const q = sel => el.querySelector(sel);
   el.classList.toggle('off', !x.on && ui.learnFx !== x.id);
+  el.classList.toggle('collapsed', !!x.collapsed);
   q('.fx-on').checked = x.on; q('.fx-name').textContent = name; q('.fx-step').textContent = 'Step ' + (i + 1);
+  q('.fx-sum').textContent = fxSummary(x);
   if (x.type === 'nr') {
     setRange(q('.nr-amt'), x.amount); q('.nr-amt-v').textContent = Math.round(x.amount) + '%';
     renderLearn(el, t, x);
@@ -4159,6 +4204,13 @@ function updateFxCard(el, x, i, t, name) {
   }
 }
 
+// one-line summary shown in an effect's header (handy when it's collapsed)
+function fxSummary(x) {
+  if (x.type === 'nr') return x.profile ? Math.round(x.amount) + '%' : 'Needs Learn';
+  if (x.type === 'eq') { const p = EQ_PRESETS.find(pp => pp[0] === x.preset); return p ? p[1].split(' — ')[0] : 'Custom'; }
+  if (x.type === 'comp') { const sv = Math.round(x.strength); return (sv < 34 ? 'Gentle' : sv < 67 ? 'Medium' : 'Strong') + ' · ' + fmtGain(+x.boost); }
+  return fmtGain(+x.ceiling);
+}
 function clearDropMarks() { document.querySelectorAll('#fx-list .drop-before, #fx-list .drop-after').forEach(c => c.classList.remove('drop-before', 'drop-after')); }
 function fxDropTarget(y) {
   const cards = [...$('fx-list').querySelectorAll('.fx-sec')].filter(c => c.dataset.id !== fxDragId);
