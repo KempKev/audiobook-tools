@@ -1,5 +1,5 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;600;700;800&family=Open+Sans:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet" data-tag-brand-font>
+<link href="https://fonts.googleapis.com/css2?family=Cookie&family=Raleway:wght@400;600;700;800&family=Open+Sans:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet" data-tag-brand-font>
 
 <style data-tag-brand-style>
   .tag-brand-header, .tag-brand-footer, .tag-brand-nav {
@@ -81,26 +81,70 @@
   .tag-brand-support {
     background: #fff;
     text-align: center;
-    padding: 24px 40px;
+    padding: 24px 40px 20px;
   }
   .tag-brand-support h2 {
     font-family: 'Raleway', sans-serif;
-    font-weight: 600;
-    font-size: 20px;
-    color: #555;
-    margin: 0 0 12px;
+    font-weight: 400;
+    font-size: 24px;
+    color: #666;
+    margin: 0 0 14px;
   }
   .tag-brand-support p {
-    font-size: 12.5px;
-    color: #888;
+    font-size: 13px;
+    color: #777;
     font-style: italic;
-    margin: 0 0 8px;
+    margin: 0 auto 16px;
     line-height: 1.6;
     max-width: 760px;
-    margin-left: auto;
-    margin-right: auto;
   }
-  .tag-brand-support p:last-child { margin-bottom: 0; }
+  .tag-brand-support .tag-brand-signoff { margin-bottom: 14px; }
+
+  /* Buy Me A Coffee button: mirrors the official BMC embed settings
+     (slug theaudiobookguy, #FFDD00, Cookie font, black text).
+     The BMC script uses document.write, which cannot run inside an injected template. */
+  .tag-brand-coffee {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 auto 14px;
+    padding: 0 22px;
+    height: 50px;
+    background: #FFDD00;
+    color: #000;
+    border-radius: 10px;
+    font-family: 'Cookie', cursive;
+    font-size: 28px;
+    line-height: 1;
+    text-decoration: none;
+    transition: transform .15s, box-shadow .15s;
+  }
+  .tag-brand-coffee:hover {
+    transform: scale(1.04);
+    box-shadow: 0 3px 10px rgba(0,0,0,.15);
+  }
+  .tag-brand-coffee .tag-brand-cup { font-size: 22px; }
+
+  /* Official BMC image button; the CSS button above only shows if the image fails to load */
+  .tag-brand-coffee-link {
+    display: inline-block;
+    margin: 0 auto 14px;
+    text-decoration: none;
+    transition: transform .15s;
+  }
+  .tag-brand-coffee-link:hover { transform: scale(1.04); }
+  .tag-brand-coffee-img { height: 60px; width: 217px; display: block; }
+  .tag-brand-coffee-link .tag-brand-coffee { display: none; margin: 0; }
+  .tag-brand-coffee-link .tag-brand-coffee:hover { transform: none; }
+  .tag-brand-coffee-fallback .tag-brand-coffee-img { display: none; }
+  .tag-brand-coffee-fallback .tag-brand-coffee { display: inline-flex; }
+
+  /* affiliate note */
+  .tag-brand-support .tag-brand-affiliate {
+    font-size: 12px;
+    line-height: 1.5;
+    margin-bottom: 0;
+  }
 </style>
 
 <template id="tag-brand-header-tpl">
@@ -133,9 +177,17 @@
   <div class="tag-brand-footer">
     <div class="tag-brand-support">
       <h2>Support Us!</h2>
-      <p>The Audiobook Guy is the result of late-night writing and website building after a day's narration!</p>
-      <p>If you would like to support The Audiobook Guy help us spread the word by telling friends, sharing articles on your socials, and joining as a member, it is totally free and allows us to include you in castings for projects through The Audiobook Guy! The more members we get, the more we can attract clients to cast through the site!</p>
-      <p>You can also use the Affiliate Links for products and services we have reviewed or recommend. We never let any affiliation with any company affect the reviews we write and everything remains our honest opinion. As an Amazon Associate, we earn from qualifying purchases, which allows us to spend more time making content!</p>
+      <p>Hey, I&rsquo;m Kev &#128075;</p>
+      <p>By day, I narrate audiobooks. By night, fuelled mostly by coffee, I write the articles and build the tools on The Audiobook Guy.</p>
+      <p>Everything on the site is free, and I want to keep it that way. So if an article saved you a headache, a tool saved you 5 minutes, or something just clicked, a coffee is the perfect way to say thanks.</p>
+      <p>No big gestures needed. One coffee when something helps you out is what keeps the lights on and the next article coming.</p>
+      <p>Thanks for being here, and happy narrating!</p>
+      <p class="tag-brand-signoff">Kev<br>The Audiobook Guy</p>
+      <a class="tag-brand-coffee-link" href="https://www.buymeacoffee.com/theaudiobookguy" target="_blank" rel="noopener">
+        <img class="tag-brand-coffee-img" src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me a Coffee" onerror="this.parentNode.classList.add('tag-brand-coffee-fallback')">
+        <span class="tag-brand-coffee"><span class="tag-brand-cup">&#9749;</span>Buy me a coffee</span>
+      </a>
+      <p class="tag-brand-affiliate">You can also use the Affiliate Links for products and services we have reviewed or recommend. We never let any affiliation with any company affect the reviews we write and everything remains our honest opinion. As an Amazon Associate, we earn from qualifying purchases, which allows us to spend more time making content!</p>
     </div>
     <div class="tag-brand-outer">
       <div class="tag-brand-inner">
