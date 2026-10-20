@@ -37,19 +37,21 @@
   #hd-actions { display:flex; gap:8px; flex-wrap:wrap; }
   .hd-action-btn { padding:6px 13px; background:transparent; color:var(--mid); border:1.5px solid var(--rule); border-radius:20px; font-family:'Raleway',sans-serif; font-size:0.7rem; font-weight:700; letter-spacing:0.03em; text-transform:uppercase; white-space:nowrap; cursor:pointer; transition:all 0.15s; text-decoration:none; display:inline-flex; align-items:center; gap:5px; }
   .hd-action-btn:hover { border-color:var(--accent); color:var(--accent); background:var(--accent-bg); }
+  #export-btn { border-color:var(--accent-brd); color:var(--accent); }
   #acct-btn { text-transform:none; font-weight:600; max-width:240px; overflow:hidden; text-overflow:ellipsis; }
   .hd-action-btn.copied, #edit-btn.on { border-color:var(--green); color:var(--green); background:var(--green-bg); }
   .dot { width:7px; height:7px; border-radius:50%; background:currentColor; display:inline-block; }
 
   /* Tabs */
-  #tabs { display:none; background:var(--card); border-bottom:1px solid var(--rule); padding:0 36px; gap:4px; }
+  #tabs { display:none; background:var(--card); border-bottom:1px solid var(--rule); padding:0 36px; gap:4px; overflow-x:auto; }
   #tabs.on { display:flex; }
-  .tab-btn { padding:12px 18px 10px; background:none; border:none; border-bottom:3px solid transparent; font-family:'Raleway',sans-serif; font-size:0.86rem; font-weight:800; color:var(--light); cursor:pointer; transition:color 0.15s, border-color 0.15s; display:flex; align-items:center; gap:7px; }
+  .tab-btn { padding:12px 18px 10px; background:none; border:none; border-bottom:3px solid transparent; font-family:'Raleway',sans-serif; font-size:0.86rem; font-weight:800; color:var(--light); cursor:pointer; transition:color 0.15s, border-color 0.15s; display:flex; align-items:center; gap:7px; white-space:nowrap; flex-shrink:0; }
   .tab-btn:hover { color:var(--ink); }
   .tab-btn.active { color:var(--ink); border-bottom-color:var(--accent); }
   .tab-count { font-size:0.7rem; font-weight:700; color:var(--light); }
   .tab-flag { font-size:0.62rem; font-weight:800; background:var(--red); color:#fff; border-radius:10px; padding:1px 7px; letter-spacing:0.02em; }
   .tab-flag:empty { display:none; }
+  .tab-ref { font-size:0.56rem; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:var(--light); border:1px solid var(--rule); border-radius:10px; padding:1px 6px; }
 
   /* Controls */
   .ctrl { background:var(--card); border-bottom:1px solid var(--rule); padding:11px 36px; display:none; align-items:flex-start; gap:10px; flex-wrap:wrap; box-shadow:var(--shadow-sm); }
@@ -70,7 +72,7 @@
   .dd-already { font-size:0.66rem; font-family:'Raleway',sans-serif; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; color:#bbb; flex-shrink:0; }
   .dd-empty { padding:12px 14px; font-size:0.82rem; color:var(--light); font-style:italic; text-align:center; }
 
-  .pill-btn { padding:7px 14px; background:var(--accent); color:#fff; border:none; border-radius:20px; font-family:'Raleway',sans-serif; font-size:0.74rem; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; cursor:pointer; white-space:nowrap; transition:background 0.15s; }
+  .pill-btn { padding:7px 14px; background:var(--accent); color:#fff; border:none; border-radius:20px; font-family:'Raleway',sans-serif; font-size:0.74rem; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; cursor:pointer; white-space:nowrap; transition:background 0.15s; text-decoration:none; display:inline-flex; align-items:center; }
   .pill-btn:hover { background:#c44e00; }
   .pill-btn:disabled { background:#d1d5db; cursor:not-allowed; }
   .pill-btn.ghost { background:transparent; color:var(--mid); border:1.5px solid var(--rule); }
@@ -218,6 +220,34 @@
   .edit-btn { margin-left:auto; background:none; border:none; color:var(--light); font-family:'Raleway',sans-serif; font-size:0.66rem; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; cursor:pointer; padding:2px 4px; }
   .edit-btn:hover { color:var(--accent); }
 
+  /* ── SHEET VIEW (all other tabs) ── */
+  #sheet-view { display:none; padding:20px 36px 40px; }
+  #sheet-view.on { display:block; }
+  .gs-note { font-size:0.74rem; color:var(--mid); margin-bottom:10px; line-height:1.5; }
+  .gs-scroll { overflow:auto; background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow-sm); max-height:calc(100vh - 240px); }
+  table.gsheet { border-collapse:separate; border-spacing:0; font-size:0.82rem; min-width:100%; }
+  table.gsheet thead th { position:sticky; top:0; z-index:3; background:#f3f3f3; color:#888; font-family:'Raleway',sans-serif; font-size:0.66rem; font-weight:700; padding:4px 8px; border-right:1px solid #e3e3e3; border-bottom:1px solid #d6d6d6; text-align:center; }
+  table.gsheet th.rh { position:sticky; left:0; z-index:2; background:#f3f3f3; color:#999; font-family:'Raleway',sans-serif; font-size:0.66rem; font-weight:700; padding:6px 8px; border-right:1px solid #d6d6d6; border-bottom:1px solid #e3e3e3; text-align:center; vertical-align:top; min-width:38px; }
+  table.gsheet thead th.rh { z-index:4; }
+  table.gsheet td { position:relative; border-right:1px solid #ececec; border-bottom:1px solid #ececec; padding:7px 10px; vertical-align:top; min-width:130px; max-width:440px; white-space:pre-wrap; word-break:break-word; line-height:1.5; background-clip:padding-box; }
+  table.gsheet.narrow td { max-width:900px; min-width:320px; }
+  table.gsheet td.b { font-family:'Raleway',sans-serif; font-weight:800; }
+  table.gsheet td.fx { color:var(--mid); }
+  table.gsheet td.fx::after { content:'ƒ'; position:absolute; top:3px; right:5px; font-size:0.62rem; color:#bbb; font-style:italic; }
+  table.gsheet td.ed { cursor:text; }
+  table.gsheet td.ed:hover { box-shadow:inset 0 0 0 1.5px var(--accent-brd); }
+  table.gsheet td.ed:hover .cell-ed { display:flex; }
+  .cell-ed { display:none; position:absolute; top:3px; right:3px; width:20px; height:20px; border-radius:4px; border:1px solid var(--rule); background:#fff; color:var(--mid); font-size:0.7rem; align-items:center; justify-content:center; cursor:pointer; z-index:1; }
+  .cell-ed:hover { color:var(--accent); border-color:var(--accent); }
+  table.gsheet td.editing { padding:0; box-shadow:inset 0 0 0 2px #1a73e8 !important; }
+  table.gsheet td.editing textarea { display:block; width:100%; min-width:220px; min-height:70px; border:none; outline:none; padding:7px 10px; font:inherit; line-height:1.5; resize:vertical; background:#fff; }
+  .edit-hint { position:absolute; left:0; top:100%; z-index:5; background:var(--ink); color:#fff; font-size:0.64rem; padding:3px 8px; border-radius:0 0 4px 4px; white-space:nowrap; }
+  table.gsheet td.saving { opacity:0.5; }
+  table.gsheet td.conf-cell { min-width:0; width:1%; white-space:nowrap; background:#fafafa; padding:6px 8px; }
+  table.gsheet td.conf-cell .conf-btn { margin-left:0; }
+  table.gsheet tr.hidden-row { display:none; }
+  table.gsheet a { word-break:break-all; }
+
   /* ── MODAL ── */
   #modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:500; align-items:flex-start; justify-content:center; padding:40px 16px; overflow-y:auto; }
   #modal-overlay.on { display:flex; }
@@ -304,22 +334,23 @@
   .af-block .ttl { font-family:'Raleway',sans-serif; font-size:0.7rem; font-weight:800; letter-spacing:0.05em; text-transform:uppercase; color:var(--ink); margin-bottom:8px; }
   .af-block input { width:100%; padding:8px 11px; border:1.5px solid var(--rule); border-radius:6px; font-size:0.82rem; margin-bottom:8px; outline:none; font-family:'Open Sans',sans-serif; }
   .af-block input:focus { border-color:var(--accent); }
-  .af-block .pill-btn { width:100%; }
+  .af-block .pill-btn { width:100%; justify-content:center; }
   .af-current { font-size:0.76rem; color:var(--mid); text-align:left; margin-top:4px; line-height:1.6; }
   #tool-version { text-align:center; padding:10px 0 22px; font-family:'Raleway',sans-serif; font-size:0.66rem; font-weight:600; letter-spacing:0.05em; color:#c9c9c9; user-select:none; }
-  ::-webkit-scrollbar { width:5px; } ::-webkit-scrollbar-thumb { background:#d1d5db; border-radius:10px; }
+  ::-webkit-scrollbar { width:5px; height:5px; } ::-webkit-scrollbar-thumb { background:#d1d5db; border-radius:10px; }
 
   @media (max-width:700px) {
-    header, .ctrl, .grid, #tabs { padding-left:14px; padding-right:14px; }
+    header, .ctrl, .grid, #tabs, #sheet-view { padding-left:14px; padding-right:14px; }
     #grid-char, #grid-pron { grid-template-columns:1fr; }
     #hd-book { display:none; }
     .card-body { grid-template-columns:1fr; }
     .col-notes { border-right:none; padding-right:0; border-bottom:1px solid var(--rule); padding-bottom:10px; margin-bottom:10px; }
     .form-grid { grid-template-columns:1fr; }
     #topbar { position:static; }
+    table.gsheet.narrow td { min-width:220px; }
   }
   /* ── Client Confirmed button ── */
-  .conf-btn { margin-left:auto; display:inline-flex; align-items:center; gap:5px; font-family:'Raleway',sans-serif; font-size:0.62rem; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; padding:4px 10px; border-radius:20px; cursor:pointer; border:1px solid #e8a0a0; background:#f4cccc; color:#a12a2a; transition:background .15s, border-color .15s, transform .1s; }
+  .conf-btn { margin-left:auto; display:inline-flex; align-items:center; gap:5px; font-family:'Raleway',sans-serif; font-size:0.62rem; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; padding:4px 10px; border-radius:20px; cursor:pointer; border:1px solid #e8a0a0; background:#f4cccc; color:#a12a2a; transition:background .15s, border-color .15s, transform .1s; white-space:nowrap; }
   .conf-btn:hover { border-color:#c96a6a; }
   .conf-btn:active { transform:scale(0.97); }
   .conf-btn.on { background:#d9ead3; border-color:#9cc48f; color:#2f6b22; }
@@ -351,7 +382,7 @@
   /* ── Read-only (client) view ── */
   body.ro #edit-btn, body.ro #acct-btn, body.ro #open-sheet-btn, body.ro #share-btn, body.ro #ro-btn, body.ro #audio-folders-btn,
   body.ro #open-folder-btn, body.ro #switch-btn, body.ro .needs-btn, body.ro #new-char, body.ro #new-pron,
-  body.ro .tab-flag, body.ro .flags, body.ro .rbtn, body.ro .rec-col, body.ro .edit-btn,
+  body.ro .tab-flag, body.ro .flags, body.ro .rbtn, body.ro .rec-col, body.ro .edit-btn, body.ro .cell-ed, body.ro #gs-addrows, body.ro #gs-opentab,
   body.ro #rec-overlay, body.ro #modal-overlay, body.ro #del-overlay, body.ro .owner-only { display:none !important; }
   body.ro .card.flag-rec { box-shadow:var(--shadow-sm); }
   body.ro .card.flag-rec:hover { box-shadow:var(--shadow-md); }
@@ -364,16 +395,17 @@
 
 <div id="topbar">
 <header>
-  <img src="data:image/jpeg;base64,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" alt="The Audiobook Guy" style="height:40px;width:40px;border-radius:50%;object-fit:cover;flex-shrink:0;">
+  <img src="data:image/jpeg;base64,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" alt="The Audiobook Guy" style="height:40px;width:40px;border-radius:50%;object-fit:cover;flex-shrink:0;">
   <div class="header-text">
     <h1>Prep Suite<span class="ro-badge">View only</span></h1>
-    <p>Characters &amp; Pronunciations — one project, one Sheet</p>
+    <p>Your whole Prep Sheet — one project, one place</p>
   </div>
   <div id="hd-right">
     <div id="hd-actions">
       <button id="edit-btn" class="hd-action-btn" type="button" style="display:none" title="Sign in with Google so the suite can add and edit entries in this Sheet"><span class="dot"></span><span id="edit-btn-txt">Enable editing</span></button>
       <button id="acct-btn" class="hd-action-btn" type="button" style="display:none" title="Sign in with a different Google account">Switch account</button>
       <a id="open-sheet-btn" class="hd-action-btn" target="_blank" rel="noopener" style="display:none">Open Sheet</a>
+      <a id="export-btn" class="hd-action-btn" style="display:none" title="Download the whole Prep Sheet, every tab, as an Excel (.xlsx) file">⤓ Export Prep</a>
       <button id="share-btn" class="hd-action-btn" type="button" style="display:none" title="Copy a link that opens this project with full editing">Share Link</button>
       <button id="ro-btn" class="hd-action-btn" type="button" style="display:none" title="Copy a view-only link for clients — no editing or recording">Read-Only Link</button>
       <button id="audio-folders-btn" class="hd-action-btn" type="button" style="display:none" title="Choose where recordings are saved">Audio Folders</button>
@@ -384,10 +416,7 @@
   </div>
 </header>
 
-<nav id="tabs">
-  <button class="tab-btn active" data-tab="char" type="button">Characters <span class="tab-count" id="count-char"></span><span class="tab-flag" id="flagcount-char"></span></button>
-  <button class="tab-btn" data-tab="pron" type="button">Pronunciations <span class="tab-count" id="count-pron"></span><span class="tab-flag" id="flagcount-pron"></span></button>
-</nav>
+<nav id="tabs"></nav>
 
 <!-- Character controls -->
 <div class="ctrl" id="ctrl-char">
@@ -440,6 +469,21 @@
     <span class="stats" id="stats-pron"></span>
   </div>
 </div>
+
+<!-- Other tabs controls -->
+<div class="ctrl" id="ctrl-grid">
+  <div class="search-wrap">
+    <div class="search-input-row">
+      <div class="search-combo"><input type="text" class="search" id="search-grid" placeholder="Search this tab…" autocomplete="off"></div>
+    </div>
+  </div>
+  <div class="ctrl-right">
+    <button class="needs-btn unconf-btn" id="gs-unconf" type="button" style="display:none" title="Show only questions the author hasn't confirmed yet">Unconfirmed <span class="n" id="gs-unconf-n">0</span></button>
+    <button class="pill-btn ghost" id="gs-addrows" type="button" title="Add empty rows at the bottom to type into">+ Add rows</button>
+    <a class="pill-btn ghost" id="gs-opentab" target="_blank" rel="noopener">Open tab in Sheet</a>
+    <span class="stats" id="stats-grid"></span>
+  </div>
+</div>
 </div>
 
 <!-- MAIN MENU -->
@@ -449,7 +493,7 @@
       <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#e05a00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
     </div>
     <h2>Your Prep Projects</h2>
-    <p>Open a project's Prep Sheet, or start a new one from the template. The Characters and Pronunciation tabs load together — everything else in the Sheet is left alone.</p>
+    <p>Open a project's Prep Sheet, or start a new one from the template. Every tab of the Sheet loads in the suite, in the same order, ready to edit.</p>
 
     <div id="recent-wrap" style="display:none">
       <div class="sec-lbl">Recent projects</div>
@@ -483,6 +527,7 @@
 
 <div class="grid" id="grid-char"><div class="empty" id="empty-char">No characters match.</div></div>
 <div class="grid" id="grid-pron"><div class="empty" id="empty-pron">No entries match.</div></div>
+<div id="sheet-view"></div>
 
 <!-- ADD / EDIT MODAL -->
 <div id="modal-overlay">
@@ -505,7 +550,6 @@
   </div>
 </div>
 
-<!-- RECORDER / AUDIO FOLDERS -->
 <!-- DELETE CONFIRM -->
 <div id="del-overlay">
   <div id="del-box">
@@ -555,6 +599,8 @@ const S = {
   sheetId:null, title:'', charTab:null, pronTab:null,
   chars:[], prons:[],            // parsed entries with .row (1-based sheet row)
   charRaw:[], pronRaw:[],        // raw value arrays incl. header
+  tabs:[],                       // every visible tab, in Sheet order: { key, title, sheetId, kind:'char'|'pron'|'grid', ro }
+  grids:{},                      // other tabs' cells, keyed by tab title
   tab:'char', canWriteChar:false, canWritePron:false
 };
 let token = null, tokenExpiry = 0, tokenClient = null, tokenWaiter = null, gisReady = false;
@@ -566,7 +612,13 @@ let editAccess = false;          // this account has drive.file access to the lo
 const $ = id => document.getElementById(id);
 function esc(s){ return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function escRe(s){ return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); }
-function linkify(s){ return esc(s).replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>'); }
+// Any web address in the text becomes a clickable link (opens a new tab). Also catches www. addresses.
+function linkify(s){
+  return esc(s).replace(/\b((?:https?:\/\/|www\.)[^\s<]*[^\s<.,;:!?)\]'"])/gi, m => {
+    const href = /^www\./i.test(m) ? 'https://' + m : m;
+    return `<a href="${href}" target="_blank" rel="noopener">${m}</a>`;
+  });
+}
 function isUrl(s){ return /^https?:\/\//i.test((s||'').trim()); }
 function isDriveLink(u){ return /drive\.google\.com/i.test(u||''); }
 function driveMedia(url){
@@ -582,6 +634,7 @@ function linkLabel(url){
 }
 function parseSheetId(url){ const m = (url||'').match(/\/d\/([a-zA-Z0-9-_]+)/); return m ? m[1] : (/^[a-zA-Z0-9-_]{25,}$/.test((url||'').trim()) ? url.trim() : null); }
 function q(title){ return `'${title.replace(/'/g,"''")}'`; }
+function colLetter(i){ let s = ''; i++; while (i > 0) { const m = (i - 1) % 26; s = String.fromCharCode(65 + m) + s; i = Math.floor((i - 1) / 26); } return s; }
 function hasStar(...vals){ return vals.some(v => (v||'').includes('*')); }
 function toast(msg, isErr){ const t=$('toast'); t.textContent=msg; t.className='on'+(isErr?' err':''); clearTimeout(toast._t); toast._t=setTimeout(()=>t.className='', 3200); }
 function normCat(raw){
@@ -598,7 +651,7 @@ const PLAY_SVG = '<polygon points="5,3 19,12 5,21"/>';
 const PAUSE_SVG = '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';
 const EXT_SVG = '<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>';
 const MIC_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10v1a7 7 0 0 0 14 0v-1M12 18v4"/></svg>';
-function confBtnHtml(on){ return `<button class="conf-btn${on ? ' on' : ''}" type="button" title="${on ? 'Client has confirmed — click to undo' : 'Click when the client confirms this character'}">${on ? '✓' : '✕'} Client Confirmed</button>`; }
+function confBtnHtml(on, who){ who = who || 'client'; return `<button class="conf-btn${on ? ' on' : ''}" type="button" title="${on ? `Confirmed by the ${who} — click to undo` : `Click when the ${who} confirms this`}">${on ? '✓' : '✕'} ${who === 'client' ? 'Client ' : ''}Confirmed</button>`; }
 function recBtnHtml(title){ return `<button class="rbtn" type="button" title="${title}">${MIC_SVG}</button>`; }
 function playBtnHtml(cls, title){ return `<button class="pbtn ${cls}" title="${title}" disabled><svg class="ring" viewBox="0 0 46 46"><circle cx="23" cy="23" r="19"/></svg><svg class="ico" width="12" height="12" viewBox="0 0 24 24" fill="white">${PLAY_SVG}</svg></button>`; }
 
@@ -626,16 +679,18 @@ function detectRed(fmt){
   for (let i = 1; i < fmt.length; i++) for (const c of [fmt[i].k, fmt[i].j]) if (isReddish(c)) return { red:ch(c,'red'), green:ch(c,'green'), blue:ch(c,'blue') };
   return DEFAULT_RED;
 }
-// col: 0-based column index (J = 9, K = 10)
-async function setCellColour(row, col, colour){
+// Colour one cell of any tab. row: 1-based, col: 0-based
+async function setTabCellColour(tabSheetId, row, col, colour){
   const r = await fetch(`${SHEETS}${S.sheetId}:batchUpdate`, {
     method:'POST', headers:{ Authorization:'Bearer '+token, 'Content-Type':'application/json' },
     body: JSON.stringify({ requests:[{ repeatCell:{
-      range:{ sheetId:S.charTab.sheetId, startRowIndex:row-1, endRowIndex:row, startColumnIndex:col, endColumnIndex:col+1 },
+      range:{ sheetId:tabSheetId, startRowIndex:row-1, endRowIndex:row, startColumnIndex:col, endColumnIndex:col+1 },
       cell:{ userEnteredFormat:{ backgroundColor:colour } }, fields:'userEnteredFormat.backgroundColor' } }] })
   });
   if (!r.ok) { const e = new Error('format '+r.status); e.status = r.status; throw e; }
 }
+// Characters tab (J = 9, K = 10)
+const setCellColour = (row, col, colour) => setTabCellColour(S.charTab.sheetId, row, col, colour);
 const COL_J = 9, COL_K = 10;
 const YELLOW = { red:0xff/255, green:0xf2/255, blue:0xcc/255 }; // #fff2cc
 // Colour several column spans of one row in a single request.
@@ -656,8 +711,8 @@ async function loadSheet(sheetId, opts = {}){
   errEl.style.display = 'none';
   if (!opts.quiet) loadingEl.classList.add('on');
   try {
-    const meta = await sheetsGet(`${sheetId}?fields=properties.title,sheets.properties(sheetId,title)`);
-    const tabs = meta.sheets.map(s => s.properties);
+    const meta = await sheetsGet(`${sheetId}?fields=properties.title,sheets.properties(sheetId,title,index,hidden)`);
+    const tabs = meta.sheets.map(s => s.properties).sort((a, b) => (a.index || 0) - (b.index || 0));
     const charTab = tabs.find(t => /^characters?$/i.test(t.title.trim())) || tabs.find(t => /character/i.test(t.title));
     const pronTab = tabs.find(t => /^pronunciations?$/i.test(t.title.trim())) || tabs.find(t => /pronunciation/i.test(t.title));
     if (!charTab && !pronTab) {
@@ -684,20 +739,35 @@ async function loadSheet(sheetId, opts = {}){
         charFmt = (g.sheets?.[0]?.data?.[0]?.rowData || []).map(rd => ({ j: rd.values?.[0]?.effectiveFormat?.backgroundColor, k: rd.values?.[1]?.effectiveFormat?.backgroundColor }));
       } catch(e) { console.warn('cell colours unavailable', e); }
     }
-    S.charFmt = charFmt;
-    S.redColor = detectRed(charFmt);
+
+    // Every other visible tab, in Sheet order (Phonetic Ref is reference-only)
+    const allTabs = tabs.filter(t => !t.hidden).map(t => {
+      if (charTab && t.sheetId === charTab.sheetId) return { key:'char', title:t.title, sheetId:t.sheetId, kind:'char' };
+      if (pronTab && t.sheetId === pronTab.sheetId) return { key:'pron', title:t.title, sheetId:t.sheetId, kind:'pron' };
+      return { key:'g:' + t.title, title:t.title, sheetId:t.sheetId, kind:'grid', ro:/phonetic/i.test(t.title), notes: !!notesTab && t.sheetId === notesTab.sheetId };
+    });
+    let grids = {};
+    try { grids = await loadGrids(sheetId, allTabs.filter(t => t.kind === 'grid')); }
+    catch(e) { console.warn('other tabs unavailable', e); }
 
     const sameSheet = S.sheetId === sheetId;
+    S.charFmt = charFmt;
+    S.redColor = detectRed(charFmt);
     S.sheetId = sheetId; S.title = meta.properties.title; S.charTab = charTab || null; S.pronTab = pronTab || null;
     S.notesTab = notesTab; S.notes = notes; if (!sameSheet) S.notesFilled = false;
+    S.tabs = allTabs;
+    // Keep any blank rows you'd added on screen across a reload
+    Object.values(grids).forEach(g => { const old = sameSheet && S.grids[g.title]; if (old) g.extra = old.extra || 0; });
+    S.grids = grids;
     S.projectFolderId = parseFolderId(notes.b1) || null;
     // B2 holds the Audio folders; if it's empty, it's the same as the project folder in B1
     S.audioParentId = parseFolderId(notes.b2) || S.projectFolderId || null;
     S.charRaw = charVals; S.pronRaw = pronVals;
     S.canWriteChar = !!charTab && /^character/i.test((charVals[0]?.[0]||'').trim());
     S.canWritePron = !!pronTab && /^word/i.test((pronVals[0]?.[0]||'').trim());
-    if (!sameSheet) { editAccess = false; migrateScenes(); currentSceneId = null; sceneTags.char = []; sceneTags.pron = []; sceneExcludes = []; }
+    if (!sameSheet) { editAccess = false; migrateScenes(); currentSceneId = null; sceneTags.char = []; sceneTags.pron = []; sceneExcludes = []; gsFilter.q = ''; gsFilter.unconf = false; }
 
+    buildTabs();
     await syncAudioFoldersFromSheet();
     buildChars(charVals);
     buildProns(pronVals);
@@ -711,18 +781,38 @@ async function loadSheet(sheetId, opts = {}){
     if (e.message === 'no-tabs') msg = `Couldn't find a Characters or Pronunciation tab. Tabs in this Sheet: ${e.tabs.join(', ')}.`;
     else if (e.status === 403 && !tokenValid()) msg += ' (If it is shared, the API key may still need the Google Sheets API switched on.)';
     if (opts.quiet) toast(msg, true); else { errEl.textContent = msg; errEl.style.display = 'block'; }
+    console.error(e);
     return false;
   } finally { loadingEl.classList.remove('on'); }
 }
 
+// ── Tab bar: every visible tab in the Sheet's order ──
+function buildTabs(){
+  const nav = $('tabs');
+  const has = k => S.tabs.some(t => t.key === k);
+  let html = '';
+  S.tabs.forEach(t => {
+    if (t.kind === 'char') html += `<button class="tab-btn" data-tab="char" type="button">${esc(t.title)} <span class="tab-count" id="count-char"></span><span class="tab-flag" id="flagcount-char"></span></button>`;
+    else if (t.kind === 'pron') html += `<button class="tab-btn" data-tab="pron" type="button">${esc(t.title)} <span class="tab-count" id="count-pron"></span><span class="tab-flag" id="flagcount-pron"></span></button>`;
+    else html += `<button class="tab-btn" data-tab="${esc(t.key)}" type="button">${esc(t.title)}${t.ro ? ' <span class="tab-ref">Ref</span>' : ''}${t.notes ? '<span class="tab-flag" id="flagcount-notes"></span>' : ''}</button>`;
+  });
+  // The card views still need their counters even if a tab is missing
+  if (!has('char')) html += '<span style="display:none"><span id="count-char"></span><span id="flagcount-char"></span></span>';
+  if (!has('pron')) html += '<span style="display:none"><span id="count-pron"></span><span id="flagcount-pron"></span></span>';
+  nav.innerHTML = html;
+  updateNotesFlag();
+}
+$('tabs').addEventListener('click', ev => { const b = ev.target.closest('.tab-btn'); if (b) setTab(b.dataset.tab); });
+
 function showApp(){
   $('load').style.display = 'none';
   $('tabs').classList.add('on');
-  ['edit-btn','acct-btn','open-sheet-btn','share-btn','ro-btn','switch-btn','audio-folders-btn'].forEach(id => $(id).style.display = '');
+  ['edit-btn','acct-btn','open-sheet-btn','export-btn','share-btn','ro-btn','switch-btn','audio-folders-btn'].forEach(id => $(id).style.display = '');
   const projId = S.projectFolderId || (getProjectInfo(S.sheetId) || {}).folderId;
   $('open-folder-btn').style.display = projId ? '' : 'none';
   if (projId) $('open-folder-btn').href = folderUrl(projId);
   $('open-sheet-btn').href = `https://docs.google.com/spreadsheets/d/${S.sheetId}/edit`;
+  $('export-btn').href = exportUrl();
   $('hd-book').innerHTML = `<strong>${esc(S.title)}</strong>Live · ${S.chars.length} characters · ${S.prons.length} words`;
   $('count-char').textContent = S.chars.length; $('count-pron').textContent = S.prons.length;
   $('new-char').style.display = S.charTab ? '' : 'none';
@@ -732,15 +822,27 @@ function showApp(){
 }
 
 function setTab(tab){
+  if (!S.tabs.some(t => t.key === tab)) tab = (S.tabs.find(t => t.kind === 'char') || S.tabs[0] || { key:'char' }).key;
+  if (S.tab !== tab) { gsFilter.q = ''; gsFilter.unconf = false; }
   S.tab = tab; localStorage.setItem(TAB_KEY, tab);
   stopCurrent();
+  const isGrid = tab.startsWith('g:');
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
   $('ctrl-char').classList.toggle('on', tab === 'char');
   $('ctrl-pron').classList.toggle('on', tab === 'pron');
+  $('ctrl-grid').classList.toggle('on', isGrid);
   $('grid-char').classList.toggle('on', tab === 'char');
   $('grid-pron').classList.toggle('on', tab === 'pron');
+  $('sheet-view').classList.toggle('on', isGrid);
+  if (isGrid) renderGrid();
 }
-document.querySelectorAll('.tab-btn').forEach(b => b.addEventListener('click', () => setTab(b.dataset.tab)));
+
+// ═══════════════════════════════════════════════════════════
+// EXPORT PREP — the whole Sheet, every tab and colour, as .xlsx
+// ═══════════════════════════════════════════════════════════
+// Google builds the file itself, so formatting, formulas and all tabs come across.
+const exportUrl = () => `https://docs.google.com/spreadsheets/d/${S.sheetId}/export?format=xlsx`;
+$('export-btn').addEventListener('click', () => toast(`Downloading "${S.title}.xlsx"…`));
 
 // ═══════════════════════════════════════════════════════════
 // PLAYBACK
@@ -911,6 +1013,237 @@ function buildChips(cats){
     b.addEventListener('click', () => { activeCat = cat; wrap.querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c === b)); refilterPron(); });
     wrap.appendChild(b);
   });
+}
+
+// ═══════════════════════════════════════════════════════════
+// OTHER TABS — Notes/Qs, Phonetic Ref, Accents/Locations, Book Synopsis…
+// Shown like the Sheet. Click a cell (or its ✎) to edit; links are clickable.
+// ═══════════════════════════════════════════════════════════
+const gsFilter = { q:'', unconf:false };
+const isWhite = c => !c || (ch(c,'red') > 0.985 && ch(c,'green') > 0.985 && ch(c,'blue') > 0.985);
+const cssColour = c => `rgb(${Math.round(ch(c,'red')*255)},${Math.round(ch(c,'green')*255)},${Math.round(ch(c,'blue')*255)})`;
+
+async function loadGrids(sheetId, tabs){
+  const out = {};
+  if (!tabs.length) return out;
+  const fields = 'sheets(properties(sheetId),merges,data(rowData(values(formattedValue,userEnteredValue,hyperlink,effectiveFormat(backgroundColor,textFormat(bold))))))';
+  const qs = tabs.map(t => 'ranges=' + encodeURIComponent(q(t.title))).join('&');
+  const g = await sheetsGet(`${sheetId}?${qs}&fields=${encodeURIComponent(fields)}`);
+  (g.sheets || []).forEach(sh => {
+    const t = tabs.find(x => x.sheetId === sh.properties?.sheetId); if (!t) return;
+    const rows = (sh.data?.[0]?.rowData || []).map(rd => (rd.values || []).map(c => {
+      const uv = c.userEnteredValue || {};
+      return { v: c.formattedValue ?? '', f: uv.formulaValue != null, link: c.hyperlink || '',
+        bg: c.effectiveFormat?.backgroundColor, bold: !!c.effectiveFormat?.textFormat?.bold };
+    }));
+    out[t.title] = { title:t.title, sheetId:t.sheetId, ro:!!t.ro, notes:!!t.notes, rows, merges: sh.merges || [], extra:0 };
+  });
+  return out;
+}
+const gridFor = () => { const t = S.tabs.find(x => x.key === S.tab); return t ? S.grids[t.title] : null; };
+const cellAt = (g, r, c) => (g.rows[r] || [])[c] || null;
+const cellText = (g, r, c) => (cellAt(g, r, c)?.v || '').trim();
+
+// Notes/Qs: rows under "Question" and "Notes for the Proofer" can be confirmed.
+// The answer cell (the column headed "…Answer", usually D) turns green / red, like Characters K.
+function notesSections(g){
+  const out = []; let ansCol = null;
+  for (let r = 0; r < g.rows.length + g.extra; r++) {
+    const a = cellText(g, r, 0);
+    if (/^question/i.test(a) || /notes for the proofer/i.test(a)) {
+      const row = g.rows[r] || [];
+      const i = row.findIndex(c => /answer/i.test(c?.v || ''));
+      ansCol = i > -1 ? i : 3;
+      out[r] = { header:true };
+    } else if (ansCol != null && a) {
+      out[r] = { ansCol, confirmed: isGreen(cellAt(g, r, ansCol)?.bg) };
+    }
+  }
+  return out;
+}
+function updateNotesFlag(){
+  const el = $('flagcount-notes'); if (!el) return;
+  const t = S.tabs.find(x => x.notes); const g = t && S.grids[t.title];
+  const n = g ? notesSections(g).filter(s => s && !s.header && !s.confirmed).length : 0;
+  el.textContent = n || '';
+  el.title = n ? `${n} question${n === 1 ? '' : 's'} not confirmed yet` : '';
+}
+
+function renderGrid(){
+  const g = gridFor(), view = $('sheet-view');
+  const tab = S.tabs.find(x => x.key === S.tab);
+  $('gs-opentab').href = `https://docs.google.com/spreadsheets/d/${S.sheetId}/edit#gid=${tab ? tab.sheetId : 0}`;
+  if (!g) {
+    view.innerHTML = `<div class="gs-note">This tab couldn't be loaded. Open it in the Sheet instead.</div>`;
+    $('stats-grid').textContent = ''; $('gs-unconf').style.display = 'none'; $('gs-addrows').style.display = 'none';
+    return;
+  }
+  const editable = !RO && !g.ro;
+  $('gs-addrows').style.display = editable ? '' : 'none';
+  $('search-grid').value = gsFilter.q;
+  const sec = g.notes ? notesSections(g) : [];
+  // Columns: widest row or merge; rows: last row with anything in it, plus empty rows to type into
+  let nCols = 1, lastRow = -1;
+  g.rows.forEach((r, i) => r.forEach((c, j) => { if ((c.v || '').trim()) { nCols = Math.max(nCols, j + 1); lastRow = Math.max(lastRow, i); } }));
+  g.merges.forEach(m => { if (m.startRowIndex <= lastRow) nCols = Math.max(nCols, m.endColumnIndex); });
+  const nRows = lastRow + 1 + (editable ? Math.max(2, g.extra) : 0);
+  // Merged cells
+  const span = {}, covered = new Set();
+  if (!gsFilter.q && !gsFilter.unconf) g.merges.forEach(m => {
+    if (m.startRowIndex >= nRows || m.startColumnIndex >= nCols) return;
+    span[m.startRowIndex + ':' + m.startColumnIndex] = { rs: Math.min(m.endRowIndex, nRows) - m.startRowIndex, cs: Math.min(m.endColumnIndex, nCols) - m.startColumnIndex };
+    for (let r = m.startRowIndex; r < Math.min(m.endRowIndex, nRows); r++) for (let c = m.startColumnIndex; c < Math.min(m.endColumnIndex, nCols); c++)
+      if (r !== m.startRowIndex || c !== m.startColumnIndex) covered.add(r + ':' + c);
+  });
+  const qv = gsFilter.q.toLowerCase();
+  let shown = 0, totalQ = 0, unconfQ = 0;
+  let body = '';
+  for (let r = 0; r < nRows; r++) {
+    const s = sec[r];
+    if (s && !s.header) { totalQ++; if (!s.confirmed) unconfQ++; }
+    let hide = false;
+    if (qv) hide = !(g.rows[r] || []).some(c => (c.v || '').toLowerCase().includes(qv));
+    if (gsFilter.unconf) hide = hide || !(s && (s.header || !s.confirmed));
+    if (!hide && (g.rows[r] || []).some(c => (c.v || '').trim())) shown++;
+    let tr = `<tr data-r="${r}"${hide ? ' class="hidden-row"' : ''}><th class="rh">${r + 1}</th>`;
+    if (g.notes) tr += `<td class="conf-cell">${s && !s.header ? confBtnHtml(s.confirmed, 'author') : ''}</td>`;
+    for (let c = 0; c < nCols; c++) {
+      if (covered.has(r + ':' + c)) continue;
+      const cell = cellAt(g, r, c) || { v:'' };
+      const sp = span[r + ':' + c];
+      const cls = [];
+      const canEdit = editable && !cell.f;
+      if (canEdit) cls.push('ed');
+      if (cell.f) cls.push('fx');
+      if (cell.bold) cls.push('b');
+      const style = !isWhite(cell.bg) ? ` style="background:${cssColour(cell.bg)}"` : '';
+      const txt = cell.link && !isUrl(cell.v) && !/^www\./i.test(cell.v) && cell.v
+        ? `<a href="${esc(cell.link)}" target="_blank" rel="noopener">${esc(cell.v)}</a>` : linkify(cell.v);
+      tr += `<td data-c="${c}"${sp ? ` rowspan="${sp.rs}" colspan="${sp.cs}"` : ''}${cls.length ? ` class="${cls.join(' ')}"` : ''}${style}${cell.f ? ' title="Formula — edit it in the Sheet"' : ''}>${txt}${canEdit ? '<span class="cell-ed" title="Edit cell">✎</span>' : ''}</td>`;
+    }
+    body += tr + '</tr>';
+  }
+  let head = '<tr><th class="rh"></th>' + (g.notes ? '<th>Author</th>' : '');
+  for (let c = 0; c < nCols; c++) head += `<th>${colLetter(c)}</th>`;
+  head += '</tr>';
+  const note = g.ro ? '<div class="gs-note">Reference only — this tab can\'t be edited from the suite.</div>'
+    : RO ? '' : (!editAccess ? '<div class="gs-note">Click any cell to edit it — the first edit asks you to enable editing. Links open in a new tab; use ✎ to edit a cell that holds a link.</div>' : '<div class="gs-note">Click a cell to edit · ⌘/Ctrl + Enter or click away to save · Esc to cancel. Use ✎ to edit a cell that holds a link.</div>');
+  view.innerHTML = `${note}<div class="gs-scroll"><table class="gsheet${nCols <= 2 ? ' narrow' : ''}"><thead>${head}</thead><tbody>${body}</tbody></table></div>`;
+  $('stats-grid').textContent = `${shown} row${shown === 1 ? '' : 's'}`;
+  $('gs-unconf').style.display = g.notes ? '' : 'none';
+  $('gs-unconf-n').textContent = unconfQ;
+  $('gs-unconf').classList.toggle('on', gsFilter.unconf);
+  $('gs-unconf').classList.toggle('zero', unconfQ === 0);
+  updateNotesFlag();
+}
+
+// Clicks inside the sheet view: confirm buttons, ✎, or a cell
+$('sheet-view').addEventListener('click', ev => {
+  const conf = ev.target.closest('.conf-btn');
+  if (conf) { const r = Number(conf.closest('tr').dataset.r); toggleNoteConfirmed(r, conf); return; }
+  if (ev.target.closest('a')) return;                       // links just open
+  const td = ev.target.closest('td.ed'); if (!td || td.classList.contains('editing')) return;
+  startCellEdit(td);
+});
+$('search-grid').addEventListener('input', () => { gsFilter.q = $('search-grid').value.trim(); renderGrid(); $('search-grid').focus(); });
+$('gs-unconf').addEventListener('click', () => { gsFilter.unconf = !gsFilter.unconf; renderGrid(); });
+$('gs-addrows').addEventListener('click', () => { const g = gridFor(); if (!g) return; g.extra = Math.max(2, g.extra) + 5; renderGrid(); });
+
+let cellEdit = null;
+function startCellEdit(td){
+  if (RO) return;
+  if (cellEdit) { cellEdit.ta.blur(); if (cellEdit) return; }
+  const g = gridFor(); if (!g || g.ro) return;
+  const r = Number(td.closest('tr').dataset.r), c = Number(td.dataset.c);
+  const cell = cellAt(g, r, c) || { v:'' };
+  if (cell.f) return;
+  // Start Google sign-in now, inside the click, so the popup isn't blocked
+  const tokenP = editAccess && tokenValid() ? Promise.resolve(token) : requestToken();
+  tokenP.catch(()=>{});
+  const orig = cell.v || '';
+  const html = td.innerHTML;
+  td.classList.add('editing');
+  td.innerHTML = `<textarea spellcheck="true"></textarea><div class="edit-hint">⌘/Ctrl+Enter to save · Esc to cancel</div>`;
+  const ta = td.querySelector('textarea');
+  ta.value = orig;
+  ta.style.height = Math.max(70, Math.min(320, ta.scrollHeight + 4)) + 'px';
+  ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length);
+  cellEdit = { g, r, c, td, ta, orig, html, tokenP, done:false };
+  ta.addEventListener('input', () => { ta.style.height = 'auto'; ta.style.height = Math.max(70, Math.min(320, ta.scrollHeight + 4)) + 'px'; });
+  ta.addEventListener('keydown', ev => {
+    if (ev.key === 'Escape') { ev.preventDefault(); ev.stopPropagation(); finishCellEdit(false); }
+    else if (ev.key === 'Enter' && (ev.metaKey || ev.ctrlKey)) { ev.preventDefault(); finishCellEdit(true); }
+  });
+  ta.addEventListener('blur', () => finishCellEdit(true));
+}
+async function finishCellEdit(save){
+  const ed = cellEdit; if (!ed || ed.done) return;
+  ed.done = true; cellEdit = null;
+  const val = ed.ta.value.replace(/\s+$/,'');
+  const restore = () => { ed.td.classList.remove('editing','saving'); ed.td.innerHTML = ed.html; };
+  if (!save || val === ed.orig.replace(/\s+$/,'')) { restore(); return; }
+  ed.td.classList.remove('editing'); ed.td.classList.add('saving');
+  ed.td.innerHTML = linkify(val);
+  const a1 = `${q(ed.g.title)}!${colLetter(ed.c)}${ed.r + 1}`;
+  try {
+    if (!(await ensureEditAccess(ed.tokenP))) { restore(); return; }
+    // Don't overwrite something changed in the Sheet since it loaded
+    const cur = await readRange(a1);
+    const now = ((cur[0] || [])[0] ?? '').toString();
+    if (now.trim() !== ed.orig.trim()) {
+      toast('That cell changed in the Sheet since it loaded — showing the latest. Your edit wasn\'t saved.', true);
+      await loadSheet(S.sheetId, { quiet:true }); return;
+    }
+    const isFormula = /^=/.test(val);
+    await sheetsWrite(isFormula ? 'USER_ENTERED' : 'RAW', [{ range:a1, values:[[isFormula ? val : numOrText(val)]] }]);
+    // Update what's on screen without a full reload
+    const row = ed.g.rows[ed.r] || (ed.g.rows[ed.r] = []);
+    while (row.length <= ed.c) row.push({ v:'' });
+    for (let i = ed.g.rows.length; i < ed.r; i++) ed.g.rows[i] = ed.g.rows[i] || [];
+    for (let i = 0; i < ed.r; i++) if (!ed.g.rows[i]) ed.g.rows[i] = [];
+    row[ed.c] = { ...(row[ed.c] || {}), v: val, f: isFormula, link:'' };
+    if (ed.g.notes && ed.c === 1 && ed.r < 3) {             // Notes/Qs B1–B3 drive folders and the read-only link
+      S.notes['b' + (ed.r + 1)] = val;
+      S.projectFolderId = parseFolderId(S.notes.b1) || null;
+      S.audioParentId = parseFolderId(S.notes.b2) || S.projectFolderId || null;
+    }
+    if (isFormula) { await loadSheet(S.sheetId, { quiet:true }); toast('Saved'); return; }
+    // Another cell may already be open for editing — don't redraw over it
+    if (cellEdit) { ed.td.classList.remove('saving'); ed.td.innerHTML = linkify(val) + '<span class="cell-ed" title="Edit cell">✎</span>'; }
+    else if (gridFor() === ed.g) renderGrid();
+    toast('Saved to the Sheet');
+  } catch(e) {
+    console.error(e);
+    restore();
+    if (e.status === 401) { token = null; toast('Your Google session expired — edit the cell again to reconnect.', true); }
+    else if (e.status === 403 || e.status === 404) { editAccess = false; updateEditUI(); toast(`${accountEmail || 'This account'} can't edit that Sheet — use Switch account.`, true); }
+    else toast("Couldn't save that cell — check your connection and try again.", true);
+  }
+}
+
+async function toggleNoteConfirmed(r, btn){
+  if (RO || btn.classList.contains('busy')) return;
+  const g = gridFor(); if (!g || !g.notes) return;
+  const s = notesSections(g)[r]; if (!s || s.header) return;
+  const tokenP = editAccess && tokenValid() ? Promise.resolve(token) : requestToken();   // inside the click
+  tokenP.catch(()=>{});
+  const next = !s.confirmed, qText = cellText(g, r, 0);
+  btn.classList.add('busy');
+  try {
+    if (!(await ensureEditAccess(tokenP))) return;
+    const cur = await readRange(`${q(g.title)}!A${r + 1}`);
+    if (((cur[0]||[])[0]||'').trim() !== qText) { toast('That row changed in the Sheet since it loaded — reload and try again.', true); return; }
+    const colour = next ? GREEN : S.redColor;
+    await setTabCellColour(g.sheetId, r + 1, s.ansCol, colour);
+    const row = g.rows[r]; while (row.length <= s.ansCol) row.push({ v:'' });
+    row[s.ansCol] = { ...(row[s.ansCol] || {}), bg: colour };
+    toast(next ? 'Answer confirmed by the author' : 'Marked unconfirmed');
+    renderGrid();
+  } catch(err) {
+    console.error(err);
+    if (err.status === 401) { token = null; toast('Your Google session expired — click again.', true); }
+    else toast("Couldn't update the Sheet — check your connection and try again.", true);
+  } finally { btn.classList?.remove('busy'); }
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -1186,12 +1519,14 @@ async function ensureEditAccess(tokenPromise){
 }
 function updateEditUI(){
   const b = $('edit-btn');
+  const was = b.classList.contains('on');
   b.classList.toggle('on', editAccess);
   $('edit-btn-txt').textContent = editAccess ? 'Editing on' : 'Enable editing';
   b.title = editAccess ? 'Signed in — add and edit entries in this Sheet' : 'Sign in with Google so the suite can add and edit entries in this Sheet';
   const a = $('acct-btn');
   a.textContent = accountEmail ? `${accountEmail} · Switch` : 'Switch account';
   a.title = accountEmail ? `Signed in as ${accountEmail} — click to use a different Google account` : 'Sign in with a different Google account';
+  if (was !== editAccess && S.tab.startsWith('g:') && !cellEdit && $('sheet-view').classList.contains('on')) renderGrid();
 }
 $('edit-btn').addEventListener('click', () => { if (!editAccess) ensureEditAccess(requestToken()); });
 // Forget the current Google account and choose another (e.g. the one that owns this Sheet)
@@ -1626,7 +1961,13 @@ async function writeNotesCells(vals, force){
   if (!data.length) return false;
   try {
     await sheetsWrite('RAW', data);
-    data.forEach(d => { const k = 'b' + d.range.slice(-1); S.notes[k] = d.values[0][0]; });
+    data.forEach(d => {
+      const k = 'b' + d.range.slice(-1); S.notes[k] = d.values[0][0];
+      // keep the Notes/Qs tab view in step
+      const g = S.grids[S.notesTab.title];
+      if (g) { const r = Number(k[1]) - 1; const row = g.rows[r] || (g.rows[r] = []); while (row.length < 2) row.push({ v:'' }); row[1] = { ...(row[1] || {}), v:d.values[0][0], link:'' }; }
+    });
+    if (S.tab.startsWith('g:') && gridFor()?.notes && !cellEdit) renderGrid();
     return true;
   } catch(e) { console.warn('Notes/Qs write failed', e); return false; }
 }
@@ -2088,25 +2429,25 @@ $('ro-btn').addEventListener('click', async () => {
 });
 $('switch-btn').addEventListener('click', () => {
   stopCurrent();
-  ['grid-char','grid-pron','ctrl-char','ctrl-pron','tabs'].forEach(id => $(id).classList.remove('on'));
-  ['edit-btn','acct-btn','open-sheet-btn','share-btn','ro-btn','switch-btn','open-folder-btn','audio-folders-btn'].forEach(id => $(id).style.display = 'none');
+  ['grid-char','grid-pron','ctrl-char','ctrl-pron','ctrl-grid','sheet-view','tabs'].forEach(id => $(id).classList.remove('on'));
+  ['edit-btn','acct-btn','open-sheet-btn','export-btn','share-btn','ro-btn','switch-btn','open-folder-btn','audio-folders-btn'].forEach(id => $(id).style.display = 'none');
   $('hd-book').innerHTML = ''; $('load').style.display = '';
   $('sheet-error').style.display = 'none'; $('np-error').style.display = 'none'; $('np-progress').innerHTML = '';
   renderRecent();
 });
 
 (async function init(){
-  S.tab = localStorage.getItem(TAB_KEY) === 'pron' ? 'pron' : 'char';
+  S.tab = localStorage.getItem(TAB_KEY) || 'char';
   const p = new URLSearchParams(location.search);
   const shared = p.get('sheet');
   const tabParam = p.get('tab');
-  if (tabParam === 'pron' || tabParam === 'char') S.tab = tabParam;
+  if (tabParam) S.tab = tabParam === 'char' || tabParam === 'pron' || tabParam.startsWith('g:') ? tabParam : 'g:' + tabParam;
   const id = shared || localStorage.getItem(LAST_KEY);
   renderRecent();
   if (id) await loadSheet(id);
 })();
 </script>
-<div id="tool-version">v7.5</div>
+<div id="tool-version">v8.0</div>
 <div id="tag-footer"></div>
 <script src="/partials/inject-brand.js"></script>
 </body>
