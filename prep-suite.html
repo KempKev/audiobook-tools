@@ -248,6 +248,33 @@
   table.gsheet tr.hidden-row { display:none; }
   table.gsheet a { word-break:break-all; }
 
+  /* ── CARD VIEW (other tabs) ── */
+  .cs-section { margin-bottom:28px; }
+  .cs-head { display:flex; align-items:center; gap:10px; margin:2px 0 12px; flex-wrap:wrap; }
+  .cs-title { font-family:'Raleway',sans-serif; font-weight:800; font-size:1rem; letter-spacing:-0.01em; }
+  .cs-count { font-family:'Raleway',sans-serif; font-size:0.72rem; font-weight:700; color:var(--light); }
+  .cs-head .pill-btn { margin-left:auto; padding:5px 13px; font-size:0.68rem; }
+  .cs-heading { font-family:'Raleway',sans-serif; font-weight:800; font-size:1.15rem; margin:6px 0 14px; padding-bottom:5px; border-bottom:3px solid var(--accent); display:inline-block; }
+  .cs-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:14px; }
+  .cs-grid.small { grid-template-columns:repeat(auto-fill, minmax(190px, 1fr)); }
+  .cs-grid.wide { grid-template-columns:1fr; }
+  .cs-sub { grid-column:1/-1; font-family:'Raleway',sans-serif; font-size:0.7rem; font-weight:800; letter-spacing:0.09em; text-transform:uppercase; color:var(--accent); margin-top:6px; padding-bottom:4px; border-bottom:1px solid var(--accent-brd); }
+  .cs-empty { color:var(--light); font-style:italic; font-size:0.8rem; }
+  .cs-hide { display:none !important; }
+  .card .char-name.long { font-size:0.95rem; line-height:1.35; }
+  .ipa-big { font-family:'Open Sans',sans-serif; font-size:1.55rem; font-weight:700; color:var(--blue-ipa); line-height:1.2; word-break:break-word; }
+  .cs-short { font-size:0.82rem; color:var(--ink); }
+  .cs-block { margin-top:8px; }
+  .cs-prose { font-size:0.88rem; line-height:1.7; margin-bottom:10px; }
+  .kv { padding:7px 0; border-bottom:1px solid var(--rule); }
+  .kv:last-of-type { border-bottom:none; }
+  .kv-v { font-size:0.84rem; line-height:1.5; white-space:pre-wrap; word-break:break-word; display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
+  .info-card { border-top-color:var(--accent); }
+  .link-pill.wide { max-width:260px; font-size:0.7rem; padding:3px 8px; }
+  .ll-row { display:flex; align-items:baseline; justify-content:space-between; gap:12px; padding:6px 0; border-bottom:1px solid var(--rule); font-size:0.82rem; }
+  .ll-row:last-child { border-bottom:none; }
+  .ll-row a { text-decoration:none; font-weight:600; white-space:nowrap; }
+
   /* ── MODAL ── */
   #modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:500; align-items:flex-start; justify-content:center; padding:40px 16px; overflow-y:auto; }
   #modal-overlay.on { display:flex; }
@@ -480,6 +507,7 @@
   <div class="ctrl-right">
     <button class="needs-btn unconf-btn" id="gs-unconf" type="button" style="display:none" title="Show only questions the author hasn't confirmed yet">Unconfirmed <span class="n" id="gs-unconf-n">0</span></button>
     <button class="pill-btn ghost" id="gs-addrows" type="button" title="Add empty rows at the bottom to type into">+ Add rows</button>
+    <button class="pill-btn ghost" id="gs-view" type="button" title="Switch between cards and a spreadsheet-style view">▦ Sheet view</button>
     <a class="pill-btn ghost" id="gs-opentab" target="_blank" rel="noopener">Open tab in Sheet</a>
     <span class="stats" id="stats-grid"></span>
   </div>
@@ -493,7 +521,7 @@
       <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#e05a00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
     </div>
     <h2>Your Prep Projects</h2>
-    <p>Open a project's Prep Sheet, or start a new one from the template. Every tab of the Sheet loads in the suite, in the same order, ready to edit.</p>
+    <p>Open a project's Prep Sheet, or start a new one from the template. Every tab of the Sheet loads in the suite as cards, in the same order, ready to edit.</p>
 
     <div id="recent-wrap" style="display:none">
       <div class="sec-lbl">Recent projects</div>
@@ -1069,7 +1097,7 @@ function updateNotesFlag(){
   el.title = n ? `${n} question${n === 1 ? '' : 's'} not confirmed yet` : '';
 }
 
-function renderGrid(){
+function renderSheetTable(){
   const g = gridFor(), view = $('sheet-view');
   const tab = S.tabs.find(x => x.key === S.tab);
   $('gs-opentab').href = `https://docs.google.com/spreadsheets/d/${S.sheetId}/edit#gid=${tab ? tab.sheetId : 0}`;
@@ -1140,7 +1168,14 @@ function renderGrid(){
 // Clicks inside the sheet view: confirm buttons, ✎, or a cell
 $('sheet-view').addEventListener('click', ev => {
   const conf = ev.target.closest('.conf-btn');
-  if (conf) { const r = Number(conf.closest('tr').dataset.r); toggleNoteConfirmed(r, conf); return; }
+  if (conf) { const r = Number(conf.closest('[data-r]').dataset.r); toggleNoteConfirmed(r, conf); return; }
+  const act = ev.target.closest('[data-act]');
+  if (act) {
+    const g = gridFor(), b = g?._blocks?.[Number(act.dataset.b)]; if (!b) return;
+    const card = act.closest('[data-r]');
+    openGridForm(g, b, act.dataset.act === 'add' || !card ? null : Number(card.dataset.r));
+    return;
+  }
   if (ev.target.closest('a')) return;                       // links just open
   const td = ev.target.closest('td.ed'); if (!td || td.classList.contains('editing')) return;
   startCellEdit(td);
@@ -1244,6 +1279,302 @@ async function toggleNoteConfirmed(r, btn){
     if (err.status === 401) { token = null; toast('Your Google session expired — click again.', true); }
     else toast("Couldn't update the Sheet — check your connection and try again.", true);
   } finally { btn.classList?.remove('busy'); }
+}
+
+
+// ═══════════════════════════════════════════════════════════
+// CARD VIEW for the other tabs — the Sheet's layout is read and turned into
+// sections of cards: a header row (Question / Place / Name/Word…) starts a
+// section, each row under it is a card, and label rows become an info card.
+// ═══════════════════════════════════════════════════════════
+const VIEW_KEY = 'prepsuite_gridview';
+// Tabs from the Prep Sheet template that have a card design
+const CARD_TABS = /^(notes\s*[\/&]?\s*q|phonetic\s*ref|accents?\s*[\/&]?\s*locations?|book\s*synopsis|author\s*general\s*notes)/i;
+const hasCardLayout = g => CARD_TABS.test((g.title || '').trim());
+let gridView = localStorage.getItem(VIEW_KEY) === 'sheet' ? 'sheet' : 'cards';
+const HEADER_A = /^(questions?|notes for the proofer|place|name\s*\/\s*word|file|rp word examples|character|word|name|term)$/i;
+const hasUrlText = v => /https?:\/\/|www\./i.test(v || '');
+const firstLine = v => (v || '').split('\n')[0].trim();
+function rowNE(g, r){ const out = []; (g.rows[r] || []).forEach((c, i) => { if ((c?.v || '').trim()) out.push(i); }); return out; }
+function usedExtent(g){ let lr = -1, lc = -1; g.rows.forEach((row, r) => (row || []).forEach((c, i) => { if ((c?.v || '').trim()) { lr = Math.max(lr, r); lc = Math.max(lc, i); } })); return { lr, lc }; }
+function isHeaderRow(g, r, first){
+  const ne = rowNE(g, r); if (ne.length < 2) return false;
+  const row = g.rows[r];
+  if (ne.some(i => hasUrlText(row[i].v))) return false;
+  if (HEADER_A.test(cellText(g, r, 0))) return true;
+  if (ne.every(i => row[i].bold)) return true;
+  return first && ne.every(i => row[i].v.trim().length <= 40);
+}
+// Side-by-side tables (e.g. Phonetic Ref's Useful Links) are split at empty columns
+function headerGroups(g, hr, end){
+  const hdr = g.rows[hr] || [], used = [];
+  for (let r = hr + 1; r < Math.min(end, g.rows.length); r++) (g.rows[r] || []).forEach((c, i) => { if ((c?.v || '').trim()) used[i] = true; });
+  const maxC = Math.max(hdr.length, used.length) - 1;
+  const groups = []; let cur = null;
+  for (let c = 0; c <= maxC; c++) {
+    const h = (hdr[c]?.v || '').trim();
+    if (!h && !used[c]) { cur = null; continue; }
+    if (!cur) { cur = []; groups.push(cur); }
+    cur.push({ c, label: firstLine(h) || colLetter(c), full: h });
+  }
+  return groups;
+}
+function parseCards(g){
+  const { lr, lc } = usedExtent(g);
+  const blocks = [];
+  if (lc <= 0) {                                   // one-column tab, e.g. Book Synopsis
+    const title = cellText(g, 0, 0) || g.title, rows = [];
+    for (let r = 1; r <= lr; r++) { const v = cellText(g, r, 0); if (v) rows.push({ r, v }); }
+    blocks.push({ type:'text', title, rows, firstFree: Math.max(1, lr + 1) });
+    return blocks;
+  }
+  let firstNE = -1; for (let r = 0; r <= lr; r++) if (rowNE(g, r).length) { firstNE = r; break; }
+  let info = null;
+  for (let r = 0; r <= lr; ) {
+    if (isHeaderRow(g, r, r === firstNE)) {
+      info = null;
+      let e = r + 1; while (e <= lr && !isHeaderRow(g, e, false)) e++;
+      headerGroups(g, r, e).forEach(cols => {
+        const recs = [];
+        for (let rr = r + 1; rr < e; rr++) if (cols.some(col => cellText(g, rr, col.c))) recs.push(rr);
+        blocks.push({ type:'table', hr:r, start:r + 1, end:e, last: e > lr, cols, title: cols[0].label, recs });
+      });
+      r = e; continue;
+    }
+    const ne = rowNE(g, r);
+    if (!ne.length) { info = null; r++; continue; }
+    const a = cellText(g, r, 0);
+    // In the reference tab a lone label is a heading; elsewhere it's an editable label row
+    if (g.ro && ne.length === 1 && ne[0] === 0 && a.length <= 60 && !hasUrlText(a)) { blocks.push({ type:'heading', r, text:a }); info = null; r++; continue; }
+    if (!info) { info = { type:'info', rows:[] }; blocks.push(info); }
+    info.rows.push({ r, label: ne[0] === 0 ? a : '', cells: ne.filter(i => i > 0 || ne[0] !== 0) });
+    r++;
+  }
+  return blocks;
+}
+function valHtml(v){
+  const t = (v || '').trim();
+  if (isUrl(t) && !/\s/.test(t)) return `<a class="link-pill orange wide" href="${esc(t)}" target="_blank" rel="noopener" title="${esc(t)}">${EXT_SVG}${esc(linkLabel(t))}</a>`;
+  return linkify(t);
+}
+function cellValHtml(cell){
+  if (!cell) return '';
+  const v = (cell.v || '').trim();
+  if (cell.link && v && !isUrl(v) && !/^www\./i.test(v)) return `<a class="link-pill orange wide" href="${esc(cell.link)}" target="_blank" rel="noopener" title="${esc(cell.link)}">${EXT_SVG}${esc(v)}</a>`;
+  return valHtml(v);
+}
+
+function renderGrid(){
+  const g = gridFor();
+  const tab = S.tabs.find(x => x.key === S.tab);
+  $('gs-opentab').href = `https://docs.google.com/spreadsheets/d/${S.sheetId}/edit#gid=${tab ? tab.sheetId : 0}`;
+  const cards = !!g && hasCardLayout(g);
+  $('gs-view').style.display = cards ? '' : 'none';
+  $('gs-view').textContent = gridView === 'cards' ? '▦ Sheet view' : '▤ Card view';
+  // Tabs without a card design (e.g. one added to the Sheet later) always use the spreadsheet view
+  if (!cards || gridView === 'sheet') { renderSheetTable(); return; }
+  renderCards(g);
+}
+$('gs-view').addEventListener('click', () => { gridView = gridView === 'cards' ? 'sheet' : 'cards'; localStorage.setItem(VIEW_KEY, gridView); renderGrid(); });
+
+function renderCards(g){
+  const view = $('sheet-view'), editable = !RO && !g.ro;
+  $('gs-addrows').style.display = 'none';
+  $('search-grid').value = gsFilter.q;
+  const blocks = parseCards(g); g._blocks = blocks;
+  const sec = g.notes ? notesSections(g) : [];
+  const qv = gsFilter.q.toLowerCase(), filtering = !!qv || gsFilter.unconf;
+  const match = txt => !qv || txt.toLowerCase().includes(qv);
+  const editBtn = (bi, label) => editable ? `<button class="edit-btn" type="button" data-act="edit" data-b="${bi}">${label || 'Edit'}</button>` : '';
+  let html = g.ro ? '<div class="gs-note">Reference only — this tab can\'t be edited from the suite.</div>' : '';
+  let shown = 0, unconfQ = 0;
+  blocks.forEach((b, bi) => {
+    if (b.type === 'heading') { html += `<div class="cs-heading${filtering ? ' cs-hide' : ''}">${esc(b.text)}</div>`; return; }
+    if (b.type === 'info') {
+      const w = b.rows.map(x => x.label + ' ' + x.cells.map(c => cellText(g, x.r, c)).join(' ')).join(' ');
+      const hide = !match(w) || gsFilter.unconf; if (!hide) shown++;
+      html += `<div class="cs-section${hide ? ' cs-hide' : ''}"><div class="cs-grid wide"><div class="card info-card">${b.rows.map(x =>
+        `<div class="kv">${x.label ? `<span class="section-lbl">${esc(x.label)}</span>` : ''}<div class="kv-v">${x.cells.length ? x.cells.map(c => cellValHtml(cellAt(g, x.r, c))).join(' ') : '<span class="cs-empty">—</span>'}</div></div>`).join('')}
+        ${editable ? `<div class="card-foot">${editBtn(bi)}</div>` : ''}</div></div></div>`;
+      return;
+    }
+    if (b.type === 'text') {
+      const hide = !match(b.title + ' ' + b.rows.map(x => x.v).join(' ')) || gsFilter.unconf; if (!hide) shown++;
+      html += `<div class="cs-section${hide ? ' cs-hide' : ''}"><div class="cs-grid wide"><div class="card info-card"><div class="char-name" style="margin-bottom:12px">${esc(b.title)}</div>
+        ${b.rows.length ? b.rows.map(x => `<div class="section-text cs-prose">${cellValHtml(cellAt(g, x.r, 0))}</div>`).join('') : `<div class="cs-empty">Nothing written yet${editable ? ' — click Edit to add it' : ''}.</div>`}
+        ${editable ? `<div class="card-foot">${editBtn(bi)}</div>` : ''}</div></div></div>`;
+      return;
+    }
+    // ── table section ──
+    const ipaCol = b.cols.find((col, i) => i > 0 && /^ipa\b/i.test(col.label)) || null;
+    const pageCols = b.cols.filter((col, i) => i > 0 && /page$/i.test(col.label));
+    const linkList = g.ro && b.cols.length === 2 && b.recs.length && b.recs.filter(r => isUrl(cellText(g, r, b.cols[1].c))).length >= b.recs.length / 2;
+    let cards = '', vis = 0;
+    if (linkList) {
+      const rows = b.recs.filter(r => match(b.cols.map(col => cellText(g, r, col.c)).join(' ')));
+      vis = rows.length;
+      if (rows.length) cards = `<div class="card">${rows.map(r => { const lab = cellText(g, r, b.cols[0].c), cell = cellAt(g, r, b.cols[1].c), u = (cell?.v || '').trim();
+        return `<div class="ll-row"><span>${esc(lab)}</span>${isUrl(u) ? `<a href="${esc(u)}" target="_blank" rel="noopener" title="${esc(u)}">${esc(linkLabel(u))} ↗</a>` : cellValHtml(cell)}</div>`; }).join('')}</div>`;
+    } else b.recs.forEach(r => {
+      const filled = b.cols.filter(col => cellText(g, r, col.c));
+      if (g.ro && filled.length === 1 && filled[0] === b.cols[0]) { cards += `<div class="cs-sub${filtering ? ' cs-hide' : ''}">${esc(cellText(g, r, b.cols[0].c))}</div>`; return; }
+      const s = sec[r], isQ = !!(s && !s.header);
+      if (isQ && !s.confirmed) unconfQ++;
+      const hide = !match(b.cols.map(col => cellText(g, r, col.c)).join(' ')) || (gsFilter.unconf && !(isQ && !s.confirmed));
+      if (!hide) vis++;
+      const titleCol = ipaCol || b.cols[0];
+      const title = cellText(g, r, titleCol.c), sub = ipaCol ? cellText(g, r, b.cols[0].c) : '';
+      let body = '';
+      b.cols.forEach(col => {
+        if (col === titleCol || (ipaCol && col === b.cols[0]) || pageCols.includes(col)) return;
+        const cell = cellAt(g, r, col.c), v = (cell?.v || '').trim(); if (!v) return;
+        const short = v.length <= 28 && !/\n/.test(v) && !isUrl(v) && !cell.link;
+        body += short
+          ? `<div class="ipa-row"><span class="ipa-lbl" title="${esc(col.full)}">${esc(col.label)}</span><span class="cs-short">${esc(v)}</span></div>`
+          : `<div class="cs-block"><span class="section-lbl" title="${esc(col.full)}">${esc(col.label)}</span><div class="section-text">${cellValHtml(cell)}</div></div>`;
+      });
+      let meta = '';
+      pageCols.forEach(col => { const v = cellText(g, r, col.c); if (v) meta += `<span class="meta-pill">${/^page$/i.test(col.label) ? 'p.&nbsp;' : esc(col.label) + ' '}${esc(v)}</span>`; });
+      const foot = meta + (isQ ? confBtnHtml(s.confirmed, 'author') : '') + (editable ? `<button class="edit-btn" type="button" data-act="edit" data-b="${bi}">Edit</button>` : '');
+      const titleHtml = !title ? `<span class="cs-empty">(no ${esc(titleCol.label)})</span>` : ipaCol ? esc(title) : linkify(title);
+      cards += `<div class="card${isQ && !s.confirmed ? ' flag-rec' : ''}${hide ? ' cs-hide' : ''}" data-r="${r}" data-b="${bi}">
+        <div class="card-top"><div class="name-wrap"><div class="${ipaCol ? 'ipa-big' : 'char-name' + (title.length > 50 ? ' long' : '')}">${titleHtml}</div>${sub ? `<div class="alias">${esc(sub)}</div>` : ''}</div></div>
+        ${body}${foot ? `<div class="card-foot">${foot}</div>` : ''}</div>`;
+    });
+    shown += vis;
+    const hideSec = filtering && !vis;
+    const n = linkList ? b.recs.length : b.recs.filter(r => !(g.ro && b.cols.filter(col => cellText(g, r, col.c)).length === 1 && cellText(g, r, b.cols[0].c))).length;
+    html += `<div class="cs-section${hideSec ? ' cs-hide' : ''}"><div class="cs-head"><span class="cs-title">${esc(b.title)}</span><span class="cs-count">${n}</span>${editable ? `<button class="pill-btn ghost" type="button" data-act="add" data-b="${bi}">+ Add</button>` : ''}</div>
+      <div class="cs-grid${ipaCol || g.ro ? ' small' : ''}">${cards || `<div class="cs-empty">${editable ? 'Nothing here yet — click + Add.' : 'Empty'}</div>`}</div></div>`;
+  });
+  view.innerHTML = html;
+  $('stats-grid').textContent = `${shown} card${shown === 1 ? '' : 's'}`;
+  $('gs-unconf').style.display = g.notes ? '' : 'none';
+  $('gs-unconf-n').textContent = unconfQ;
+  $('gs-unconf').classList.toggle('on', gsFilter.unconf);
+  $('gs-unconf').classList.toggle('zero', unconfQ === 0);
+  updateNotesFlag();
+}
+
+// ── Add / edit / clear an entry on the other tabs ──
+function gridFields(g, b, r){
+  if (b.type === 'table') return b.cols.map(col => { const cell = r == null ? null : cellAt(g, r, col.c);
+    return { r, c:col.c, label:col.label, help: col.full.includes('\n') ? col.full.split('\n').slice(1).join(' ').trim() : '', v: cell?.v || '', f: !!cell?.f }; });
+  if (b.type === 'info') { const out = []; b.rows.forEach(x => { const cols = [...new Set([1, ...x.cells])].sort((p, q2) => p - q2);
+    cols.forEach(c => { const cell = cellAt(g, x.r, c); out.push({ r:x.r, c, label:(x.label || `Row ${x.r + 1}`) + (cols.length > 1 ? ` · ${colLetter(c)}` : ''), v: cell?.v || '', f: !!cell?.f }); }); }); return out; }
+  const rows = b.rows.length ? b.rows : [{ r:b.firstFree, v:'' }];
+  return rows.map(x => ({ r:x.r, c:0, label: rows.length > 1 ? `${b.title} · row ${x.r + 1}` : b.title, v: x.v, f: !!cellAt(g, x.r, 0)?.f, big:true }));
+}
+function openGridForm(g, b, r){
+  if (RO || g.ro) return;
+  const tokenP = editAccess && tokenValid() ? Promise.resolve(token) : requestToken();   // inside the click
+  tokenP.catch(()=>{});
+  const fields = gridFields(g, b, r);
+  const adding = b.type === 'table' && r == null;
+  formCtx = { kind:'grid', g, b, r, fields, tokenP, adding };
+  $('modal-title').textContent = adding ? `Add to ${b.title}` : b.type === 'table' ? `Edit · ${b.title}` : `Edit · ${b.type === 'text' ? b.title : g.title}`;
+  $('modal-hint').textContent = adding ? `Saves into the next empty row of the ${b.title} section in the ${g.title} tab.` : b.type === 'table' ? `Row ${r + 1} of the ${g.title} tab.` : `Saves to the ${g.title} tab.`;
+  $('modal-form').innerHTML = fields.map((f, i) => {
+    const area = f.big || f.v.length > 40 || /\n/.test(f.v) || /note|answer|fix|question|synopsis|description|example|accent/i.test(f.label);
+    const input = f.f ? `<input value="${esc(f.v)}" disabled>`
+      : area ? `<textarea name="f${i}"${f.big ? ' style="min-height:240px"' : ''}>${esc(f.v)}</textarea>` : `<input name="f${i}" value="${esc(f.v)}">`;
+    return `<div class="fld full"><label>${esc(f.label)}</label>${input}${f.f ? '<div class="help">Formula — edit it in the Sheet.</div>' : f.help ? `<div class="help">${esc(f.help)}</div>` : ''}</div>`;
+  }).join('') + (fields.some(f => !f.f) ? '<div class="auto-note">Web addresses become clickable links on the cards.</div>' : '');
+  $('paste-toggle').style.display = 'none'; $('paste-panel').classList.remove('on');
+  $('modal-delete').textContent = 'Clear Entry';
+  $('modal-delete').style.display = b.type === 'table' && r != null ? '' : 'none';
+  setModalStatus('');
+  $('modal-overlay').classList.add('on');
+  $('modal-form').querySelector('input:not([disabled]),textarea')?.focus();
+}
+async function readRanges(ranges){
+  const r = await fetch(`${SHEETS}${S.sheetId}/values:batchGet?${ranges.map(x => 'ranges=' + encodeURIComponent(x)).join('&')}`, { headers:{ Authorization:'Bearer '+token } });
+  if (!r.ok) { const e = new Error('read '+r.status); e.status = r.status; throw e; }
+  return ((await r.json()).valueRanges || []).map(v => v.values || []);
+}
+async function sheetsBatch(requests){
+  const r = await fetch(`${SHEETS}${S.sheetId}:batchUpdate`, { method:'POST', headers:{ Authorization:'Bearer '+token, 'Content-Type':'application/json' }, body: JSON.stringify({ requests }) });
+  if (!r.ok) { const e = new Error('batch '+r.status); e.status = r.status; throw e; }
+}
+// Text as typed (numbers stay numbers); anything starting with = is written as a formula
+async function writeCells(t, cells){
+  const fx = cells.filter(f => /^=/.test(f.nv)), raw = cells.filter(f => !/^=/.test(f.nv));
+  const rng = f => `${t}!${colLetter(f.c)}${f.r + 1}`;
+  if (raw.length) await sheetsWrite('RAW', raw.map(f => ({ range:rng(f), values:[[numOrText(f.nv)]] })));
+  if (fx.length) await sheetsWrite('USER_ENTERED', fx.map(f => ({ range:rng(f), values:[[f.nv]] })));
+}
+const answerCol = b => (b.cols.find(col => /answer/i.test(col.label)) || b.cols[3] || b.cols[b.cols.length - 1]).c;
+async function saveGrid(ctx, vals){
+  const { g, b } = ctx, t = q(g.title);
+  let cells = ctx.fields.map((f, i) => ({ ...f, nv: vals[i] })).filter(f => !f.f && f.nv != null);
+  if (ctx.adding) {
+    const cs = b.cols.map(col => col.c), minC = Math.min(...cs), maxC = Math.max(...cs);
+    const endRow = b.last ? b.end + 60 : b.end;            // 0-based, exclusive
+    const cur = endRow > b.start ? (await readRanges([`${t}!${colLetter(minC)}${b.start + 1}:${colLetter(maxC)}${endRow}`]))[0] : [];
+    let row = null;
+    for (let i = 0; i < endRow - b.start; i++) if (!(cur[i] || []).some(v => String(v ?? '').trim())) { row = b.start + i; break; }
+    if (row == null) {                                    // section is full — add a row at its end
+      await sheetsBatch([{ insertDimension:{ range:{ sheetId:g.sheetId, dimension:'ROWS', startIndex:b.end, endIndex:b.end + 1 }, inheritFromBefore:true } }]);
+      row = b.end;
+    }
+    cells = cells.filter(f => f.nv.trim()).map(f => ({ ...f, r:row }));
+    await writeCells(t, cells);
+    if (g.notes && sectionIsQuestions(g, b)) { try { await setTabCellColour(g.sheetId, row + 1, answerCol(b), S.redColor); } catch(e) { console.warn(e); } }
+    return row;
+  }
+  const changed = cells.filter(f => f.nv !== f.v.replace(/\s+$/, ''));
+  if (!changed.length) return null;
+  // Don't overwrite something changed in the Sheet since it loaded
+  const cur = await readRanges(changed.map(f => `${t}!${colLetter(f.c)}${f.r + 1}`));
+  if (changed.some((f, i) => String(((cur[i] || [])[0] || [])[0] ?? '').trim() !== f.v.trim()))
+    throw Object.assign(new Error('moved'), { friendly:'That entry changed in the Sheet since it loaded. Reload and try again.' });
+  await writeCells(t, changed);
+  return changed[0].r;
+}
+const sectionIsQuestions = (g, b) => !!notesSections(g)[b.hr]?.header;
+async function handleGridSave(ctx){
+  const vals = ctx.fields.map((f, i) => { const el = $('modal-form').elements['f' + i]; return el ? el.value.replace(/\s+$/, '') : null; });
+  if (ctx.adding && !vals.some(v => v && v.trim())) { setModalStatus('Fill in at least one field.', true); return; }
+  if (!tokenValid()) { ctx.tokenP = requestToken(); ctx.tokenP.catch(()=>{}); }   // still inside the click
+  const btn = $('modal-save'); btn.disabled = true;
+  setModalStatus('Connecting to Google…');
+  try {
+    if (!(await ensureEditAccess(ctx.tokenP))) { setModalStatus('Editing needs to be enabled for this Sheet first.', true); return; }
+    setModalStatus('Saving…');
+    const row = await saveGrid(ctx, vals);
+    closeForm();
+    toast(row == null ? 'No changes to save' : ctx.adding ? `Added to ${ctx.b.title}` : 'Saved changes');
+    if (row != null) await loadSheet(S.sheetId, { quiet:true });
+  } catch(e) {
+    console.error(e);
+    if (e.friendly) setModalStatus(e.friendly, true);
+    else if (e.status === 401) { token = null; setModalStatus('Your Google session expired — click Save again to reconnect.', true); }
+    else if (e.status === 403 || e.status === 404) { editAccess = false; updateEditUI(); setModalStatus(`${accountEmail || 'This account'} can't edit that Sheet. Click Switch account (top right) and choose the account that owns it.`, true); }
+    else setModalStatus('Save failed — check your connection and try again.', true);
+  } finally { btn.disabled = false; }
+}
+// Clearing empties the row's cells but keeps the row, so the tab's layout doesn't shift
+async function clearGridEntry(ctx){
+  const { g, b, r } = ctx.form, t = q(g.title);
+  const btn = $('del-confirm'); btn.disabled = true;
+  setDelStatus('Connecting to Google…');
+  try {
+    if (!(await ensureEditAccess(ctx.tokenP))) { setDelStatus('Editing needs to be enabled for this Sheet first.', true); return; }
+    setDelStatus('Checking the Sheet…');
+    const c0 = b.cols[0].c, was = cellText(g, r, c0);
+    const cur = await readRanges([`${t}!${colLetter(c0)}${r + 1}`]);
+    if (String(((cur[0] || [])[0] || [])[0] ?? '').trim() !== was) { setDelStatus('That row has changed in the Sheet since it loaded. Reload and try again — nothing was cleared.', true); return; }
+    setDelStatus('Clearing…');
+    await sheetsWrite('RAW', b.cols.filter(col => !cellAt(g, r, col.c)?.f).map(col => ({ range:`${t}!${colLetter(col.c)}${r + 1}`, values:[['']] })));
+    if (g.notes && sectionIsQuestions(g, b)) { try { await setTabCellColour(g.sheetId, r + 1, answerCol(b), { red:1, green:1, blue:1 }); } catch(e) { console.warn(e); } }
+    closeDelete(); closeForm();
+    toast(`Cleared row ${r + 1}`);
+    await loadSheet(S.sheetId, { quiet:true });
+  } catch(e) {
+    console.error(e);
+    if (e.status === 401) { token = null; setDelStatus('Your Google session expired — click again.', true); }
+    else setDelStatus('Clear failed — check your connection and try again.', true);
+  } finally { btn.disabled = false; }
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -1718,6 +2049,8 @@ function openForm(kind, existing){
   if (kind === 'char') html += `<div class="auto-note">Pronunciation, Pronunciation Ref and the file name (column J) fill themselves from the Sheet's formulas — add the word to the Pronunciation tab to link it here.</div>`;
   $('modal-form').innerHTML = html;
   buildPasteRow(kind);
+  $('paste-toggle').style.display = '';
+  $('modal-delete').textContent = 'Delete Entry';
   $('modal-delete').style.display = existing ? '' : 'none';
   $('paste-panel').classList.remove('on'); $('paste-toggle').classList.remove('on');
   setModalStatus('');
@@ -1810,6 +2143,22 @@ function entryAudio(kind, e){
   return [...new Set(links.filter(u => isUrl(u) && isDriveLink(u)).map(driveIdOf).filter(Boolean))];
 }
 function openDelete(){
+  if (formCtx && formCtx.kind === 'grid') {
+    const f = formCtx, label = cellText(f.g, f.r, f.b.cols[0].c) || `Row ${f.r + 1}`;
+    delCtx = { kind:'grid', form:f, tokenP:f.tokenP };
+    $('del-box').querySelector('h3').textContent = 'Clear entry?';
+    $('del-box').querySelector('.del-q').textContent = 'Are you sure you wish to clear this entry?';
+    $('del-name').textContent = label;
+    $('del-list').innerHTML = `<li>Row ${f.r + 1} of the <b>${esc(f.g.title)}</b> tab is emptied — the row stays, so nothing else moves.</li>` +
+      (f.g.notes && sectionIsQuestions(f.g, f.b) ? '<li>Its Confirmed colour is reset.</li>' : '');
+    $('del-confirm').textContent = 'Yes, clear';
+    setDelStatus(''); $('del-confirm').disabled = false;
+    $('del-overlay').classList.add('on');
+    return;
+  }
+  $('del-box').querySelector('h3').textContent = 'Delete entry?';
+  $('del-box').querySelector('.del-q').textContent = 'Are you sure you wish to delete this entry?';
+  $('del-confirm').textContent = 'Yes, delete';
   if (!formCtx || !formCtx.existing) return;
   const { kind, existing:e } = formCtx;
   const tab = kind === 'char' ? S.charTab.title : S.pronTab.title;
@@ -1832,6 +2181,7 @@ $('del-confirm').addEventListener('click', async () => {
   if (!delCtx) return;
   const ctx = delCtx;
   if (!tokenValid()) { ctx.tokenP = requestToken(); ctx.tokenP.catch(()=>{}); }   // inside the click
+  if (ctx.kind === 'grid') { clearGridEntry(ctx); return; }
   const btn = $('del-confirm'); btn.disabled = true;
   setDelStatus('Connecting to Google…');
   try {
@@ -1879,6 +2229,7 @@ $('new-pron').addEventListener('click', () => openForm('pron', null));
 $('modal-save').addEventListener('click', async () => {
   if (!formCtx) return;
   const ctx = formCtx;
+  if (ctx.kind === 'grid') { await handleGridSave(ctx); return; }
   const v = {}; new FormData($('modal-form')).forEach((val, k) => v[k] = String(val).trim());
   const reqKey = ctx.kind === 'char' ? 'name' : 'word';
   if (!v[reqKey]) { setModalStatus(`${ctx.kind === 'char' ? 'Character' : 'Word'} is required.`, true); return; }
@@ -2447,7 +2798,7 @@ $('switch-btn').addEventListener('click', () => {
   if (id) await loadSheet(id);
 })();
 </script>
-<div id="tool-version">v8.0</div>
+<div id="tool-version">v9.0</div>
 <div id="tag-footer"></div>
 <script src="/partials/inject-brand.js"></script>
 </body>
