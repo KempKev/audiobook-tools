@@ -274,6 +274,16 @@
   .ll-row { display:flex; align-items:baseline; justify-content:space-between; gap:12px; padding:6px 0; border-bottom:1px solid var(--rule); font-size:0.82rem; }
   .ll-row:last-child { border-bottom:none; }
   .ll-row a { text-decoration:none; font-weight:600; white-space:nowrap; }
+  /* Phonetic Ref: click a symbol to copy, ▶ to hear it */
+  .sym-row { display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
+  .sym-chip { font-family:'Open Sans',sans-serif; font-weight:700; font-size:0.86rem; color:var(--blue-ipa); background:#eef3fc; border:1px solid #c9d8f5; border-radius:6px; padding:2px 8px; cursor:copy; line-height:1.4; transition:background .12s, color .12s, border-color .12s; }
+  .sym-chip.big { font-size:1.4rem; padding:1px 10px; }
+  .sym-chip.resp { color:var(--ink); background:var(--bg); border-color:var(--rule); font-weight:600; }
+  .sym-chip:hover { background:var(--blue-ipa); border-color:var(--blue-ipa); color:#fff; }
+  .sym-chip.copied { background:var(--green); border-color:var(--green); color:#fff; }
+  .sym-mini { width:22px; height:22px; border-radius:50%; border:none; background:var(--purple); color:#fff; font-size:0.55rem; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; padding-left:2px; }
+  .sym-mini:hover, .sym-mini.playing { background:var(--accent); }
+  .ipa-card-row { display:flex; align-items:baseline; gap:6px; margin-bottom:6px; flex-wrap:wrap; }
 
   /* ── MODAL ── */
   #modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:500; align-items:flex-start; justify-content:center; padding:40px 16px; overflow-y:auto; }
@@ -853,7 +863,7 @@ function setTab(tab){
   if (!S.tabs.some(t => t.key === tab)) tab = (S.tabs.find(t => t.kind === 'char') || S.tabs[0] || { key:'char' }).key;
   if (S.tab !== tab) { gsFilter.q = ''; gsFilter.unconf = false; }
   S.tab = tab; localStorage.setItem(TAB_KEY, tab);
-  stopCurrent();
+  stopCurrent(); if (typeof stopIpa === 'function') stopIpa();
   const isGrid = tab.startsWith('g:');
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
   $('ctrl-char').classList.toggle('on', tab === 'char');
@@ -1167,6 +1177,10 @@ function renderSheetTable(){
 
 // Clicks inside the sheet view: confirm buttons, ✎, or a cell
 $('sheet-view').addEventListener('click', ev => {
+  const cp = ev.target.closest('[data-copy]');
+  if (cp) { copySym(cp.dataset.copy, cp); return; }
+  const pl = ev.target.closest('[data-play]');
+  if (pl) { playIpa(pl.dataset.play, pl); return; }
   const conf = ev.target.closest('.conf-btn');
   if (conf) { const r = Number(conf.closest('[data-r]').dataset.r); toggleNoteConfirmed(r, conf); return; }
   const act = ev.target.closest('[data-act]');
@@ -1364,6 +1378,86 @@ function cellValHtml(cell){
   return valHtml(v);
 }
 
+
+// ═══════════════════════════════════════════════════════════
+// PHONETIC REF SOUNDS — the same Wikimedia Commons recordings as the IPA Chart
+// (verified file names from Wikipedia's IPA symbol data). Long vowels play their
+// base vowel; diphthongs and r-coloured vowels play their parts in sequence.
+// ═══════════════════════════════════════════════════════════
+const IPA_AUDIO = {
+  'i':'Close front unrounded vowel.ogg','y':'Close front rounded vowel.ogg','ɨ':'Close central unrounded vowel.ogg','ʉ':'Close central rounded vowel.ogg',
+  'ɯ':'Close back unrounded vowel.ogg','u':'Close back rounded vowel.ogg','ɪ':'Near-close near-front unrounded vowel.ogg','ʏ':'Near-close near-front rounded vowel.ogg',
+  'ʊ':'Near-close near-back rounded vowel.ogg','e':'Close-mid front unrounded vowel.ogg','ø':'Close-mid front rounded vowel.ogg','ɘ':'Close-mid central unrounded vowel.ogg',
+  'ɵ':'Close-mid central rounded vowel.ogg','ɤ':'Close-mid back unrounded vowel.ogg','o':'Close-mid back rounded vowel.ogg','ə':'Mid-central vowel.ogg',
+  'ɛ':'Open-mid front unrounded vowel.ogg','œ':'Open-mid front rounded vowel.ogg','ɜ':'Open-mid central unrounded vowel.ogg','ɞ':'Open-mid central rounded vowel.ogg',
+  'ʌ':'PR-open-mid back unrounded vowel2.ogg','ɔ':'PR-open-mid back rounded vowel.ogg','æ':'Near-open front unrounded vowel.ogg','ɐ':'PR-near-open central unrounded vowel.ogg',
+  'a':'PR-open front unrounded vowel.ogg','ɶ':'Open front rounded vowel.ogg','ɑ':'Open back unrounded vowel.ogg','ɒ':'PR-open back rounded vowel.ogg',
+  'm':'Bilabial nasal.ogg','n':'Alveolar nasal.ogg','ɲ':'Palatal nasal.ogg','ŋ':'Velar nasal.ogg','ɴ':'Uvular nasal.ogg',
+  'p':'Voiceless bilabial plosive.ogg','b':'Voiced bilabial plosive.ogg','t':'Voiceless alveolar plosive.ogg','d':'Voiced alveolar plosive.ogg',
+  'c':'Voiceless palatal plosive.ogg','ɟ':'Voiced palatal plosive.ogg','k':'Voiceless velar plosive.ogg','ɡ':'Voiced velar plosive 02.ogg',
+  'q':'Voiceless uvular plosive.ogg','ʔ':'Glottal stop.ogg',
+  'ts':'Voiceless alveolar sibilant affricate.oga','dz':'Voiced alveolar sibilant affricate.oga',
+  't̠ʃ':'Voiceless palato-alveolar affricate.ogg','d̠ʒ':'Voiced palato-alveolar affricate.ogg','tɕ':'Voiceless alveolo-palatal affricate.ogg','dʑ':'Voiced alveolo-palatal affricate.ogg',
+  's':'Voiceless alveolar sibilant.ogg','z':'Voiced alveolar sibilant.ogg','ʃ':'Voiceless palato-alveolar sibilant.ogg','ʒ':'Voiced palato-alveolar sibilant.ogg',
+  'ɕ':'Voiceless alveolo-palatal sibilant.ogg','ʑ':'Voiced alveolo-palatal sibilant.ogg','ʂ':'Voiceless retroflex sibilant.ogg','ʐ':'Voiced retroflex sibilant.ogg',
+  'ɸ':'Voiceless bilabial fricative.ogg','β':'Voiced bilabial fricative.ogg','f':'Voiceless labiodental fricative.ogg','v':'Voiced labiodental fricative.ogg',
+  'θ':'Voiceless dental fricative.ogg','ð':'Voiced dental fricative.ogg','ç':'Voiceless palatal fricative.ogg','ʝ':'Voiced palatal fricative.ogg',
+  'x':'Voiceless velar fricative.ogg','ɣ':'Voiced velar fricative.ogg','χ':'Voiceless uvular fricative.ogg','ʁ':'Voiced uvular fricative.ogg',
+  'ħ':'Voiceless pharyngeal fricative.ogg','ʕ':'Voiced pharyngeal fricative.ogg','h':'Voiceless glottal fricative.ogg','ɦ':'Voiced glottal fricative.ogg',
+  'ʋ':'Labiodental approximant.ogg','ɹ':'Alveolar approximant.ogg','ɻ':'Retroflex approximant.ogg','j':'Palatal approximant.ogg','ɰ':'Voiced velar approximant.ogg',
+  'ɾ':'Alveolar tap.ogg','ɽ':'Retroflex flap.ogg','r':'Alveolar trill.ogg','ʀ':'Uvular trill.ogg','ʙ':'Bilabial trill.ogg',
+  'ɬ':'Voiceless alveolar lateral fricative.ogg','ɮ':'Voiced alveolar lateral fricative.ogg','l':'Alveolar lateral approximant.ogg','ɭ':'Retroflex lateral approximant.ogg',
+  'ʎ':'Palatal lateral approximant.ogg','ʟ':'Velar lateral approximant.ogg','ɫ':'Velarized alveolar lateral approximant.ogg',
+  'ʍ':'Voiceless labio-velar fricative.ogg','w':'Voiced labio-velar approximant.ogg','ɥ':'Labial-palatal approximant.ogg'
+};
+const commonsUrl = f => 'https://commons.wikimedia.org/wiki/Special:FilePath/' + encodeURIComponent(f);
+// "æ, a" → ["æ","a"]; "ʍ (hw)" → ["ʍ"]; "ˈ (ˈa) as in /ˈɹæ.pɪŋ/" → ["ˈ"]
+function ipaVariants(v){
+  const out = (v || '').split(/\s*,\s*/).map(x => x.replace(/\(.*?\)/g, '').replace(/\bas in\b.*$/i, '').replace(/^\/|\/$/g, '').trim()).filter(Boolean);
+  if (out.length) return out;
+  const ex = (v || '').match(/as in\s+\/?([^\s\/]+)/i);          // e.g. ", as in ˈɹɪdn̩" → "ˈɹɪdn̩"
+  return ex ? [ex[1]] : [];
+}
+// Files to play for one symbol, or null if there's no recording
+function ipaClips(v){
+  if (!v || /[.ˈˌ]/.test(v)) return null;
+  let k = v.normalize('NFC').replace(/[ːˑ\s]/g, '').replace(/t͡ʃ|tʃ/g, 't̠ʃ').replace(/d͡ʒ|dʒ/g, 'd̠ʒ').replace(/g/g, 'ɡ');
+  if (!k) return null;
+  if (IPA_AUDIO[k]) return [IPA_AUDIO[k]];
+  const segs = [];
+  for (const chr of k) { if (/[̀-ͯ]/.test(chr) && segs.length) segs[segs.length - 1] += chr; else segs.push(chr); }
+  if (segs.length > 3 || !segs.every(x => IPA_AUDIO[x])) return null;
+  return segs.map(x => IPA_AUDIO[x]);
+}
+let ipaAudio = null, ipaBtn = null;
+function stopIpa(){
+  if (ipaAudio) { ipaAudio.onended = null; ipaAudio.pause(); ipaAudio = null; }
+  if (ipaBtn) { ipaBtn.classList.remove('playing'); const i = ipaBtn.querySelector('.ico'); if (i) i.innerHTML = PLAY_SVG; ipaBtn = null; }
+}
+function playIpa(v, btn){
+  if (ipaBtn === btn) { stopIpa(); return; }
+  stopIpa(); stopCurrent();
+  const parts = ipaClips(v);
+  if (!parts) { toast(`There's no recording for /${v}/ yet.`, true); return; }
+  ipaBtn = btn; btn.classList.add('playing');
+  const ico = btn.querySelector('.ico'); if (ico) ico.innerHTML = PAUSE_SVG;
+  let i = 0;
+  const next = () => {
+    if (ipaBtn !== btn) return;
+    if (i >= parts.length) { stopIpa(); return; }
+    const a = new Audio(commonsUrl(parts[i++])); ipaAudio = a; a.onended = next;
+    a.play().catch(() => { stopIpa(); toast("That sound couldn't be played — check your connection.", true); });
+  };
+  next();
+}
+async function copySym(text, chip){
+  try { await navigator.clipboard.writeText(text); }
+  catch(e) { const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); } catch(_){} ta.remove(); }
+  chip.classList.add('copied'); setTimeout(() => chip.classList.remove('copied'), 900);
+  toast(`Copied ${text}`);
+}
+const symChip = (x, cls) => `<button class="sym-chip${cls ? ' ' + cls : ''}" type="button" data-copy="${esc(x)}" title="Click to copy ${esc(x)}">${esc(x)}</button>`;
+
 function renderGrid(){
   const g = gridFor();
   const tab = S.tabs.find(x => x.key === S.tab);
@@ -1386,7 +1480,7 @@ function renderCards(g){
   const qv = gsFilter.q.toLowerCase(), filtering = !!qv || gsFilter.unconf;
   const match = txt => !qv || txt.toLowerCase().includes(qv);
   const editBtn = (bi, label) => editable ? `<button class="edit-btn" type="button" data-act="edit" data-b="${bi}">${label || 'Edit'}</button>` : '';
-  let html = g.ro ? '<div class="gs-note">Reference only — this tab can\'t be edited from the suite.</div>' : '';
+  let html = g.ro ? `<div class="gs-note">Reference only — this tab can't be edited from the suite.${blocks.some(b => b.type === 'table' && b.cols.some((col, i) => i > 0 && /^ipa\b/i.test(col.label))) ? ' Click any symbol to copy it; ▶ plays the sound (recordings from <a href="https://commons.wikimedia.org/" target="_blank" rel="noopener">Wikimedia Commons</a>, CC BY-SA). Long vowels play the base vowel; diphthongs play their two parts in turn.' : ''}</div>` : '';
   let shown = 0, unconfQ = 0;
   blocks.forEach((b, bi) => {
     if (b.type === 'heading') { html += `<div class="cs-heading${filtering ? ' cs-hide' : ''}">${esc(b.text)}</div>`; return; }
@@ -1428,6 +1522,10 @@ function renderCards(g){
       b.cols.forEach(col => {
         if (col === titleCol || (ipaCol && col === b.cols[0]) || pageCols.includes(col)) return;
         const cell = cellAt(g, r, col.c), v = (cell?.v || '').trim(); if (!v) return;
+        if (ipaCol && v.length <= 28 && !isUrl(v)) {             // respellings: each one click-to-copy
+          body += `<div class="ipa-card-row"><span class="ipa-lbl" title="${esc(col.full)}">${esc(col.label)}</span><span class="sym-row">${v.split(/\s*(?:,|\s\/\s)\s*/).filter(Boolean).map(x => symChip(x, 'resp')).join('')}</span></div>`;
+          return;
+        }
         const short = v.length <= 28 && !/\n/.test(v) && !isUrl(v) && !cell.link;
         body += short
           ? `<div class="ipa-row"><span class="ipa-lbl" title="${esc(col.full)}">${esc(col.label)}</span><span class="cs-short">${esc(v)}</span></div>`
@@ -1436,9 +1534,15 @@ function renderCards(g){
       let meta = '';
       pageCols.forEach(col => { const v = cellText(g, r, col.c); if (v) meta += `<span class="meta-pill">${/^page$/i.test(col.label) ? 'p.&nbsp;' : esc(col.label) + ' '}${esc(v)}</span>`; });
       const foot = meta + (isQ ? confBtnHtml(s.confirmed, 'author') : '') + (editable ? `<button class="edit-btn" type="button" data-act="edit" data-b="${bi}">Edit</button>` : '');
-      const titleHtml = !title ? `<span class="cs-empty">(no ${esc(titleCol.label)})</span>` : ipaCol ? esc(title) : linkify(title);
+      let titleHtml = !title ? `<span class="cs-empty">(no ${esc(titleCol.label)})</span>` : linkify(title), playHtml = '';
+      if (ipaCol && title) {
+        const vars = ipaVariants(title), list = vars.length ? vars : [title];
+        const playable = list.filter(x => ipaClips(x));
+        titleHtml = `<div class="sym-row">${list.map(x => symChip(x, 'big') + (list.length > 1 && ipaClips(x) ? `<button class="sym-mini" type="button" data-play="${esc(x)}" title="Hear /${esc(x)}/">▶</button>` : '')).join('')}</div>`;
+        playHtml = `<div class="btn-group"><button class="pbtn pron" type="button" ${playable.length ? `data-play="${esc(playable[0])}" title="Hear /${esc(playable[0])}/"` : 'disabled title="No recording for this sound yet"'}><svg class="ico" width="12" height="12" viewBox="0 0 24 24" fill="white">${PLAY_SVG}</svg></button></div>`;
+      }
       cards += `<div class="card${isQ && !s.confirmed ? ' flag-rec' : ''}${hide ? ' cs-hide' : ''}" data-r="${r}" data-b="${bi}">
-        <div class="card-top"><div class="name-wrap"><div class="${ipaCol ? 'ipa-big' : 'char-name' + (title.length > 50 ? ' long' : '')}">${titleHtml}</div>${sub ? `<div class="alias">${esc(sub)}</div>` : ''}</div></div>
+        <div class="card-top"><div class="name-wrap"><div class="${ipaCol ? 'ipa-big' : 'char-name' + (title.length > 50 ? ' long' : '')}">${titleHtml}</div>${sub ? `<div class="alias" style="margin-top:5px">${esc(sub)}</div>` : ''}</div>${playHtml}</div>
         ${body}${foot ? `<div class="card-foot">${foot}</div>` : ''}</div>`;
     });
     shown += vis;
@@ -2798,7 +2902,7 @@ $('switch-btn').addEventListener('click', () => {
   if (id) await loadSheet(id);
 })();
 </script>
-<div id="tool-version">v9.0</div>
+<div id="tool-version">v10.0</div>
 <div id="tag-footer"></div>
 <script src="/partials/inject-brand.js"></script>
 </body>
