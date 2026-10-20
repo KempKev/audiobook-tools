@@ -425,6 +425,64 @@
   body.ro .card.flag-rec:hover { box-shadow:var(--shadow-md); }
   .ro-badge { display:none; font-family:'Raleway',sans-serif; font-size:0.62rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:#777; border:1px solid #ddd; border-radius:20px; padding:3px 10px; margin-left:8px; vertical-align:middle; }
   body.ro .ro-badge { display:inline-block; }
+  /* ── Notes/Qs books, Synopsis, Author links ── */
+  .book-bar { display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:20px; }
+  .book-bar-note { font-size:0.74rem; color:var(--mid); line-height:1.5; max-width:560px; }
+  .book-head { display:flex; align-items:baseline; gap:10px; margin:8px 0 16px; padding-bottom:6px; border-bottom:3px solid var(--accent); flex-wrap:wrap; }
+  .book-kicker { font-family:'Raleway',sans-serif; font-size:0.62rem; font-weight:800; letter-spacing:0.1em; text-transform:uppercase; color:var(--accent); }
+  .book-name { font-family:'Raleway',sans-serif; font-weight:800; font-size:1.25rem; letter-spacing:-0.01em; }
+  .book-head .edit-btn { margin-left:auto; }
+  .book-end { height:14px; margin:4px 0 34px; border-top:5px solid #f4cccc; background:#fff; border-radius:0 0 3px 3px; box-shadow:var(--shadow-sm); }
+  .cs-grid.wide2 { grid-template-columns:repeat(auto-fill, minmax(380px, 1fr)); }
+  .wide-card { max-width:980px; }
+  .syn-card { max-width:980px; }
+  .lk-row { display:flex; align-items:center; gap:16px; padding:9px 0; border-bottom:1px solid var(--rule); font-size:0.84rem; }
+  .lk-row:last-child { border-bottom:none; }
+  .lk-name { font-weight:600; flex:0 0 auto; min-width:220px; }
+  .lk-vals { display:flex; flex-wrap:wrap; gap:6px; flex:1; min-width:0; align-items:center; }
+  .lk-row .edit-btn { margin-left:auto; flex-shrink:0; }
+  a.lk-link { text-decoration:none; color:var(--ink); justify-content:space-between; white-space:nowrap; }
+  a.lk-link:hover { background:var(--accent-bg); }
+  a.lk-link:hover .lk-host { text-decoration:underline; }
+  .lk-host { color:var(--accent); font-weight:600; font-size:0.78rem; flex-shrink:0; }
+  .cs-block.ans { background:var(--bg); border:1px solid var(--rule); border-radius:6px; padding:7px 10px; }
+  .cs-block.ans.ok { background:#d9ead3; border-color:#9cc48f; }
+  .ipa-auth { font-size:1.05rem; }
+
+  /* ── Phonetic Ref chart (matches the Accent Chart) ── */
+  .ph-layout { display:grid; grid-template-columns:minmax(0, 1fr); gap:18px; align-items:start; }
+  @media (min-width:1280px) { .ph-layout { grid-template-columns:minmax(0, 1fr) 420px; } }
+  .ph-card { background:var(--card); border:1px solid var(--rule); border-radius:var(--radius); box-shadow:var(--shadow-sm); overflow:hidden; }
+  .ph-card-head { padding:12px 16px; border-bottom:1px solid var(--rule); font-family:'Raleway',sans-serif; font-weight:700; font-size:0.72rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--light); }
+  .ph-links .lk-row { padding:9px 16px; }
+  .ph-links .lk-name { min-width:0; }
+  .ph-scroll { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+  table.ph { border-collapse:collapse; width:100%; }
+  table.ph thead th { background:var(--card); border-bottom:2px solid var(--rule); padding:10px 12px; text-align:left; vertical-align:bottom; }
+  .ph-th-name { display:block; font-family:'Raleway',sans-serif; font-size:0.78rem; font-weight:800; color:var(--ink); }
+  .ph-th-sub { display:block; font-family:'Raleway',sans-serif; font-size:0.6rem; font-weight:700; color:var(--light); text-transform:uppercase; letter-spacing:0.03em; margin-top:1px; }
+  table.ph td { padding:7px 12px; vertical-align:middle; border-bottom:1px solid #f0f0f0; font-size:0.82rem; }
+  table.ph tr.ph-row:nth-child(even) td { background:#fafafa; }
+  table.ph tr.ph-row:hover td { background:var(--accent-bg); }
+  table.ph tr.hidden-row { display:none; }
+  table.ph td.ph-ipa { min-width:130px; }
+  table.ph td.ph-word { color:var(--mid); font-style:italic; min-width:150px; }
+  table.ph .sym-chip.big { font-size:1.12rem; }
+  .ph-sym { display:inline-flex; align-items:center; gap:4px; }
+  .ph-note { font-size:0.7rem; color:var(--mid); margin-top:4px; max-width:260px; line-height:1.4; }
+  .ph-blank { color:#d0d0d0; }
+  .ph-text { white-space:pre-wrap; font-size:0.78rem; line-height:1.45; }
+  tr.ph-sec td { background:var(--ink); color:#fff; padding:0; cursor:pointer; user-select:none; -webkit-tap-highlight-color:transparent; }
+  tr.ph-sec:hover td { background:#000; }
+  .section-inner { position:sticky; left:0; display:inline-flex; align-items:center; gap:8px; padding:9px 14px; font-family:'Raleway',sans-serif; font-weight:800; font-size:0.72rem; letter-spacing:0.12em; text-transform:uppercase; }
+  .section-inner svg { width:13px; height:13px; transition:transform .15s; }
+  tr.ph-sec.collapsed .section-inner svg { transform:rotate(-90deg); }
+  .section-count { font-weight:600; letter-spacing:0.04em; color:#bbb; text-transform:none; font-size:0.7rem; }
+  @media (max-width:700px) {
+    .cs-grid.wide2 { grid-template-columns:1fr; }
+    .lk-row { flex-wrap:wrap; gap:6px 12px; }
+    .lk-name { min-width:0; }
+  }
 </style>
 </head>
 <body>
@@ -435,7 +493,7 @@
   <img src="data:image/jpeg;base64,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" alt="The Audiobook Guy" style="height:40px;width:40px;border-radius:50%;object-fit:cover;flex-shrink:0;">
   <div class="header-text">
     <h1>Prep Suite<span class="ro-badge">View only</span></h1>
-    <p>Your whole Prep Sheet — one project, one place</p>
+    <p>Audiobook Prep - Characters, Pronunciations and More</p>
   </div>
   <div id="hd-right">
     <div id="hd-actions">
@@ -559,7 +617,8 @@
       <strong>How projects work</strong>
       Prep Suite keeps everything in your Google Drive: your Prep Sheet with all your notes, plus the MP3 recordings of your characters and pronunciations. Nothing is ever uploaded to The Audiobook Guy's servers, so your project stays private between you and your own Google account.<br>
       <b>New Project</b> creates a project folder (with <code>Audio</code> for pronunciations and <code>Audio_0</code> for character voices inside) and a fresh copy of the Prep Sheet template, ready for entries. The first time, Google asks you to select the template once so the suite is allowed to copy it.<br>
-      <b>Existing Sheets</b> need tabs named <code>Characters</code> and <code>Pronunciation</code>, shared as <strong>"Anyone with the link"</strong> can view. Click <strong>Enable editing</strong> after loading to add or edit entries.
+      <b>Existing Sheets</b> need tabs named <code>Characters</code> and <code>Pronunciation</code>, shared as <strong>"Anyone with the link"</strong> can view. Click <strong>Enable editing</strong> after loading to add or edit entries.<br>
+      <b>Don't edit the Google Sheet directly.</b> Add and change everything here in Prep Suite. The suite reads the template's layout, so columns or rows added to the Sheet by hand may not show up.
     </div>
   </div>
 </div>
@@ -1065,7 +1124,7 @@ const cssColour = c => `rgb(${Math.round(ch(c,'red')*255)},${Math.round(ch(c,'gr
 async function loadGrids(sheetId, tabs){
   const out = {};
   if (!tabs.length) return out;
-  const fields = 'sheets(properties(sheetId),merges,data(rowData(values(formattedValue,userEnteredValue,hyperlink,effectiveFormat(backgroundColor,textFormat(bold))))))';
+  const fields = 'sheets(properties(sheetId,gridProperties.rowCount),merges,data(rowData(values(formattedValue,userEnteredValue,hyperlink,effectiveFormat(backgroundColor,textFormat(bold))))))';
   const qs = tabs.map(t => 'ranges=' + encodeURIComponent(q(t.title))).join('&');
   const g = await sheetsGet(`${sheetId}?${qs}&fields=${encodeURIComponent(fields)}`);
   (g.sheets || []).forEach(sh => {
@@ -1075,7 +1134,7 @@ async function loadGrids(sheetId, tabs){
       return { v: c.formattedValue ?? '', f: uv.formulaValue != null, link: c.hyperlink || '',
         bg: c.effectiveFormat?.backgroundColor, bold: !!c.effectiveFormat?.textFormat?.bold };
     }));
-    out[t.title] = { title:t.title, sheetId:t.sheetId, ro:!!t.ro, notes:!!t.notes, rows, merges: sh.merges || [], extra:0 };
+    out[t.title] = { title:t.title, sheetId:t.sheetId, ro:!!t.ro, notes:!!t.notes, rows, merges: sh.merges || [], extra:0, rowCount: sh.properties?.gridProperties?.rowCount || 0 };
   });
   return out;
 }
@@ -1089,6 +1148,7 @@ function notesSections(g){
   const out = []; let ansCol = null;
   for (let r = 0; r < g.rows.length + g.extra; r++) {
     const a = cellText(g, r, 0);
+    if (/^general notes/i.test(a) || isReddish(cellAt(g, r, 0)?.bg)) { ansCol = null; continue; }
     if (/^question/i.test(a) || /notes for the proofer/i.test(a)) {
       const row = g.rows[r] || [];
       const i = row.findIndex(c => /answer/i.test(c?.v || ''));
@@ -1184,7 +1244,11 @@ $('sheet-view').addEventListener('click', ev => {
   if (pl) { playIpa(pl.dataset.play, pl); return; }
   const conf = ev.target.closest('.conf-btn');
   if (conf) { const r = Number(conf.closest('[data-r]').dataset.r); toggleNoteConfirmed(r, conf); return; }
+  const phSec = ev.target.closest('tr.ph-sec');
+  if (phSec) { togglePhSection(phSec.dataset.sec); return; }
   const act = ev.target.closest('[data-act]');
+  if (act && act.dataset.act === 'newbook') { openNewBook(); return; }
+  if (act && act.dataset.act === 'syn') { openSynForm(Number(act.dataset.i)); return; }
   if (act) {
     const g = gridFor(), b = g?._blocks?.[Number(act.dataset.b)]; if (!b) return;
     const card = act.closest('[data-r]');
@@ -1283,7 +1347,7 @@ async function toggleNoteConfirmed(r, btn){
     if (!(await ensureEditAccess(tokenP))) return;
     const cur = await readRange(`${q(g.title)}!A${r + 1}`);
     if (((cur[0]||[])[0]||'').trim() !== qText) { toast('That row changed in the Sheet since it loaded — reload and try again.', true); return; }
-    const colour = next ? GREEN : S.redColor;
+    const colour = next ? GREEN : YELLOW;
     await setTabCellColour(g.sheetId, r + 1, s.ansCol, colour);
     const row = g.rows[r]; while (row.length <= s.ansCol) row.push({ v:'' });
     row[s.ansCol] = { ...(row[s.ansCol] || {}), bg: colour };
@@ -1468,7 +1532,8 @@ function renderGrid(){
   $('gs-view').textContent = gridView === 'cards' ? '▦ Sheet view' : '▤ Card view';
   // Tabs without a card design (e.g. one added to the Sheet later) always use the spreadsheet view
   if (!cards || gridView === 'sheet') { renderSheetTable(); return; }
-  renderCards(g);
+  const sp = specialKind(g);
+  if (sp) TAB_DESIGNS[sp](g); else renderCards(g);
 }
 $('gs-view').addEventListener('click', () => { gridView = gridView === 'cards' ? 'sheet' : 'cards'; localStorage.setItem(VIEW_KEY, gridView); renderGrid(); });
 
@@ -1581,14 +1646,14 @@ function openGridForm(g, b, r){
   $('modal-title').textContent = adding ? `Add to ${b.title}` : b.type === 'table' ? `Edit · ${b.title}` : `Edit · ${b.type === 'text' ? b.title : g.title}`;
   $('modal-hint').textContent = adding ? `Saves into the next empty row of the ${b.title} section in the ${g.title} tab.` : b.type === 'table' ? `Row ${r + 1} of the ${g.title} tab.` : `Saves to the ${g.title} tab.`;
   $('modal-form').innerHTML = fields.map((f, i) => {
-    const area = f.big || f.v.length > 40 || /\n/.test(f.v) || /note|answer|fix|question|synopsis|description|example|accent/i.test(f.label);
+    const area = !/name$/i.test(f.label) && (f.big || f.v.length > 40 || /\n/.test(f.v) || /note|answer|fix|question|synopsis|description|example|accent/i.test(f.label));
     const input = f.f ? `<input value="${esc(f.v)}" disabled>`
       : area ? `<textarea name="f${i}"${f.big ? ' style="min-height:240px"' : ''}>${esc(f.v)}</textarea>` : `<input name="f${i}" value="${esc(f.v)}">`;
     return `<div class="fld full"><label>${esc(f.label)}</label>${input}${f.f ? '<div class="help">Formula — edit it in the Sheet.</div>' : f.help ? `<div class="help">${esc(f.help)}</div>` : ''}</div>`;
   }).join('') + (fields.some(f => !f.f) ? '<div class="auto-note">Web addresses become clickable links on the cards.</div>' : '');
   $('paste-toggle').style.display = 'none'; $('paste-panel').classList.remove('on');
   $('modal-delete').textContent = 'Clear Entry';
-  $('modal-delete').style.display = b.type === 'table' && r != null ? '' : 'none';
+  $('modal-delete').style.display = b.type === 'table' && r != null && !b.noClear ? '' : 'none';
   setModalStatus('');
   $('modal-overlay').classList.add('on');
   $('modal-form').querySelector('input:not([disabled]),textarea')?.focus();
@@ -1613,6 +1678,11 @@ const answerCol = b => (b.cols.find(col => /answer/i.test(col.label)) || b.cols[
 async function saveGrid(ctx, vals){
   const { g, b } = ctx, t = q(g.title);
   let cells = ctx.fields.map((f, i) => ({ ...f, nv: vals[i] })).filter(f => !f.f && f.nv != null);
+  if (ctx.adding && b.addRow) {
+    const row = await b.addRow();
+    await writeCells(t, cells.filter(f => f.nv.trim()).map(f => ({ ...f, r:row })));
+    return row;
+  }
   if (ctx.adding) {
     const cs = b.cols.map(col => col.c), minC = Math.min(...cs), maxC = Math.max(...cs);
     const endRow = b.last ? b.end + 60 : b.end;            // 0-based, exclusive
@@ -1648,6 +1718,7 @@ async function handleGridSave(ctx){
     if (!(await ensureEditAccess(ctx.tokenP))) { setModalStatus('Editing needs to be enabled for this Sheet first.', true); return; }
     setModalStatus('Saving…');
     const row = await saveGrid(ctx, vals);
+    if (row != null && ctx.b.afterSave) { try { await ctx.b.afterSave(ctx, vals); } catch(e) { console.warn('follow-on update failed', e); } }
     closeForm();
     toast(row == null ? 'No changes to save' : ctx.adding ? `Added to ${ctx.b.title}` : 'Saved changes');
     if (row != null) await loadSheet(S.sheetId, { quiet:true });
@@ -1672,7 +1743,8 @@ async function clearGridEntry(ctx){
     if (String(((cur[0] || [])[0] || [])[0] ?? '').trim() !== was) { setDelStatus('That row has changed in the Sheet since it loaded. Reload and try again — nothing was cleared.', true); return; }
     setDelStatus('Clearing…');
     await sheetsWrite('RAW', b.cols.filter(col => !cellAt(g, r, col.c)?.f).map(col => ({ range:`${t}!${colLetter(col.c)}${r + 1}`, values:[['']] })));
-    if (g.notes && sectionIsQuestions(g, b)) { try { await setTabCellColour(g.sheetId, r + 1, answerCol(b), { red:1, green:1, blue:1 }); } catch(e) { console.warn(e); } }
+    if (b.ansCol != null) { try { await setTabCellColour(g.sheetId, r + 1, b.ansCol, YELLOW); } catch(e) { console.warn(e); } }
+    else if (g.notes && sectionIsQuestions(g, b)) { try { await setTabCellColour(g.sheetId, r + 1, answerCol(b), { red:1, green:1, blue:1 }); } catch(e) { console.warn(e); } }
     closeDelete(); closeForm();
     toast(`Cleared row ${r + 1}`);
     await loadSheet(S.sheetId, { quiet:true });
@@ -1682,6 +1754,498 @@ async function clearGridEntry(ctx){
     else setDelStatus('Clear failed — check your connection and try again.', true);
   } finally { btn.disabled = false; }
 }
+
+// ═══════════════════════════════════════════════════════════
+// TAB DESIGNS — Notes/Qs, Phonetic Ref, Locations/Accents,
+// Book Synopsis, Author General Notes. Each reads the template's own
+// layout; anything else falls back to the general card view above.
+// ═══════════════════════════════════════════════════════════
+const BLUE  = { red:0xc9/255, green:0xda/255, blue:0xf8/255 };   // #c9daf8 header rows
+const WHITE = { red:1, green:1, blue:1 };
+const NOTES_BOOK_ROWS = 15;                                        // Notes/Qs rows 5–19 = one book
+function specialKind(g){
+  const t = (g.title || '').trim();
+  if (g.notes || /^notes\s*[\/&]?\s*q/i.test(t)) return 'notes';
+  if (/phonetic/i.test(t)) return 'phonetic';
+  if (/accent/i.test(t) && /location/i.test(t)) return 'accents';
+  if (/synopsis/i.test(t)) return 'synopsis';
+  if (/author\s*general/i.test(t)) return 'author';
+  return null;
+}
+const gridOfKind = kind => Object.values(S.grids).find(g => specialKind(g) === kind) || null;
+const notesKind = a => /^general notes/i.test(a) ? 'general' : /^questions?\b/i.test(a) ? 'questions' : /notes for the proofer/i.test(a) ? 'proofer' : null;
+const NOTES_TITLES = { general:'General Notes', questions:'Questions', proofer:'Notes for the Proofer' };
+const rowHas = (g, r, cols) => cols.some(col => cellText(g, r, col.c));
+const isPlaceholderName = n => !n || /^book name$/i.test(n.trim());
+
+// ── Sheet formatting helpers ──
+function fmtReq(sheetId, r0, r1, c0, c1, fmt){            // rows/cols 0-based, end exclusive
+  const uf = {}, fields = [];
+  if (fmt.bg) { uf.backgroundColor = fmt.bg; fields.push('userEnteredFormat.backgroundColor'); }
+  if (fmt.bold != null) { uf.textFormat = { bold:fmt.bold }; fields.push('userEnteredFormat.textFormat.bold'); }
+  return { repeatCell:{ range:{ sheetId, startRowIndex:r0, endRowIndex:r1, startColumnIndex:c0, endColumnIndex:c1 }, cell:{ userEnteredFormat:uf }, fields:fields.join(',') } };
+}
+// New rows inside the tab, or added at its end if that's where they go
+function insertRowsReq(g, at, n){
+  const rc = g.rowCount || Infinity;
+  if (at >= rc) return { appendDimension:{ sheetId:g.sheetId, dimension:'ROWS', length: n + (at - rc) } };
+  return { insertDimension:{ range:{ sheetId:g.sheetId, dimension:'ROWS', startIndex:at, endIndex:at + n }, inheritFromBefore: at > 0 } };
+}
+
+// ── Sections: a header row, then its rows (yellow placeholders count as rows) ──
+function headerCols(g, hr){
+  const out = [], row = g.rows[hr] || [];
+  for (let c = 0; c < row.length; c++) { const h = (row[c]?.v || '').trim(); if (!h) break; out.push({ c, label: firstLine(h), full: h }); }
+  return out;
+}
+// loose: blank rows inside the section are skipped rather than ending it
+function parseSection(g, hr, end, cols, loose){
+  cols = cols || headerCols(g, hr);
+  const cs = cols.map(c => c.c), c0 = Math.min(...cs), c1 = Math.max(...cs);
+  const lr = usedExtent(g).lr, rows = [];
+  for (let r = hr + 1; r < end; r++) {
+    if (notesKind(cellText(g, r, 0)) || isHeaderRow(g, r, false)) break;
+    const bg = cellAt(g, r, c0)?.bg, has = rowHas(g, r, cols);
+    if (!has && isReddish(bg)) break;                     // end-of-book line
+    if (!has && isWhite(bg)) { if (loose && r < lr) continue; break; }
+    rows.push(r);
+  }
+  return { type:'table', hr, cols, c0, c1, rows, title: cols[0]?.label || '' };
+}
+// Use an empty row in the section if there is one; otherwise insert a row
+// straight after its last row, coloured like the others.
+async function addRowIn(g, sec){
+  const t = q(g.title), hc = sec.cols[0].c;
+  const hdr = (await readRanges([`${t}!${colLetter(hc)}${sec.hr + 1}`]))[0];
+  if (String(((hdr[0] || [])[0]) ?? '').trim() !== cellText(g, sec.hr, hc))
+    throw Object.assign(new Error('moved'), { friendly:'That part of the Sheet changed since it loaded. Reload and try again.' });
+  if (sec.rows.length) {
+    const r0 = sec.rows[0], r1 = sec.rows[sec.rows.length - 1];
+    const cur = (await readRanges([`${t}!${colLetter(sec.c0)}${r0 + 1}:${colLetter(sec.c1)}${r1 + 1}`]))[0];
+    for (const r of sec.rows) if (!(cur[r - r0] || []).some(v => String(v ?? '').trim())) return r;
+  }
+  const at = (sec.rows.length ? sec.rows[sec.rows.length - 1] : sec.hr) + 1;
+  await sheetsBatch([insertRowsReq(g, at, 1), fmtReq(g.sheetId, at, at + 1, sec.c0, sec.c1 + 1, { bg:YELLOW, bold:false })]);
+  return at;
+}
+
+// ── Shared rendering ──
+function filterCtx(g){
+  const qv = gsFilter.q.toLowerCase();
+  return { editable: !RO && !g.ro, qv, filtering: !!qv || gsFilter.unconf, match: t => !qv || (t || '').toLowerCase().includes(qv), shown:0, unconf:0 };
+}
+function finishView(g, html, F, unit){
+  $('sheet-view').innerHTML = html;
+  $('gs-addrows').style.display = 'none';            // only for Sheet view
+  unit = unit || 'card';
+  $('stats-grid').textContent = `${F.shown} ${unit}${F.shown === 1 ? '' : 's'}`;
+  $('gs-unconf').style.display = g.notes ? '' : 'none';
+  $('gs-unconf-n').textContent = F.unconf;
+  $('gs-unconf').classList.toggle('on', gsFilter.unconf);
+  $('gs-unconf').classList.toggle('zero', F.unconf === 0);
+  updateNotesFlag();
+}
+function rowCard(g, sec, bi, r, hide, opts){
+  const titleCol = sec.cols[0], title = cellText(g, r, titleCol.c);
+  const isQ = sec.ansCol != null, ok = isQ && isGreen(cellAt(g, r, sec.ansCol)?.bg);
+  let body = '', meta = '';
+  sec.cols.slice(1).forEach(col => {
+    const cell = cellAt(g, r, col.c), v = (cell?.v || '').trim(); if (!v) return;
+    if (/^page$/i.test(col.label)) { meta += `<span class="meta-pill">p.&nbsp;${esc(v)}</span>`; return; }
+    if (opts.ipaCol === col.c) { body += `<div class="ipa-card-row"><span class="ipa-lbl" title="${esc(col.full)}">${esc(col.label)}</span><span class="ipa-val ipa-auth">${esc(v)}</span></div>`; return; }
+    const isAns = isQ && col.c === sec.ansCol;
+    const short = !isAns && v.length <= 28 && !/\n/.test(v) && !isUrl(v) && !cell.link;
+    body += short
+      ? `<div class="ipa-row"><span class="ipa-lbl" title="${esc(col.full)}">${esc(col.label)}</span><span class="cs-short">${esc(v)}</span></div>`
+      : `<div class="cs-block${isAns ? ' ans' + (ok ? ' ok' : '') : ''}"><span class="section-lbl" title="${esc(col.full)}">${esc(col.label)}</span><div class="section-text">${cellValHtml(cell)}</div></div>`;
+  });
+  const foot = meta + (isQ ? confBtnHtml(ok, 'author') : '') + (opts.editable ? `<button class="edit-btn" type="button" data-act="edit" data-b="${bi}">Edit</button>` : '');
+  return `<div class="card${isQ && !ok ? ' flag-rec' : ''}${hide ? ' cs-hide' : ''}" data-r="${r}" data-b="${bi}">
+    <div class="card-top"><div class="name-wrap"><div class="char-name${title.length > 50 ? ' long' : ''}">${title ? linkify(title) : `<span class="cs-empty">(no ${esc(titleCol.label)})</span>`}</div></div></div>
+    ${body}${foot ? `<div class="card-foot">${foot}</div>` : ''}</div>`;
+}
+function secHtml(g, sec, bi, F, opts = {}){
+  const filled = sec.rows.filter(r => rowHas(g, r, sec.cols));
+  let cards = '', vis = 0;
+  filled.forEach(r => {
+    const isQ = sec.ansCol != null, ok = isQ && isGreen(cellAt(g, r, sec.ansCol)?.bg);
+    if (isQ && !ok) F.unconf++;
+    const hide = !F.match(sec.cols.map(c => cellText(g, r, c.c)).join(' ')) || (gsFilter.unconf && !(isQ && !ok));
+    if (!hide) vis++;
+    cards += rowCard(g, sec, bi, r, hide, { editable:F.editable, ipaCol:opts.ipaCol });
+  });
+  F.shown += vis;
+  const hideSec = F.filtering && !vis;
+  return `<div class="cs-section${hideSec ? ' cs-hide' : ''}"><div class="cs-head"><span class="cs-title">${esc(opts.title || sec.title)}</span><span class="cs-count">${filled.length}</span>${F.editable ? `<button class="pill-btn ghost" type="button" data-act="add" data-b="${bi}">+ Add</button>` : ''}</div>
+    <div class="cs-grid${opts.gridCls ? ' ' + opts.gridCls : ''}">${cards || `<div class="cs-empty">${F.editable ? 'Nothing here yet — click + Add.' : 'Empty'}</div>`}</div></div>`;
+}
+// One wide card, a row per entry: name on the left, its links on the same line
+function linksSecHtml(g, sec, bi, F, title){
+  const filled = sec.rows.filter(r => rowHas(g, r, sec.cols));
+  let rows = '', vis = 0;
+  filled.forEach(r => {
+    const hide = !F.match(sec.cols.map(c => cellText(g, r, c.c)).join(' ')) || gsFilter.unconf;
+    if (!hide) vis++;
+    const name = cellText(g, r, sec.cols[0].c);
+    const vals = sec.cols.slice(1).map(c => cellText(g, r, c.c) ? cellValHtml(cellAt(g, r, c.c)) : '').filter(Boolean).join(' ');
+    rows += `<div class="lk-row${hide ? ' cs-hide' : ''}" data-r="${r}"><span class="lk-name">${name ? esc(name) : '<span class="cs-empty">(no name)</span>'}</span><span class="lk-vals">${vals || '<span class="cs-empty">No link yet</span>'}</span>${F.editable ? `<button class="edit-btn" type="button" data-act="edit" data-b="${bi}">Edit</button>` : ''}</div>`;
+  });
+  F.shown += vis;
+  return `<div class="cs-section${F.filtering && !vis ? ' cs-hide' : ''}"><div class="cs-head"><span class="cs-title">${esc(title)}</span><span class="cs-count">${filled.length}</span>${F.editable ? `<button class="pill-btn ghost" type="button" data-act="add" data-b="${bi}">+ Add</button>` : ''}</div>
+    <div class="card info-card wide-card">${rows || '<div class="cs-empty">Nothing here yet.</div>'}</div></div>`;
+}
+const newBookBar = F => F.editable ? `<div class="book-bar"><button class="pill-btn dark" type="button" data-act="newbook">+ Add new Book to Project</button><span class="book-bar-note">For a series: adds a fresh set of notes for the next book, in Notes/Qs and Book Synopsis. The books already there move down.</span></div>` : '';
+
+// ═══ NOTES/QS ═══════════════════════════════════════════════
+// Rows 1–3: project links. Then one block per book (template rows 5–19):
+// book name · General Notes · Questions · Notes for the Proofer · red line · white line
+function parseNotes(g){
+  const n = Math.max(g.rows.length, usedExtent(g).lr + 1);
+  const links = [0, 1, 2].map(r => ({ r, label:cellText(g, r, 0), cell:cellAt(g, r, 1) })).filter(x => x.label || (x.cell?.v || '').trim());
+  const starts = [];
+  for (let r = 3; r < n - 1; r++) if (notesKind(cellText(g, r + 1, 0)) === 'general' && !notesKind(cellText(g, r, 0))) starts.push(r);
+  const books = starts.map((r, i) => {
+    const end = i + 1 < starts.length ? starts[i + 1] : n;
+    const a = cellText(g, r, 0), b = cellText(g, r, 1);
+    const nameCol = /^book name$/i.test(a) && b ? 1 : 0;
+    const name = nameCol ? b : a;
+    const book = { r, end, name, nameCol, placeholder: isPlaceholderName(name), secs:[], red:null };
+    for (let h = r + 1; h < end; h++) {
+      if (!book.red && isReddish(cellAt(g, h, 0)?.bg) && !cellText(g, h, 0)) book.red = cellAt(g, h, 0).bg;
+      const kind = notesKind(cellText(g, h, 0)); if (!kind) continue;
+      const cols = kind === 'general'
+        ? [{ c:0, label:'Note Name', full:'Note Name' }, { c:1, label:'Note Details', full:'Note Details' }]
+        : headerCols(g, h);
+      const sec = parseSection(g, h, end, cols);
+      sec.kind = kind; sec.title = NOTES_TITLES[kind];
+      if (kind !== 'general') { const ac = cols.find(col => /answer/i.test(col.label)); sec.ansCol = ac ? ac.c : (cols[3] || cols[cols.length - 1]).c; }
+      book.secs.push(sec);
+    }
+    book.empty = book.secs.every(s => !s.rows.some(rr => rowHas(g, rr, s.cols)));
+    return book;
+  });
+  return { links, books };
+}
+const notesBookNames = () => { const ng = gridOfKind('notes'); return ng ? parseNotes(ng).books.filter(b => !b.placeholder).map(b => b.name) : []; };
+
+function renderNotes(g){
+  const F = filterCtx(g), P = parseNotes(g), blocks = []; g._blocks = blocks;
+  let html = newBookBar(F);
+  if (P.links.length) html += `<div class="cs-section${F.filtering ? ' cs-hide' : ''}"><div class="cs-head"><span class="cs-title">Project Links</span><span class="tab-ref">Read only</span></div>
+    <div class="card info-card wide-card">${P.links.map(x => `<div class="lk-row"><span class="lk-name">${esc(x.label || `Row ${x.r + 1}`)}</span><span class="lk-vals">${(x.cell?.v || '').trim() ? cellValHtml(x.cell) : '<span class="cs-empty">—</span>'}</span></div>`).join('')}</div></div>`;
+  if (!P.books.length) html += `<div class="cs-empty">No book sections found in this tab. Use Sheet view to see it as it is.</div>`;
+  P.books.forEach(book => {
+    const bi = blocks.push({ type:'table', title:'Book name', hr:book.r, cols:[{ c:book.nameCol, label:'Book name', full:'Book name' }], noClear:true,
+      afterSave: (ctx, vals) => renameSynopsisBook(book.name, vals[0]) }) - 1;
+    const before = F.shown;
+    let inner = '';
+    book.secs.forEach(sec => {
+      const sbi = blocks.push(Object.assign(sec, { addRow: () => addRowIn(g, sec) })) - 1;
+      inner += secHtml(g, sec, sbi, F, sec.kind === 'general' ? {} : { gridCls:'wide2' });
+    });
+    const hideBook = F.filtering && F.shown === before;
+    html += `<div class="book-block${hideBook ? ' cs-hide' : ''}">
+      <div class="book-head" data-r="${book.r}"><span class="book-kicker">Book</span><span class="book-name">${book.placeholder ? '<span class="cs-empty">Unnamed book</span>' : esc(book.name)}</span>${F.editable ? `<button class="edit-btn" type="button" data-act="edit" data-b="${bi}">Rename</button>` : ''}</div>
+      ${inner}<div class="book-end" title="End of this book's notes"></div></div>`;
+  });
+  finishView(g, html, F);
+}
+
+// ═══ BOOK SYNOPSIS ══════════════════════════════════════════
+// A1 title, then for each book: its name, then the written synopsis.
+function parseSynopsis(g){
+  const known = new Set(notesBookNames().map(n => n.toLowerCase()));
+  const lr = usedExtent(g).lr, books = [];
+  let cur = null, gap = false;
+  for (let r = 1; r <= lr; r++) {
+    const v = cellText(g, r, 0);
+    if (!v) { gap = true; continue; }
+    const isName = !cur || known.has(v.toLowerCase()) || /^book name$/i.test(v) || (gap && cur.syn.length && v.length <= 80 && !/\n/.test(v));
+    if (isName) { cur = { nameRow:r, name:v, placeholder:isPlaceholderName(v), syn:[] }; books.push(cur); }
+    else cur.syn.push(r);
+    gap = false;
+  }
+  return books;
+}
+function synBooks(g){
+  const books = parseSynopsis(g), have = new Set(books.map(b => b.name.toLowerCase()));
+  notesBookNames().forEach(n => { if (!have.has(n.toLowerCase())) books.push({ nameRow:null, name:n, placeholder:false, syn:[] }); });
+  return books;
+}
+function renderSynopsis(g){
+  const F = filterCtx(g), books = synBooks(g); g._syn = books; g._blocks = [];
+  let html = newBookBar(F);
+  books.forEach((b, i) => {
+    const text = b.syn.map(r => cellText(g, r, 0));
+    const hide = !F.match(b.name + ' ' + text.join(' ')) || gsFilter.unconf; if (!hide) F.shown++;
+    html += `<div class="cs-section${hide ? ' cs-hide' : ''}"><div class="card info-card syn-card">
+      <div class="book-kicker">Book</div>
+      <div class="char-name" style="margin:2px 0 12px">${b.placeholder ? '<span class="cs-empty">Unnamed book</span>' : esc(b.name)}</div>
+      ${text.length ? b.syn.map(r => `<div class="section-text cs-prose">${cellValHtml(cellAt(g, r, 0))}</div>`).join('') : `<div class="cs-empty">No synopsis yet${F.editable ? ' — click Edit to write it' : ''}.</div>`}
+      ${F.editable ? `<div class="card-foot"><button class="edit-btn" type="button" data-act="syn" data-i="${i}">Edit</button></div>` : ''}</div></div>`;
+  });
+  if (!books.length) html += `<div class="cs-empty">No books yet${F.editable ? ' — click + Add new Book to Project' : ''}.</div>`;
+  finishView(g, html, F);
+}
+function openSynForm(i){
+  if (RO) return;
+  const g = gridFor(), b = g && g._syn && g._syn[i]; if (!b) return;
+  const tokenP = editAccess && tokenValid() ? Promise.resolve(token) : requestToken();   // inside the click
+  tokenP.catch(()=>{});
+  formCtx = { kind:'syn', g, book:b, tokenP };
+  $('modal-title').textContent = b.nameRow == null ? 'Add synopsis' : 'Edit synopsis';
+  $('modal-hint').textContent = `Saves to the ${g.title} tab.${b.placeholder ? '' : ' Renaming the book here renames it in Notes/Qs too.'}`;
+  const text = b.syn.map(r => cellText(g, r, 0)).join('\n\n');
+  $('modal-form').innerHTML = `<div class="fld full"><label>Book name <span class="req">*</span></label><input name="f0" value="${esc(b.placeholder ? '' : b.name)}"></div>
+    <div class="fld full"><label>Synopsis</label><textarea name="f1" style="min-height:260px">${esc(text)}</textarea></div>`;
+  $('paste-toggle').style.display = 'none'; $('paste-panel').classList.remove('on');
+  $('modal-delete').style.display = 'none';
+  setModalStatus('');
+  $('modal-overlay').classList.add('on');
+  $('modal-form').elements.f0.focus();
+}
+async function saveSyn(ctx){
+  const name = $('modal-form').elements.f0.value.trim(), syn = $('modal-form').elements.f1.value.replace(/\s+$/, '');
+  if (!name) { setModalStatus('Give the book a name.', true); return; }
+  await runModalSave(ctx, async () => {
+    const { g, book } = ctx, t = q(g.title);
+    if (book.nameRow == null) {                          // a book that's only in Notes/Qs so far
+      const at = usedExtent(g).lr + 1;
+      await sheetsBatch([insertRowsReq(g, at, 3)]);
+      await sheetsWrite('RAW', [{ range:`${t}!A${at + 2}:A${at + 3}`, values:[[name], [syn]] }]);
+      return 'Synopsis added';
+    }
+    const cur = (await readRanges([`${t}!A${book.nameRow + 1}`]))[0];
+    if (String(((cur[0] || [])[0]) ?? '').trim() !== cellText(g, book.nameRow, 0))
+      throw Object.assign(new Error('moved'), { friendly:'That book changed in the Sheet since it loaded. Reload and try again.' });
+    let synRow = book.syn[0];
+    if (synRow == null) {                                // no synopsis row yet — add one under the name
+      synRow = book.nameRow + 1;
+      await sheetsBatch([insertRowsReq(g, synRow, 1), fmtReq(g.sheetId, synRow, synRow + 1, 0, 1, { bold:false })]);
+    }
+    const data = [{ range:`${t}!A${book.nameRow + 1}`, values:[[name]] }, { range:`${t}!A${synRow + 1}`, values:[[syn]] }];
+    book.syn.slice(1).forEach(r => data.push({ range:`${t}!A${r + 1}`, values:[['']] }));
+    await sheetsWrite('RAW', data);
+    if (book.name.trim().toLowerCase() !== name.toLowerCase()) await renameNotesBook(book.name, name);
+    return 'Saved synopsis';
+  });
+}
+async function renameSynopsisBook(oldName, newName){
+  newName = (newName || '').trim();
+  if (!newName || (oldName || '').trim().toLowerCase() === newName.toLowerCase()) return;
+  const sg = gridOfKind('synopsis'); if (!sg) return;
+  const b = parseSynopsis(sg).find(x => x.name.trim().toLowerCase() === (oldName || 'Book Name').trim().toLowerCase()); if (!b) return;
+  await sheetsWrite('RAW', [{ range:`${q(sg.title)}!A${b.nameRow + 1}`, values:[[newName]] }]);
+}
+async function renameNotesBook(oldName, newName){
+  const ng = gridOfKind('notes'); if (!ng) return;
+  const b = parseNotes(ng).books.find(x => x.name.trim().toLowerCase() === oldName.trim().toLowerCase()); if (!b) return;
+  await sheetsWrite('RAW', [{ range:`${q(ng.title)}!${colLetter(b.nameCol)}${b.r + 1}`, values:[[newName]] }]);
+}
+// Shared save wrapper for the custom forms: sign-in, access, errors, reload
+async function runModalSave(ctx, work){
+  if (!tokenValid()) { ctx.tokenP = requestToken(); ctx.tokenP.catch(()=>{}); }   // still inside the click
+  const btn = $('modal-save'); btn.disabled = true;
+  setModalStatus('Connecting to Google…');
+  try {
+    if (!(await ensureEditAccess(ctx.tokenP))) { setModalStatus('Editing needs to be enabled for this Sheet first.', true); return; }
+    setModalStatus('Saving…');
+    const msg = await work();
+    closeForm(); toast(msg || 'Saved');
+    await loadSheet(S.sheetId, { quiet:true });
+  } catch(e) {
+    console.error(e);
+    if (e.friendly) setModalStatus(e.friendly, true);
+    else if (e.status === 401) { token = null; setModalStatus('Your Google session expired — click Save again to reconnect.', true); }
+    else if (e.status === 403 || e.status === 404) { editAccess = false; updateEditUI(); setModalStatus(`${accountEmail || 'This account'} can't edit that Sheet. Click Switch account (top right) and choose the account that owns it.`, true); }
+    else setModalStatus('Save failed — check your connection and try again.', true);
+  } finally { btn.disabled = false; }
+}
+
+// ═══ ADD NEW BOOK ═══════════════════════════════════════════
+function openNewBook(){
+  if (RO) return;
+  const tokenP = editAccess && tokenValid() ? Promise.resolve(token) : requestToken();   // inside the click
+  tokenP.catch(()=>{});
+  formCtx = { kind:'newbook', tokenP };
+  const ng = gridOfKind('notes'), sg = gridOfKind('synopsis');
+  const where = [ng && ng.title, sg && sg.title].filter(Boolean).join(' and ');
+  $('modal-title').textContent = 'Add new Book to Project';
+  $('modal-hint').textContent = `Adds the book at the top of ${where || 'the project'}, with its own General Notes, Questions and Notes for the Proofer. The books already there move down.`;
+  $('modal-form').innerHTML = `<div class="fld full"><label>Book name <span class="req">*</span></label><input name="f0" placeholder="e.g. Book 2 — The Iron Tide"></div>` +
+    (sg ? `<div class="fld full"><label>Synopsis</label><textarea name="f1" style="min-height:160px" placeholder="Optional — you can add it later in ${esc(sg.title)}"></textarea></div>` : '');
+  $('paste-toggle').style.display = 'none'; $('paste-panel').classList.remove('on');
+  $('modal-delete').style.display = 'none';
+  setModalStatus('');
+  $('modal-overlay').classList.add('on');
+  $('modal-form').elements.f0.focus();
+}
+async function saveNewBook(ctx){
+  const name = $('modal-form').elements.f0.value.trim();
+  const syn = ($('modal-form').elements.f1?.value || '').replace(/\s+$/, '');
+  if (!name) { setModalStatus('Give the book a name.', true); return; }
+  await runModalSave(ctx, async () => { await addBook(name, syn); return `Added "${name}"`; });
+}
+async function addBook(name, syn){
+  const ng = gridOfKind('notes'), sg = gridOfKind('synopsis');
+  const reqs = [], writes = [], checks = [];
+  if (ng) {
+    const P = parseNotes(ng), first = P.books[0], t = q(ng.title), sid = ng.sheetId;
+    if (first) checks.push({ range:`${t}!${colLetter(first.nameCol)}${first.r + 1}`, want:cellText(ng, first.r, first.nameCol) });
+    if (first && first.placeholder && first.empty) {
+      // The template's unnamed book hasn't been used yet — it becomes this book
+      writes.push({ range:`${t}!${colLetter(first.nameCol)}${first.r + 1}`, values:[[name]] });
+    } else {
+      const at = first ? first.r : Math.max(4, usedExtent(ng).lr + 2);
+      const labels = kind => { const s = first && first.secs.find(x => x.kind === kind); return s ? [0, 1, 2, 3].map(c => cellText(ng, s.hr, c)) : null; };
+      const qL = labels('questions') || ['Question', 'Page', 'Suggested Fix', 'Author/Producer Answer'];
+      const pL = labels('proofer') || ['Notes for the Proofer', 'Page', 'Fix', 'Author/Producer Answer'];
+      const red = (first && first.red) || DEFAULT_RED;
+      reqs.push(insertRowsReq(ng, at, NOTES_BOOK_ROWS),
+        fmtReq(sid, at, at + NOTES_BOOK_ROWS, 0, 4, { bg:WHITE, bold:false }),
+        fmtReq(sid, at, at + 1, 0, 1, { bold:true }),                     // book name
+        fmtReq(sid, at + 1, at + 2, 0, 1, { bg:BLUE, bold:true }),        // General Notes
+        fmtReq(sid, at + 2, at + 4, 0, 2, { bg:YELLOW }),
+        fmtReq(sid, at + 5, at + 6, 0, 4, { bg:BLUE, bold:true }),        // Questions
+        fmtReq(sid, at + 6, at + 8, 0, 4, { bg:YELLOW }),
+        fmtReq(sid, at + 9, at + 10, 0, 4, { bg:BLUE, bold:true }),       // Notes for the Proofer
+        fmtReq(sid, at + 10, at + 12, 0, 4, { bg:YELLOW }),
+        fmtReq(sid, at + 13, at + 14, 0, 4, { bg:red }));                 // red line, then a white line
+      writes.push({ range:`${t}!A${at + 1}`, values:[[name]] }, { range:`${t}!A${at + 2}`, values:[['General Notes']] },
+        { range:`${t}!A${at + 6}:D${at + 6}`, values:[qL] }, { range:`${t}!A${at + 10}:D${at + 10}`, values:[pL] });
+    }
+  }
+  if (sg) {
+    const books = parseSynopsis(sg), first = books[0], t = q(sg.title);
+    if (first) checks.push({ range:`${t}!A${first.nameRow + 1}`, want:cellText(sg, first.nameRow, 0) });
+    if (first && first.placeholder && !first.syn.length) {
+      writes.push({ range:`${t}!A${first.nameRow + 1}`, values:[[name]] });
+      if (syn) { reqs.push(insertRowsReq(sg, first.nameRow + 1, 1)); writes.push({ range:`${t}!A${first.nameRow + 2}`, values:[[syn]] }); }
+    } else {
+      reqs.push(insertRowsReq(sg, 1, 3), fmtReq(sg.sheetId, 1, 4, 0, 1, { bold:false }));
+      writes.push({ range:`${t}!A2:A3`, values:[[name], [syn]] });
+    }
+  }
+  if (!ng && !sg) throw Object.assign(new Error('notabs'), { friendly:'This Sheet has no Notes/Qs or Book Synopsis tab to add a book to.' });
+  // Don't build on top of something that changed in the Sheet since it loaded
+  if (checks.length) {
+    const cur = await readRanges(checks.map(c => c.range));
+    if (checks.some((c, i) => String(((cur[i] || [])[0] || [])[0] ?? '').trim() !== c.want))
+      throw Object.assign(new Error('moved'), { friendly:'The Sheet changed since it loaded. Reload and try again — nothing was added.' });
+  }
+  if (reqs.length) await sheetsBatch(reqs);
+  if (writes.length) await sheetsWrite('RAW', writes);
+}
+
+// ═══ PHONETIC REF — a chart like the Accent Chart ═══════════
+const PH_KEY = 'prepsuite_phonetic_collapsed';
+const CHEV_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>';
+function phCollapsed(){ try { return JSON.parse(localStorage.getItem(PH_KEY) || '[]'); } catch(e) { return []; } }
+function togglePhSection(name){
+  const c = phCollapsed(), next = c.includes(name) ? c.filter(n => n !== name) : c.concat(name);
+  try { localStorage.setItem(PH_KEY, JSON.stringify(next)); } catch(e) {}
+  renderGrid();
+}
+function phIpaCell(v){
+  if (!v) return '<span class="ph-blank">—</span>';
+  // Symbols only: drop "as in …" examples and explanations; long cells stay as text
+  const base = v.split('\n')[0].replace(/\bas in\b.*$/i, '');
+  let list = base.split(/\s*,\s*/).map(x => x.replace(/\(.*?\)/g, '').replace(/^\/|\/$/g, '').trim()).filter(x => x && x.length <= 8);
+  if (!list.length) list = ipaVariants(v).filter(x => x.length <= 8);
+  if (!list.length && v.trim().length <= 3) list = [v.trim()];
+  if (!list.length) return `<div class="ph-text">${linkify(v)}</div>`;
+  const chips = list.map(x => `<span class="ph-sym">${symChip(x, 'big')}${ipaClips(x) ? `<button class="sym-mini" type="button" data-play="${esc(x)}" title="Hear /${esc(x)}/">▶</button>` : ''}</span>`).join('');
+  const raw = v.replace(/\s+/g, ' ').trim();
+  const note = raw !== list.join(', ') ? `<div class="ph-note">${esc(raw)}</div>` : '';
+  return `<div class="sym-row">${chips}</div>${note}`;
+}
+function phRespCell(v){
+  if (!v) return '<span class="ph-blank">—</span>';
+  if (v.length <= 28 && !/\n/.test(v)) return `<span class="sym-row">${v.split(/\s*(?:,|\s\/\s)\s*/).filter(Boolean).map(x => symChip(x, 'resp')).join('')}</span>`;
+  return `<div class="ph-text">${linkify(v)}</div>`;
+}
+const phHref = u => isUrl(u) ? u : /^[\w-]+(\.[\w-]+)+(\/\S*)?$/.test(u || '') ? 'https://' + u : null;
+function renderPhonetic(g){
+  const F = filterCtx(g), lr = usedExtent(g).lr;
+  const groups = headerGroups(g, 0, lr + 1);
+  const chart = groups[0] || [], linkGrp = groups.slice(1).find(gr => gr.length) || null;
+  if (chart.length < 2) { renderCards(g); return; }
+  const ipaCol = chart.find(col => /^ipa\b/i.test(col.label)) || chart[1], wordCol = chart[0];
+  const others = chart.filter(c => c !== ipaCol && c !== wordCol);
+  // Section rows: a lone bold (or all-caps) label in column A — VOWELS, Diphthongs…
+  const secs = []; let cur = null;
+  for (let r = 1; r <= lr; r++) {
+    const filled = chart.filter(col => cellText(g, r, col.c)); if (!filled.length) continue;
+    const a = cellText(g, r, wordCol.c);
+    if (filled.length === 1 && filled[0] === wordCol && a.length <= 40 && (cellAt(g, r, wordCol.c)?.bold || /^[A-Z][A-Z\s&\/]+$/.test(a))) { cur = { name:a, rows:[] }; secs.push(cur); continue; }
+    if (!cur) { cur = { name:'Sounds', rows:[] }; secs.push(cur); }
+    cur.rows.push(r);
+  }
+  const collapsed = phCollapsed(), span = 2 + others.length;
+  const th = col => { const sub = col.full.split('\n').slice(1).join(' ').trim(); return `<span class="ph-th-name">${esc(col.label)}</span>${sub ? `<span class="ph-th-sub">${esc(sub)}</span>` : ''}`; };
+  let body = '';
+  secs.forEach(sec => {
+    const isC = !F.filtering && collapsed.includes(sec.name);
+    let rows = '', vis = 0;
+    sec.rows.forEach(r => {
+      const hide = !F.match(chart.map(c => cellText(g, r, c.c)).join(' ')); if (!hide) vis++;
+      rows += `<tr class="ph-row${hide || isC ? ' hidden-row' : ''}"><td class="ph-ipa">${phIpaCell(cellText(g, r, ipaCol.c))}</td><td class="ph-word">${esc(cellText(g, r, wordCol.c))}</td>${others.map(c => `<td>${phRespCell(cellText(g, r, c.c))}</td>`).join('')}</tr>`;
+    });
+    F.shown += vis;
+    body += `<tr class="ph-sec${isC ? ' collapsed' : ''}${F.filtering && !vis ? ' hidden-row' : ''}" data-sec="${esc(sec.name)}" title="Click to ${isC ? 'show' : 'hide'} ${esc(sec.name)}"><td colspan="${span}"><span class="section-inner">${CHEV_SVG}${esc(sec.name)} <span class="section-count">${F.filtering ? `${vis} of ${sec.rows.length}` : sec.rows.length}</span></span></td></tr>` + rows;
+  });
+  let links = '';
+  if (linkGrp) {
+    const nameC = linkGrp[0].c, urlC = (linkGrp[1] || { c:nameC + 1 }).c;
+    let items = '';
+    for (let r = 1; r <= lr; r++) {
+      const name = cellText(g, r, nameC), u = cellText(g, r, urlC); if (!name && !u) continue;
+      if (!F.match(name + ' ' + u)) continue;
+      const href = phHref(u);
+      items += href
+        ? `<a class="lk-row lk-link" href="${esc(href)}" target="_blank" rel="noopener" title="${esc(href)}"><span class="lk-name">${esc(name || linkLabel(href))}</span><span class="lk-host">${esc(linkLabel(href))} ↗</span></a>`
+        : `<div class="lk-row"><span class="lk-name">${esc(name)}</span><span class="lk-vals">${linkify(u)}</span></div>`;
+    }
+    links = `<div class="ph-card ph-links"><div class="ph-card-head">${esc(linkGrp[0].label || 'Useful Links')}</div>${items || '<div class="cs-empty" style="padding:12px 16px">No links match.</div>'}</div>`;
+  }
+  const html = `<div class="gs-note">Reference only — edit it in the Sheet. Click any symbol to copy it; ▶ plays the sound (recordings from <a href="https://commons.wikimedia.org/" target="_blank" rel="noopener">Wikimedia Commons</a>, CC BY-SA). Click a dark band to collapse that group.</div>
+    <div class="ph-layout"><div class="ph-card"><div class="ph-scroll"><table class="ph"><thead><tr><th class="ph-ipa">${th(ipaCol)}</th><th class="ph-word">${th(wordCol)}</th>${others.map(c => `<th>${th(c)}</th>`).join('')}</tr></thead><tbody>${body}</tbody></table></div></div>${links}</div>`;
+  finishView(g, html, F, 'sound');
+}
+
+// ═══ LOCATIONS / ACCENTS ════════════════════════════════════
+function renderAccents(g){
+  const F = filterCtx(g), blocks = []; g._blocks = blocks;
+  let hr = 0; for (let r = 0; r < g.rows.length; r++) if (rowNE(g, r).length) { hr = r; break; }
+  const cols = headerCols(g, hr);
+  if (cols.length < 2) { renderCards(g); return; }
+  const sec = parseSection(g, hr, Infinity, cols, true);
+  const bi = blocks.push(Object.assign(sec, { addRow: () => addRowIn(g, sec) })) - 1;
+  finishView(g, secHtml(g, sec, bi, F, { title: cols.slice(0, 2).map(c => c.label).join(' & ') }), F);
+}
+
+// ═══ AUTHOR GENERAL NOTES ═══════════════════════════════════
+// First: files & links from the author (one wide card). Then: the author's pronunciations.
+function renderAuthor(g){
+  const F = filterCtx(g), blocks = []; g._blocks = blocks;
+  const lr = usedExtent(g).lr, hdrs = [];
+  for (let r = 0; r <= lr; r++) if (isHeaderRow(g, r, false)) hdrs.push(r);
+  if (!hdrs.length) { renderCards(g); return; }
+  let html = '';
+  hdrs.forEach((hr, i) => {
+    const sec = parseSection(g, hr, i + 1 < hdrs.length ? hdrs[i + 1] : Infinity, headerCols(g, hr), true);
+    if (!sec.cols.length) return;
+    const bi = blocks.push(Object.assign(sec, { addRow: () => addRowIn(g, sec) })) - 1;
+    if (sec.cols.slice(1).some(c => /link/i.test(c.label))) html += linksSecHtml(g, sec, bi, F, 'Author Notes & Links');
+    else {
+      const ipa = sec.cols.slice(1).find(c => /phonetic|ipa|pronunc/i.test(c.label));
+      html += secHtml(g, sec, bi, F, { ipaCol: ipa ? ipa.c : undefined, title: ipa ? 'Author Pronunciations' : sec.cols.map(c => c.label).join(' · ') });
+    }
+  });
+  finishView(g, html, F);
+}
+
+const TAB_DESIGNS = { notes:renderNotes, phonetic:renderPhonetic, accents:renderAccents, synopsis:renderSynopsis, author:renderAuthor };
 
 // ═══════════════════════════════════════════════════════════
 // SEARCH / TAGS / NEEDS-WORK FILTERS
@@ -2336,6 +2900,8 @@ $('modal-save').addEventListener('click', async () => {
   if (!formCtx) return;
   const ctx = formCtx;
   if (ctx.kind === 'grid') { await handleGridSave(ctx); return; }
+  if (ctx.kind === 'newbook') { await saveNewBook(ctx); return; }
+  if (ctx.kind === 'syn') { await saveSyn(ctx); return; }
   const v = {}; new FormData($('modal-form')).forEach((val, k) => v[k] = String(val).trim());
   const reqKey = ctx.kind === 'char' ? 'name' : 'word';
   if (!v[reqKey]) { setModalStatus(`${ctx.kind === 'char' ? 'Character' : 'Word'} is required.`, true); return; }
@@ -2904,7 +3470,7 @@ $('switch-btn').addEventListener('click', () => {
   if (id) await loadSheet(id);
 })();
 </script>
-<div id="tool-version">v10.3</div>
+<div id="tool-version">v11.0</div>
 <div id="tag-footer"></div>
 <script src="/partials/inject-brand.js"></script>
 </body>
