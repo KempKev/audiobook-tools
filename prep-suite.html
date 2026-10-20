@@ -1539,7 +1539,8 @@ function renderCards(g){
         const vars = ipaVariants(title), list = vars.length ? vars : [title];
         const playable = list.filter(x => ipaClips(x));
         titleHtml = `<div class="sym-row">${list.map(x => symChip(x, 'big') + (list.length > 1 && ipaClips(x) ? `<button class="sym-mini" type="button" data-play="${esc(x)}" title="Hear /${esc(x)}/">▶</button>` : '')).join('')}</div>`;
-        playHtml = `<div class="btn-group"><button class="pbtn pron" type="button" ${playable.length ? `data-play="${esc(playable[0])}" title="Hear /${esc(playable[0])}/"` : 'disabled title="No recording for this sound yet"'}><svg class="ico" width="12" height="12" viewBox="0 0 24 24" fill="white">${PLAY_SVG}</svg></button></div>`;
+        // One play per symbol: several symbols get a small ▶ each; a single symbol gets the round button
+        if (list.length < 2) playHtml = `<div class="btn-group"><button class="pbtn pron" type="button" ${playable.length ? `data-play="${esc(playable[0])}" title="Hear /${esc(playable[0])}/"` : 'disabled title="No recording for this sound yet"'}><svg class="ico" width="12" height="12" viewBox="0 0 24 24" fill="white">${PLAY_SVG}</svg></button></div>`;
       }
       cards += `<div class="card${isQ && !s.confirmed ? ' flag-rec' : ''}${hide ? ' cs-hide' : ''}" data-r="${r}" data-b="${bi}">
         <div class="card-top"><div class="name-wrap"><div class="${ipaCol ? 'ipa-big' : 'char-name' + (title.length > 50 ? ' long' : '')}">${titleHtml}</div>${sub ? `<div class="alias" style="margin-top:5px">${esc(sub)}</div>` : ''}</div>${playHtml}</div>
@@ -2902,7 +2903,7 @@ $('switch-btn').addEventListener('click', () => {
   if (id) await loadSheet(id);
 })();
 </script>
-<div id="tool-version">v10.0</div>
+<div id="tool-version">v10.1</div>
 <div id="tag-footer"></div>
 <script src="/partials/inject-brand.js"></script>
 </body>
