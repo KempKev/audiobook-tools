@@ -483,6 +483,37 @@
     .lk-row { flex-wrap:wrap; gap:6px 12px; }
     .lk-name { min-width:0; }
   }
+  /* ── Tables (Notes/Qs, Locations/Accents) ── */
+  .tb-card { background:var(--card); border:1px solid var(--rule); border-radius:var(--radius); box-shadow:var(--shadow-sm); overflow:hidden; }
+  .tb-scroll { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+  table.tb { border-collapse:collapse; width:100%; font-size:0.84rem; }
+  table.tb thead th { background:var(--card); border-bottom:2px solid var(--rule); padding:10px 12px; text-align:left; font-family:'Raleway',sans-serif; font-size:0.72rem; font-weight:800; letter-spacing:0.02em; color:var(--ink); white-space:nowrap; }
+  table.tb td { padding:9px 12px; border-bottom:1px solid #f0f0f0; vertical-align:top; line-height:1.5; white-space:pre-wrap; word-break:break-word; min-width:120px; }
+  table.tb td.tb-first { font-weight:600; min-width:180px; }
+  table.tb .tb-narrow { width:1%; min-width:0; white-space:nowrap; }
+  table.tb tr.tb-row:nth-child(even) td { background:#fafafa; }
+  table.tb tr.tb-row:hover td { background:var(--accent-bg); }
+  table.tb tr.tb-row.unconf td.tb-first { box-shadow:inset 3px 0 0 var(--red); }
+  table.tb td.tb-ans.ok, table.tb tr.tb-row:hover td.tb-ans.ok { background:#d9ead3; }
+  table.tb tr.cs-hide { display:none !important; }
+  table.tb .conf-btn { margin-left:0; }
+  table.tb .edit-btn { margin-left:0; }
+  table.tb th.tb-h, table.tb td.tb-h { width:1%; min-width:0; padding:9px 4px 9px 10px; white-space:nowrap; }
+  .drag { cursor:grab; color:#c4c4c4; font-size:1rem; line-height:1; padding:0 4px; user-select:none; vertical-align:middle; }
+  .drag:hover { color:var(--accent); }
+  .mv-wrap { display:inline-flex; flex-direction:column; vertical-align:middle; margin-left:2px; opacity:0; transition:opacity .12s; }
+  tr.tb-row:hover .mv-wrap, .mv-wrap:focus-within { opacity:1; }
+  .mv { border:none; background:none; color:var(--light); font-size:0.5rem; line-height:1; padding:1px 3px; cursor:pointer; }
+  .mv:hover:not(:disabled) { color:var(--accent); }
+  .mv:disabled { opacity:0.25; cursor:default; }
+  tr.tb-row.dragging td { opacity:0.4; }
+  tr.tb-row.drop-above td { box-shadow:inset 0 2px 0 var(--accent); }
+  tr.tb-row.drop-below td { box-shadow:inset 0 -2px 0 var(--accent); }
+  .tb-foot { padding:10px 12px; border-top:1px solid var(--rule); background:#fcfcfc; }
+  .tb-empty { color:var(--light); font-style:italic; text-align:center; padding:18px !important; }
+  .book-actions { margin-left:auto; display:flex; gap:4px; }
+  .book-del:hover { color:var(--red) !important; }
+  @media (hover:none) { .mv-wrap { opacity:1; } }
 </style>
 </head>
 <body>
@@ -1249,6 +1280,7 @@ $('sheet-view').addEventListener('click', ev => {
   const act = ev.target.closest('[data-act]');
   if (act && act.dataset.act === 'newbook') { openNewBook(); return; }
   if (act && act.dataset.act === 'syn') { openSynForm(Number(act.dataset.i)); return; }
+  if (act && act.dataset.act === 'delbook') { openRemoveBook(Number(act.dataset.i)); return; }
   if (act) {
     const g = gridFor(), b = g?._blocks?.[Number(act.dataset.b)]; if (!b) return;
     const card = act.closest('[data-r]');
@@ -1762,7 +1794,7 @@ async function clearGridEntry(ctx){
 // ═══════════════════════════════════════════════════════════
 const BLUE  = { red:0xc9/255, green:0xda/255, blue:0xf8/255 };   // #c9daf8 header rows
 const WHITE = { red:1, green:1, blue:1 };
-const NOTES_BOOK_ROWS = 15;                                        // Notes/Qs rows 5–19 = one book
+const NOTES_BOOK_ROWS = 11;                                        // Notes/Qs rows 10–20 = one book
 function specialKind(g){
   const t = (g.title || '').trim();
   if (g.notes || /^notes\s*[\/&]?\s*q/i.test(t)) return 'notes';
@@ -1773,8 +1805,8 @@ function specialKind(g){
   return null;
 }
 const gridOfKind = kind => Object.values(S.grids).find(g => specialKind(g) === kind) || null;
-const notesKind = a => /^general notes/i.test(a) ? 'general' : /^questions?\b/i.test(a) ? 'questions' : /notes for the proofer/i.test(a) ? 'proofer' : null;
-const NOTES_TITLES = { general:'General Notes', questions:'Questions', proofer:'Notes for the Proofer' };
+const notesKind = a => /^general notes for series/i.test(a) ? 'series' : /^general notes/i.test(a) ? 'general' : /^questions?\b/i.test(a) ? 'questions' : /notes for the proofer/i.test(a) ? 'proofer' : null;
+const NOTES_TITLES = { series:'General Notes for Series', general:'General Notes', questions:'Questions', proofer:'Notes for the Proofer' };
 const rowHas = (g, r, cols) => cols.some(col => cellText(g, r, col.c));
 const isPlaceholderName = n => !n || /^book name$/i.test(n.trim());
 
@@ -1896,59 +1928,209 @@ function linksSecHtml(g, sec, bi, F, title){
 }
 const newBookBar = F => F.editable ? `<div class="book-bar"><button class="pill-btn dark" type="button" data-act="newbook">+ Add new Book to Project</button><span class="book-bar-note">For a series: adds a fresh set of notes for the next book, in Notes/Qs and Book Synopsis. The books already there move down.</span></div>` : '';
 
+// ═══ TABLES — headers, rows you can drag (or ▲▼) to reorder, + Add underneath ═══
+function secTable(g, sec, bi, F, opts = {}){
+  const filled = sec.rows.filter(r => rowHas(g, r, sec.cols));
+  const isQ = sec.ansCol != null, reorder = F.editable && !opts.noReorder;
+  const head = `<tr>${reorder ? '<th class="tb-h"></th>' : ''}${sec.cols.map(c => `<th${/^page$/i.test(c.label) ? ' class="tb-narrow"' : ''} title="${esc(c.full)}">${esc(c.label)}</th>`).join('')}${isQ ? '<th class="tb-narrow">Confirmed</th>' : ''}${F.editable ? '<th class="tb-narrow"></th>' : ''}</tr>`;
+  let body = '', vis = 0;
+  filled.forEach((r, i) => {
+    const ok = isQ && isGreen(cellAt(g, r, sec.ansCol)?.bg);
+    if (isQ && !ok) F.unconf++;
+    const hide = !F.match(sec.cols.map(c => cellText(g, r, c.c)).join(' ')) || (gsFilter.unconf && !(isQ && !ok));
+    if (!hide) vis++;
+    const cells = sec.cols.map(c => {
+      const cell = cellAt(g, r, c.c), isAns = isQ && c.c === sec.ansCol;
+      return `<td class="${/^page$/i.test(c.label) ? 'tb-narrow' : ''}${isAns ? ' tb-ans' + (ok ? ' ok' : '') : ''}${c === sec.cols[0] ? ' tb-first' : ''}">${(cell?.v || '').trim() ? cellValHtml(cell) : '<span class="ph-blank">—</span>'}</td>`;
+    }).join('');
+    body += `<tr class="tb-row${isQ && !ok ? ' unconf' : ''}${hide ? ' cs-hide' : ''}" data-r="${r}" data-b="${bi}">
+      ${reorder ? `<td class="tb-h"><span class="drag" title="Drag to reorder">⠿</span><span class="mv-wrap"><button class="mv" type="button" data-mv="-1" title="Move up"${i === 0 ? ' disabled' : ''}>▲</button><button class="mv" type="button" data-mv="1" title="Move down"${i === filled.length - 1 ? ' disabled' : ''}>▼</button></span></td>` : ''}
+      ${cells}${isQ ? `<td class="tb-narrow">${confBtnHtml(ok, 'author')}</td>` : ''}${F.editable ? `<td class="tb-narrow"><button class="edit-btn" type="button" data-act="edit" data-b="${bi}">Edit</button></td>` : ''}</tr>`;
+  });
+  if (!filled.length) body = `<tr><td class="tb-empty" colspan="${sec.cols.length + (isQ ? 1 : 0) + (F.editable ? 1 : 0) + (reorder ? 1 : 0)}">${F.editable ? 'Nothing here yet — click + Add.' : 'Empty'}</td></tr>`;
+  F.shown += vis;
+  return `<div class="cs-section${F.filtering && !vis ? ' cs-hide' : ''}"><div class="cs-head"><span class="cs-title">${esc(opts.title || sec.title)}</span><span class="cs-count">${filled.length}</span></div>
+    <div class="tb-card"><div class="tb-scroll"><table class="tb" data-b="${bi}"><thead>${head}</thead><tbody>${body}</tbody></table></div>
+    ${F.editable ? `<div class="tb-foot"><button class="pill-btn ghost" type="button" data-act="add" data-b="${bi}">+ Add</button></div>` : ''}</div></div>`;
+}
+// Move one row within its section, in the Sheet itself (colours travel with it)
+async function moveSecRow(g, sec, src, dst){
+  if (src === dst || RO) return;
+  const tokenP = editAccess && tokenValid() ? Promise.resolve(token) : requestToken();
+  tokenP.catch(()=>{});
+  try {
+    if (!(await ensureEditAccess(tokenP))) return;
+    const t = q(g.title), c0 = sec.cols[0].c;
+    const cur = (await readRanges([`${t}!${colLetter(c0)}${src + 1}`]))[0];
+    if (String(((cur[0] || [])[0]) ?? '').trim() !== cellText(g, src, c0)) { toast('That row changed in the Sheet since it loaded — reload and try again.', true); return; }
+    await sheetsBatch([{ moveDimension:{ source:{ sheetId:g.sheetId, dimension:'ROWS', startIndex:src, endIndex:src + 1 }, destinationIndex: dst > src ? dst + 1 : dst } }]);
+    toast('Moved');
+    await loadSheet(S.sheetId, { quiet:true });
+  } catch(e) {
+    console.error(e);
+    if (e.status === 401) { token = null; toast('Your Google session expired — try again.', true); }
+    else toast("Couldn't reorder — check your connection and try again.", true);
+  }
+}
+const filledRows = (g, sec) => sec.rows.filter(r => rowHas(g, r, sec.cols));
+let dragRow = null;
+$('sheet-view').addEventListener('mousedown', ev => { const h = ev.target.closest('.drag'); if (h) h.closest('tr').draggable = true; });
+$('sheet-view').addEventListener('dragstart', ev => {
+  const tr = ev.target.closest && ev.target.closest('tr.tb-row'); if (!tr || !tr.draggable) return;
+  dragRow = { b:Number(tr.dataset.b), r:Number(tr.dataset.r) }; tr.classList.add('dragging'); ev.dataTransfer.effectAllowed = 'move';
+  try { ev.dataTransfer.setData('text/plain', ''); } catch(e) {}
+});
+$('sheet-view').addEventListener('dragend', ev => {
+  document.querySelectorAll('tr.tb-row.dragging, tr.tb-row.drop-above, tr.tb-row.drop-below').forEach(t => t.classList.remove('dragging', 'drop-above', 'drop-below'));
+  const tr = ev.target.closest && ev.target.closest('tr.tb-row'); if (tr) tr.draggable = false;
+});
+$('sheet-view').addEventListener('dragover', ev => {
+  const tr = ev.target.closest('tr.tb-row'); if (!dragRow || !tr || Number(tr.dataset.b) !== dragRow.b) return;
+  ev.preventDefault();
+  document.querySelectorAll('tr.drop-above, tr.drop-below').forEach(t => t.classList.remove('drop-above', 'drop-below'));
+  const r = Number(tr.dataset.r); if (r !== dragRow.r) tr.classList.add(r < dragRow.r ? 'drop-above' : 'drop-below');
+});
+$('sheet-view').addEventListener('drop', ev => {
+  const tr = ev.target.closest('tr.tb-row'); if (!dragRow || !tr || Number(tr.dataset.b) !== dragRow.b) return;
+  ev.preventDefault();
+  const g = gridFor(), sec = g && g._blocks[dragRow.b], src = dragRow.r, dst = Number(tr.dataset.r);
+  dragRow = null;
+  if (sec) moveSecRow(g, sec, src, dst);
+});
+$('sheet-view').addEventListener('click', ev => {
+  const mv = ev.target.closest('.mv'); if (!mv) return;
+  ev.stopPropagation();
+  const tr = mv.closest('tr'), g = gridFor(), sec = g && g._blocks[Number(tr.dataset.b)]; if (!sec) return;
+  const list = filledRows(g, sec), i = list.indexOf(Number(tr.dataset.r)), j = i + Number(mv.dataset.mv);
+  if (i < 0 || j < 0 || j >= list.length) return;
+  moveSecRow(g, sec, list[i], list[j]);
+}, true);
+
 // ═══ NOTES/QS ═══════════════════════════════════════════════
-// Rows 1–3: project links. Then one block per book (template rows 5–19):
-// book name · General Notes · Questions · Notes for the Proofer · red line · white line
+// Rows 1–3: project links. Rows 5–8: General Notes for Series (title, Note/Details header, rows).
+// Then one block per book (template rows 10–20): book name · Questions · Notes for the Proofer · red line · white line.
+// Sheets from the older template (General Notes inside each book) still load.
 function parseNotes(g){
   const n = Math.max(g.rows.length, usedExtent(g).lr + 1);
   const links = [0, 1, 2].map(r => ({ r, label:cellText(g, r, 0), cell:cellAt(g, r, 1) })).filter(x => x.label || (x.cell?.v || '').trim());
+  let series = null;
+  for (let r = 3; r < n; r++) if (notesKind(cellText(g, r, 0)) === 'series') {
+    const cols = headerCols(g, r + 1);
+    if (cols.length >= 2) { series = parseSection(g, r + 1, n, cols); series.kind = 'series'; series.title = cellText(g, r, 0); series.titleRow = r; }
+    break;
+  }
+  const seriesEnd = series ? (series.rows.length ? series.rows[series.rows.length - 1] : series.hr) : -1;
   const starts = [];
-  for (let r = 3; r < n - 1; r++) if (notesKind(cellText(g, r + 1, 0)) === 'general' && !notesKind(cellText(g, r, 0))) starts.push(r);
+  for (let r = 3; r < n - 1; r++) {
+    if (r <= seriesEnd) continue;
+    const a = cellText(g, r, 0), nk = notesKind(cellText(g, r + 1, 0));
+    if (notesKind(a)) continue;
+    if (nk === 'general' || (nk === 'questions' && a)) starts.push(r);
+  }
   const books = starts.map((r, i) => {
     const end = i + 1 < starts.length ? starts[i + 1] : n;
     const a = cellText(g, r, 0), b = cellText(g, r, 1);
     const nameCol = /^book name$/i.test(a) && b ? 1 : 0;
     const name = nameCol ? b : a;
-    const book = { r, end, name, nameCol, placeholder: isPlaceholderName(name), secs:[], red:null };
+    const book = { r, end, name, nameCol, placeholder: isPlaceholderName(name), secs:[], red:null, redRow:null };
     for (let h = r + 1; h < end; h++) {
-      if (!book.red && isReddish(cellAt(g, h, 0)?.bg) && !cellText(g, h, 0)) book.red = cellAt(g, h, 0).bg;
-      const kind = notesKind(cellText(g, h, 0)); if (!kind) continue;
+      if (book.redRow == null && isReddish(cellAt(g, h, 0)?.bg) && !cellText(g, h, 0)) { book.red = cellAt(g, h, 0).bg; book.redRow = h; }
+      const kind = notesKind(cellText(g, h, 0)); if (!kind || kind === 'series') continue;
       const cols = kind === 'general'
-        ? [{ c:0, label:'Note Name', full:'Note Name' }, { c:1, label:'Note Details', full:'Note Details' }]
+        ? [{ c:0, label:'Note', full:'Note' }, { c:1, label:'Details', full:'Details' }]
         : headerCols(g, h);
       const sec = parseSection(g, h, end, cols);
       sec.kind = kind; sec.title = NOTES_TITLES[kind];
       if (kind !== 'general') { const ac = cols.find(col => /answer/i.test(col.label)); sec.ansCol = ac ? ac.c : (cols[3] || cols[cols.length - 1]).c; }
       book.secs.push(sec);
     }
+    // Rows this book occupies: to the white line after its red line, else to the next book
+    book.blockEnd = book.redRow != null ? Math.min(end, book.redRow + 2) : end;
+    if (book.redRow == null && i + 1 >= starts.length) { const last = book.secs.flatMap(s => s.rows.length ? s.rows : [s.hr]); book.blockEnd = (last.length ? Math.max(...last) : r) + 1; }
     book.empty = book.secs.every(s => !s.rows.some(rr => rowHas(g, rr, s.cols)));
+    book.entries = book.secs.reduce((t, s) => t + s.rows.filter(rr => rowHas(g, rr, s.cols)).length, 0);
     return book;
   });
-  return { links, books };
+  return { links, series, books };
 }
 const notesBookNames = () => { const ng = gridOfKind('notes'); return ng ? parseNotes(ng).books.filter(b => !b.placeholder).map(b => b.name) : []; };
 
 function renderNotes(g){
-  const F = filterCtx(g), P = parseNotes(g), blocks = []; g._blocks = blocks;
+  const F = filterCtx(g), P = parseNotes(g), blocks = []; g._blocks = blocks; g._books = P.books;
   let html = newBookBar(F);
   if (P.links.length) html += `<div class="cs-section${F.filtering ? ' cs-hide' : ''}"><div class="cs-head"><span class="cs-title">Project Links</span><span class="tab-ref">Read only</span></div>
     <div class="card info-card wide-card">${P.links.map(x => `<div class="lk-row"><span class="lk-name">${esc(x.label || `Row ${x.r + 1}`)}</span><span class="lk-vals">${(x.cell?.v || '').trim() ? cellValHtml(x.cell) : '<span class="cs-empty">—</span>'}</span></div>`).join('')}</div></div>`;
-  if (!P.books.length) html += `<div class="cs-empty">No book sections found in this tab. Use Sheet view to see it as it is.</div>`;
-  P.books.forEach(book => {
+  if (P.series) {
+    const bi = blocks.push(Object.assign(P.series, { addRow: () => addRowIn(g, P.series) })) - 1;
+    html += secTable(g, P.series, bi, F, { title:'General Notes for Series' });
+  }
+  if (!P.books.length) html += `<div class="cs-empty" style="margin-bottom:20px">No books yet${F.editable ? ' — click + Add new Book to Project' : ''}.</div>`;
+  P.books.forEach((book, k) => {
     const bi = blocks.push({ type:'table', title:'Book name', hr:book.r, cols:[{ c:book.nameCol, label:'Book name', full:'Book name' }], noClear:true,
       afterSave: (ctx, vals) => renameSynopsisBook(book.name, vals[0]) }) - 1;
     const before = F.shown;
     let inner = '';
     book.secs.forEach(sec => {
       const sbi = blocks.push(Object.assign(sec, { addRow: () => addRowIn(g, sec) })) - 1;
-      inner += secHtml(g, sec, sbi, F, sec.kind === 'general' ? {} : { gridCls:'wide2' });
+      inner += secTable(g, sec, sbi, F);
     });
     const hideBook = F.filtering && F.shown === before;
     html += `<div class="book-block${hideBook ? ' cs-hide' : ''}">
-      <div class="book-head" data-r="${book.r}"><span class="book-kicker">Book</span><span class="book-name">${book.placeholder ? '<span class="cs-empty">Unnamed book</span>' : esc(book.name)}</span>${F.editable ? `<button class="edit-btn" type="button" data-act="edit" data-b="${bi}">Rename</button>` : ''}</div>
+      <div class="book-head" data-r="${book.r}"><span class="book-kicker">Book</span><span class="book-name">${book.placeholder ? '<span class="cs-empty">Unnamed book</span>' : esc(book.name)}</span>
+        ${F.editable ? `<span class="book-actions"><button class="edit-btn" type="button" data-act="edit" data-b="${bi}">Rename</button><button class="edit-btn book-del" type="button" data-act="delbook" data-i="${k}">Remove book</button></span>` : ''}</div>
       ${inner}<div class="book-end" title="End of this book's notes"></div></div>`;
   });
-  finishView(g, html, F);
+  finishView(g, html, F, 'row');
+}
+
+// ═══ REMOVE BOOK ════════════════════════════════════════════
+function openRemoveBook(k){
+  if (RO) return;
+  const g = gridFor(), book = g && g._books && g._books[k]; if (!book) return;
+  const tokenP = editAccess && tokenValid() ? Promise.resolve(token) : requestToken();   // inside the click
+  tokenP.catch(()=>{});
+  const sg = gridOfKind('synopsis');
+  const syn = sg && !book.placeholder ? parseSynopsis(sg).find(x => x.name.trim().toLowerCase() === book.name.trim().toLowerCase()) : null;
+  delCtx = { kind:'book', g, book, sg, syn, tokenP };
+  $('del-box').querySelector('h3').textContent = 'Remove book?';
+  $('del-box').querySelector('.del-q').textContent = 'Are you sure you want to remove this book from the project?';
+  $('del-name').textContent = book.placeholder ? 'Unnamed book' : book.name;
+  $('del-list').innerHTML = `<li>Rows ${book.r + 1}–${book.blockEnd} of the <b>${esc(g.title)}</b> tab are deleted: its Questions and Notes for the Proofer${book.entries ? ` (${book.entries} entr${book.entries === 1 ? 'y' : 'ies'})` : ''}. Books below move up.</li>` +
+    (syn ? `<li>Its synopsis in <b>${esc(sg.title)}</b> is deleted too.</li>` : '') +
+    (P_seriesNote(g) ? '<li>General Notes for Series are kept.</li>' : '') +
+    `<li>To get it back later, use the Sheet's File → Version history.</li>`;
+  $('del-confirm').textContent = 'Yes, remove book';
+  setDelStatus(''); $('del-confirm').disabled = false;
+  $('del-overlay').classList.add('on');
+}
+const P_seriesNote = g => !!parseNotes(g).series;
+async function removeBook(ctx){
+  const { g, book, sg, syn } = ctx, btn = $('del-confirm');
+  if (!tokenValid()) { ctx.tokenP = requestToken(); ctx.tokenP.catch(()=>{}); }
+  btn.disabled = true; setDelStatus('Connecting to Google…');
+  try {
+    if (!(await ensureEditAccess(ctx.tokenP))) { setDelStatus('Editing needs to be enabled for this Sheet first.', true); return; }
+    setDelStatus('Checking the Sheet…');
+    const checks = [{ range:`${q(g.title)}!${colLetter(book.nameCol)}${book.r + 1}`, want:cellText(g, book.r, book.nameCol) }];
+    if (syn) checks.push({ range:`${q(sg.title)}!A${syn.nameRow + 1}`, want:cellText(sg, syn.nameRow, 0) });
+    const cur = await readRanges(checks.map(c => c.range));
+    if (checks.some((c, i) => String(((cur[i] || [])[0] || [])[0] ?? '').trim() !== c.want)) { setDelStatus('The Sheet changed since it loaded. Reload and try again — nothing was removed.', true); return; }
+    setDelStatus('Removing…');
+    const reqs = [{ deleteDimension:{ range:{ sheetId:g.sheetId, dimension:'ROWS', startIndex:book.r, endIndex:book.blockEnd } } }];
+    if (syn) {
+      let last = syn.syn.length ? syn.syn[syn.syn.length - 1] : syn.nameRow;
+      if (!cellText(sg, last + 1, 0) && last + 1 <= usedExtent(sg).lr) last++;    // and the blank line after it
+      reqs.push({ deleteDimension:{ range:{ sheetId:sg.sheetId, dimension:'ROWS', startIndex:syn.nameRow, endIndex:last + 1 } } });
+    }
+    await sheetsBatch(reqs);
+    closeDelete();
+    toast(`Removed "${book.placeholder ? 'Unnamed book' : book.name}"`);
+    await loadSheet(S.sheetId, { quiet:true });
+  } catch(e) {
+    console.error(e);
+    if (e.status === 401) { token = null; setDelStatus('Your Google session expired — click again.', true); }
+    else setDelStatus('Remove failed — check your connection and try again.', true);
+  } finally { btn.disabled = false; }
 }
 
 // ═══ BOOK SYNOPSIS ══════════════════════════════════════════
@@ -2096,23 +2278,23 @@ async function addBook(name, syn){
       // The template's unnamed book hasn't been used yet — it becomes this book
       writes.push({ range:`${t}!${colLetter(first.nameCol)}${first.r + 1}`, values:[[name]] });
     } else {
-      const at = first ? first.r : Math.max(4, usedExtent(ng).lr + 2);
+      const sEnd = P.series ? (P.series.rows.length ? P.series.rows[P.series.rows.length - 1] : P.series.hr) : -1;
+      const at = first ? first.r : P.series ? sEnd + 2 : Math.max(4, usedExtent(ng).lr + 2);
       const labels = kind => { const s = first && first.secs.find(x => x.kind === kind); return s ? [0, 1, 2, 3].map(c => cellText(ng, s.hr, c)) : null; };
       const qL = labels('questions') || ['Question', 'Page', 'Suggested Fix', 'Author/Producer Answer'];
       const pL = labels('proofer') || ['Notes for the Proofer', 'Page', 'Fix', 'Author/Producer Answer'];
       const red = (first && first.red) || DEFAULT_RED;
+      // name · Questions header + 2 rows · blank · Proofer header + 2 rows · blank · red line · white line
       reqs.push(insertRowsReq(ng, at, NOTES_BOOK_ROWS),
         fmtReq(sid, at, at + NOTES_BOOK_ROWS, 0, 4, { bg:WHITE, bold:false }),
-        fmtReq(sid, at, at + 1, 0, 1, { bold:true }),                     // book name
-        fmtReq(sid, at + 1, at + 2, 0, 1, { bg:BLUE, bold:true }),        // General Notes
-        fmtReq(sid, at + 2, at + 4, 0, 2, { bg:YELLOW }),
-        fmtReq(sid, at + 5, at + 6, 0, 4, { bg:BLUE, bold:true }),        // Questions
+        fmtReq(sid, at, at + 1, 0, 1, { bold:true }),
+        fmtReq(sid, at + 1, at + 2, 0, 4, { bg:BLUE, bold:true }),
+        fmtReq(sid, at + 2, at + 4, 0, 4, { bg:YELLOW }),
+        fmtReq(sid, at + 5, at + 6, 0, 4, { bg:BLUE, bold:true }),
         fmtReq(sid, at + 6, at + 8, 0, 4, { bg:YELLOW }),
-        fmtReq(sid, at + 9, at + 10, 0, 4, { bg:BLUE, bold:true }),       // Notes for the Proofer
-        fmtReq(sid, at + 10, at + 12, 0, 4, { bg:YELLOW }),
-        fmtReq(sid, at + 13, at + 14, 0, 4, { bg:red }));                 // red line, then a white line
-      writes.push({ range:`${t}!A${at + 1}`, values:[[name]] }, { range:`${t}!A${at + 2}`, values:[['General Notes']] },
-        { range:`${t}!A${at + 6}:D${at + 6}`, values:[qL] }, { range:`${t}!A${at + 10}:D${at + 10}`, values:[pL] });
+        fmtReq(sid, at + 9, at + 10, 0, 4, { bg:red }));
+      writes.push({ range:`${t}!A${at + 1}`, values:[[name]] },
+        { range:`${t}!A${at + 2}:D${at + 2}`, values:[qL] }, { range:`${t}!A${at + 6}:D${at + 6}`, values:[pL] });
     }
   }
   if (sg) {
@@ -2189,7 +2371,7 @@ function renderPhonetic(g){
     let rows = '', vis = 0;
     sec.rows.forEach(r => {
       const hide = !F.match(chart.map(c => cellText(g, r, c.c)).join(' ')); if (!hide) vis++;
-      rows += `<tr class="ph-row${hide || isC ? ' hidden-row' : ''}"><td class="ph-ipa">${phIpaCell(cellText(g, r, ipaCol.c))}</td><td class="ph-word">${esc(cellText(g, r, wordCol.c))}</td>${others.map(c => `<td>${phRespCell(cellText(g, r, c.c))}</td>`).join('')}</tr>`;
+      rows += `<tr class="ph-row${hide || isC ? ' hidden-row' : ''}">${chart.map(c => c === ipaCol ? `<td class="ph-ipa">${phIpaCell(cellText(g, r, c.c))}</td>` : c === wordCol ? `<td class="ph-word">${esc(cellText(g, r, c.c))}</td>` : `<td>${phRespCell(cellText(g, r, c.c))}</td>`).join('')}</tr>`;
     });
     F.shown += vis;
     body += `<tr class="ph-sec${isC ? ' collapsed' : ''}${F.filtering && !vis ? ' hidden-row' : ''}" data-sec="${esc(sec.name)}" title="Click to ${isC ? 'show' : 'hide'} ${esc(sec.name)}"><td colspan="${span}"><span class="section-inner">${CHEV_SVG}${esc(sec.name)} <span class="section-count">${F.filtering ? `${vis} of ${sec.rows.length}` : sec.rows.length}</span></span></td></tr>` + rows;
@@ -2209,7 +2391,7 @@ function renderPhonetic(g){
     links = `<div class="ph-card ph-links"><div class="ph-card-head">${esc(linkGrp[0].label || 'Useful Links')}</div>${items || '<div class="cs-empty" style="padding:12px 16px">No links match.</div>'}</div>`;
   }
   const html = `<div class="gs-note">Reference only — edit it in the Sheet. Click any symbol to copy it; ▶ plays the sound (recordings from <a href="https://commons.wikimedia.org/" target="_blank" rel="noopener">Wikimedia Commons</a>, CC BY-SA). Click a dark band to collapse that group.</div>
-    <div class="ph-layout"><div class="ph-card"><div class="ph-scroll"><table class="ph"><thead><tr><th class="ph-ipa">${th(ipaCol)}</th><th class="ph-word">${th(wordCol)}</th>${others.map(c => `<th>${th(c)}</th>`).join('')}</tr></thead><tbody>${body}</tbody></table></div></div>${links}</div>`;
+    <div class="ph-layout"><div class="ph-card"><div class="ph-scroll"><table class="ph"><thead><tr>${chart.map(c => `<th class="${c === ipaCol ? 'ph-ipa' : c === wordCol ? 'ph-word' : ''}">${th(c)}</th>`).join('')}</tr></thead><tbody>${body}</tbody></table></div></div>${links}</div>`;
   finishView(g, html, F, 'sound');
 }
 
@@ -2221,7 +2403,7 @@ function renderAccents(g){
   if (cols.length < 2) { renderCards(g); return; }
   const sec = parseSection(g, hr, Infinity, cols, true);
   const bi = blocks.push(Object.assign(sec, { addRow: () => addRowIn(g, sec) })) - 1;
-  finishView(g, secHtml(g, sec, bi, F, { title: cols.slice(0, 2).map(c => c.label).join(' & ') }), F);
+  finishView(g, secTable(g, sec, bi, F, { title: cols.slice(0, 2).map(c => c.label).join(' & ') }), F, 'row');
 }
 
 // ═══ AUTHOR GENERAL NOTES ═══════════════════════════════════
@@ -2851,6 +3033,7 @@ $('del-confirm').addEventListener('click', async () => {
   if (!delCtx) return;
   const ctx = delCtx;
   if (!tokenValid()) { ctx.tokenP = requestToken(); ctx.tokenP.catch(()=>{}); }   // inside the click
+  if (ctx.kind === 'book') { removeBook(ctx); return; }
   if (ctx.kind === 'grid') { clearGridEntry(ctx); return; }
   const btn = $('del-confirm'); btn.disabled = true;
   setDelStatus('Connecting to Google…');
@@ -3470,7 +3653,7 @@ $('switch-btn').addEventListener('click', () => {
   if (id) await loadSheet(id);
 })();
 </script>
-<div id="tool-version">v11.0</div>
+<div id="tool-version">v12.0</div>
 <div id="tag-footer"></div>
 <script src="/partials/inject-brand.js"></script>
 </body>
