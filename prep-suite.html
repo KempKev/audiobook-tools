@@ -34,10 +34,23 @@
   #hd-right { margin-left:auto; display:flex; align-items:center; gap:14px; flex-wrap:wrap; justify-content:flex-end; }
   #hd-book { text-align:right; font-size:0.78rem; color:var(--mid); line-height:1.5; }
   #hd-book strong { display:block; color:var(--ink); font-weight:600; font-size:0.82rem; }
-  #hd-actions { display:flex; gap:8px; flex-wrap:wrap; }
+  /* Pip row: its own centred line, always above the logo + loaded project */
+  #hd-actions { display:none; order:-1; flex-basis:100%; gap:8px; flex-wrap:wrap; justify-content:center; align-items:center; padding-bottom:12px; margin-bottom:2px; border-bottom:1px solid var(--rule); }
+  #hd-actions.on { display:flex; }
+  .hd-dd { position:relative; display:inline-flex; }
+  .hd-dd-btn .caret { font-size:0.6rem; line-height:1; transition:transform .15s; }
+  .hd-dd.open > .hd-dd-btn { border-color:var(--accent); color:var(--accent); background:var(--accent-bg); }
+  .hd-dd.open > .hd-dd-btn .caret { transform:rotate(180deg); }
+  .hd-menu { display:none; position:absolute; top:calc(100% + 6px); left:50%; transform:translateX(-50%); min-width:220px; background:var(--card); border:1px solid var(--rule); border-radius:10px; box-shadow:var(--shadow-md); padding:5px; z-index:320; }
+  .hd-dd.open > .hd-menu { display:block; }
+  .hd-menu-item { display:flex; align-items:center; gap:8px; width:100%; padding:9px 12px; background:none; border:none; border-radius:6px; font-family:'Raleway',sans-serif; font-size:0.7rem; font-weight:700; letter-spacing:0.03em; text-transform:uppercase; color:var(--ink); text-align:left; text-decoration:none; cursor:pointer; white-space:nowrap; }
+  .hd-menu-item:hover { background:var(--accent-bg); color:var(--accent); }
+  .hd-menu-item:disabled { color:var(--light); cursor:wait; background:none; }
+  .hd-menu-item.copied { color:var(--green); background:var(--green-bg); }
+  .hd-menu-sep { height:1px; background:var(--rule); margin:4px 6px; }
   .hd-action-btn { padding:6px 13px; background:transparent; color:var(--mid); border:1.5px solid var(--rule); border-radius:20px; font-family:'Raleway',sans-serif; font-size:0.7rem; font-weight:700; letter-spacing:0.03em; text-transform:uppercase; white-space:nowrap; cursor:pointer; transition:all 0.15s; text-decoration:none; display:inline-flex; align-items:center; gap:5px; }
   .hd-action-btn:hover { border-color:var(--accent); color:var(--accent); background:var(--accent-bg); }
-  #export-btn { border-color:var(--accent-brd); color:var(--accent); }
+  #dd-export > .hd-dd-btn { border-color:var(--accent-brd); color:var(--accent); }
   #acct-btn { max-width:260px; overflow:hidden; text-overflow:ellipsis; }
   #switch-btn { font-size:0.8rem; font-weight:800; padding:6px 15px; color:var(--ink); border-color:var(--ink); }
   #switch-btn:hover { border-color:var(--accent); color:var(--accent); }
@@ -420,7 +433,7 @@
   .fld.just-filled input, .fld.just-filled textarea, .fld.just-filled select { box-shadow:0 0 0 2px #9cc48f; transition:box-shadow .4s; }
   /* ── Read-only (client) view ── */
   body.ro #edit-btn, body.ro #acct-btn, body.ro #open-sheet-btn, body.ro #share-btn, body.ro #ro-btn, body.ro #audio-folders-btn,
-  body.ro #open-folder-btn, body.ro #switch-btn, body.ro .needs-btn, body.ro #new-char, body.ro #new-pron,
+  body.ro #open-folder-btn, body.ro #switch-btn, body.ro #dd-links, body.ro #dd-open, body.ro .needs-btn, body.ro #new-char, body.ro #new-pron,
   body.ro .tab-flag, body.ro .flags, body.ro .rbtn, body.ro .rec-col, body.ro .edit-btn, body.ro .cell-ed, body.ro #gs-addrows, body.ro #gs-opentab,
   body.ro #rec-overlay, body.ro #modal-overlay, body.ro #del-overlay, body.ro .owner-only { display:none !important; }
   body.ro .card.flag-rec { box-shadow:var(--shadow-sm); }
@@ -562,18 +575,38 @@
     <h1>Prep Suite<span class="ro-badge">View only</span></h1>
     <p>Audiobook Prep - Characters, Pronunciations and Notes</p>
   </div>
-  <div id="hd-right">
-    <div id="hd-actions">
-      <button id="switch-btn" class="hd-action-btn" type="button" style="display:none" title="Back to your list of Prep Projects">Projects Menu</button>
-      <button id="edit-btn" class="hd-action-btn" type="button" style="display:none" title="Sign in with Google so the suite can add and edit entries in this Sheet"><span class="dot"></span><span id="edit-btn-txt">Enable editing</span></button>
-      <button id="acct-btn" class="hd-action-btn" type="button" style="display:none" title="Sign in with a different Google account">Switch Account</button>
-      <button id="share-btn" class="hd-action-btn" type="button" style="display:none" title="Copy a link that opens this project with full editing">Share Link</button>
-      <button id="ro-btn" class="hd-action-btn" type="button" style="display:none" title="Copy a view-only link for clients — no editing or recording">Read Only Link</button>
-      <a id="open-sheet-btn" class="hd-action-btn" target="_blank" rel="noopener" style="display:none">Open Sheet</a>
-      <a id="open-folder-btn" class="hd-action-btn" target="_blank" rel="noopener" style="display:none">Project Folder</a>
-      <button id="audio-folders-btn" class="hd-action-btn" type="button" style="display:none" title="Choose where recordings are saved">Audio Folders</button>
-      <a id="export-btn" class="hd-action-btn" style="display:none" title="Download the whole Prep Sheet, every tab, as an Excel (.xlsx) file">⤓ Export Prep</a>
+  <div id="hd-actions">
+    <button id="switch-btn" class="hd-action-btn" type="button" title="Back to your list of Prep Projects">Projects Menu</button>
+    <button id="edit-btn" class="hd-action-btn" type="button" title="Sign in with Google so the suite can add and edit entries in this Sheet"><span class="dot"></span><span id="edit-btn-txt">Enable editing</span></button>
+    <button id="acct-btn" class="hd-action-btn" type="button" title="Sign in with a different Google account">Switch Account</button>
+    <div class="hd-dd" id="dd-links">
+      <button class="hd-action-btn hd-dd-btn" type="button" aria-haspopup="true" aria-expanded="false"><span class="dd-lbl">Links</span><span class="caret">▾</span></button>
+      <div class="hd-menu" role="menu">
+        <button id="share-btn" class="hd-menu-item" type="button" role="menuitem" title="Copy a link that opens this project with full editing">Project Link</button>
+        <button id="ro-btn" class="hd-menu-item" type="button" role="menuitem" title="Copy a view-only link for clients — no editing or recording">Read Only Link</button>
+      </div>
     </div>
+    <div class="hd-dd" id="dd-open">
+      <button class="hd-action-btn hd-dd-btn" type="button" aria-haspopup="true" aria-expanded="false"><span class="dd-lbl">Open</span><span class="caret">▾</span></button>
+      <div class="hd-menu" role="menu">
+        <a id="open-sheet-btn" class="hd-menu-item" role="menuitem" target="_blank" rel="noopener">Open Sheet</a>
+        <a id="open-folder-btn" class="hd-menu-item" role="menuitem" target="_blank" rel="noopener">Open Project Folder</a>
+        <a id="open-audio-btn" class="hd-menu-item" role="menuitem" target="_blank" rel="noopener" title="The folder holding Audio (pronunciations) and Audio_0 (character voices)">Open Audio Folder</a>
+      </div>
+    </div>
+    <button id="audio-folders-btn" class="hd-action-btn" type="button" title="Choose where recordings are saved">Audio Folders</button>
+    <div class="hd-dd" id="dd-export">
+      <button class="hd-action-btn hd-dd-btn" type="button" aria-haspopup="true" aria-expanded="false"><span class="dd-lbl">⤓ Export Prep</span><span class="caret">▾</span></button>
+      <div class="hd-menu" role="menu">
+        <a id="export-btn" class="hd-menu-item" role="menuitem" title="Download the whole Prep Sheet, every tab, as an Excel (.xlsx) file">Export Prep Sheet</a>
+        <button id="export-char-btn" class="hd-menu-item" type="button" role="menuitem" title="Download every file in Audio_0 (character voices) as a Zip">Export Character Audio</button>
+        <button id="export-pron-btn" class="hd-menu-item" type="button" role="menuitem" title="Download every file in Audio (pronunciations) as a Zip">Export Pronunciation Audio</button>
+        <div class="hd-menu-sep"></div>
+        <button id="export-all-btn" class="hd-menu-item" type="button" role="menuitem" title="One Zip with the Audio and Audio_0 folders plus the Prep Sheet (.xlsx)">Export All</button>
+      </div>
+    </div>
+  </div>
+  <div id="hd-right">
     <div id="hd-book"></div>
   </div>
 </header>
@@ -983,11 +1016,8 @@ $('tabs').addEventListener('click', ev => { const b = ev.target.closest('.tab-bt
 function showApp(){
   $('load').style.display = 'none';
   $('tabs').classList.add('on');
-  ['edit-btn','acct-btn','open-sheet-btn','export-btn','share-btn','ro-btn','switch-btn','audio-folders-btn'].forEach(id => $(id).style.display = '');
-  const projId = S.projectFolderId || (getProjectInfo(S.sheetId) || {}).folderId;
-  $('open-folder-btn').style.display = projId ? '' : 'none';
-  if (projId) $('open-folder-btn').href = folderUrl(projId);
-  $('open-sheet-btn').href = `https://docs.google.com/spreadsheets/d/${S.sheetId}/edit`;
+  $('hd-actions').classList.add('on');
+  refreshOpenMenu();
   $('export-btn').href = exportUrl();
   $('hd-book').innerHTML = `<strong>${esc(S.title)}</strong>Live · ${S.chars.length} characters · ${S.prons.length} words`;
   $('count-char').textContent = S.chars.length; $('count-pron').textContent = S.prons.length;
@@ -1019,7 +1049,156 @@ function setTab(tab){
 // ═══════════════════════════════════════════════════════════
 // Google builds the file itself, so formatting, formulas and all tabs come across.
 const exportUrl = () => `https://docs.google.com/spreadsheets/d/${S.sheetId}/export?format=xlsx`;
-$('export-btn').addEventListener('click', () => toast(`Downloading "${S.title}.xlsx"…`));
+$('export-btn').addEventListener('click', () => { closeMenus(); toast(`Downloading "${S.title}.xlsx"…`); });
+
+// ═══════════════════════════════════════════════════════════
+// TOP PIP DROPDOWNS — Links · Open · Export Prep
+// ═══════════════════════════════════════════════════════════
+function closeMenus(except){
+  document.querySelectorAll('.hd-dd.open').forEach(d => { if (d !== except) { d.classList.remove('open'); d.querySelector('.hd-dd-btn').setAttribute('aria-expanded', 'false'); } });
+}
+document.querySelectorAll('.hd-dd').forEach(dd => {
+  const btn = dd.querySelector('.hd-dd-btn');
+  btn.addEventListener('click', ev => {
+    ev.stopPropagation();
+    const open = !dd.classList.contains('open');
+    closeMenus(dd);
+    if (open && dd.id === 'dd-open') refreshOpenMenu();
+    dd.classList.toggle('open', open); btn.setAttribute('aria-expanded', String(open));
+  });
+  // Picking an item closes the menu (anchors still open / download first)
+  dd.querySelector('.hd-menu').addEventListener('click', ev => { if (ev.target.closest('.hd-menu-item')) setTimeout(() => closeMenus(), 0); });
+});
+document.addEventListener('click', ev => { if (!ev.target.closest('.hd-dd')) closeMenus(); });
+document.addEventListener('keydown', ev => { if (ev.key === 'Escape' && document.querySelector('.hd-dd.open')) closeMenus(); });
+
+// Folder links can change after load (Audio Folders dialog, new project), so work them out when the menu opens
+function refreshOpenMenu(){
+  if (!S.sheetId) return;
+  $('open-sheet-btn').href = `https://docs.google.com/spreadsheets/d/${S.sheetId}/edit`;
+  const info = getProjectInfo(S.sheetId) || {};
+  const projId = S.projectFolderId || info.folderId;
+  const audId = S.audioParentId || info.audioParentId || projId;
+  $('open-folder-btn').style.display = projId ? '' : 'none';
+  if (projId) $('open-folder-btn').href = folderUrl(projId);
+  $('open-audio-btn').style.display = audId ? '' : 'none';
+  if (audId) $('open-audio-btn').href = folderUrl(audId);
+}
+
+// ── Audio exports: Audio_0 (character voices) / Audio (pronunciations) / everything ──
+let jszipP = null;
+function loadJSZip(){
+  if (window.JSZip) return Promise.resolve(window.JSZip);
+  if (jszipP) return jszipP;
+  jszipP = new Promise((res, rej) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+    s.onload = () => res(window.JSZip); s.onerror = () => { jszipP = null; rej(new Error('zip-lib')); };
+    document.head.appendChild(s);
+  });
+  return jszipP;
+}
+async function listFolderFiles(parentId){
+  const qs = encodeURIComponent(`'${parentId}' in parents and trashed=false and not mimeType contains 'application/vnd.google-apps'`);
+  const base = `${DRIVE}?q=${qs}&fields=nextPageToken,files(id,name,mimeType)&pageSize=1000&supportsAllDrives=true&includeItemsFromAllDrives=true`;
+  const byId = new Map();
+  async function walk(auth){
+    let pt = '';
+    do {
+      const url = base + (pt ? '&pageToken=' + encodeURIComponent(pt) : '') + (auth ? '' : '&key=' + API_KEY);
+      const r = await fetch(url, auth ? { headers:{ Authorization:'Bearer '+token } } : {});
+      if (!r.ok) return;
+      const j = await r.json();
+      (j.files || []).forEach(f => byId.set(f.id, f));
+      pt = j.nextPageToken || '';
+    } while (pt);
+  }
+  try { await walk(false); } catch(e) {}
+  if (tokenValid()) { try { await walk(true); } catch(e) {} }
+  return [...byId.values()].sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric:true, sensitivity:'base' }));
+}
+async function fetchDriveFile(id){
+  try { const r = await fetch(`${DRIVE}/${id}?alt=media&supportsAllDrives=true&key=${API_KEY}`); if (r.ok) return await r.blob(); } catch(e) {}
+  if (tokenValid()) { const r = await fetch(`${DRIVE}/${id}?alt=media&supportsAllDrives=true`, { headers:{ Authorization:'Bearer '+token } }); if (r.ok) return await r.blob(); }
+  throw new Error('fetch-failed');
+}
+async function fetchSheetXlsx(){
+  const mime = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+  const url = `${DRIVE}/${S.sheetId}/export?mimeType=${encodeURIComponent(mime)}`;
+  try { const r = await fetch(url + '&key=' + API_KEY); if (r.ok) return await r.blob(); } catch(e) {}
+  if (tokenValid()) { try { const r = await fetch(url, { headers:{ Authorization:'Bearer '+token } }); if (r.ok) return await r.blob(); } catch(e) {} }
+  return null;
+}
+const safeName = n => String(n || 'Prep').replace(/[\\/:*?"<>|]+/g, '-').trim() || 'Prep';
+function saveBlob(blob, name){
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 60000);
+}
+let exportBusy = false;
+const EXPORT_IDS = ['export-char-btn', 'export-pron-btn', 'export-all-btn'];
+async function exportAudio(which){
+  if (exportBusy) { toast('An export is already running…'); return; }
+  closeMenus();
+  const f = audioFolders();
+  const sets = [];
+  if (which === 'char' || which === 'all') sets.push({ id:f.char, dir:'Audio_0', label:'character voice' });
+  if (which === 'pron' || which === 'all') sets.push({ id:f.pron, dir:'Audio', label:'pronunciation' });
+  const missing = sets.filter(x => !x.id);
+  if (missing.length === sets.length) { toast(`No ${missing.map(x => x.dir).join(' or ')} folder is set for this project — check Audio Folders.`, true); return; }
+  exportBusy = true; EXPORT_IDS.forEach(id => $(id).disabled = true);
+  try {
+    toast('Preparing the Zip…');
+    const JSZip = await loadJSZip();
+    const zip = new JSZip();
+    const flat = which !== 'all';                       // single folder → files at the top of the Zip
+    const jobs = [];
+    for (const set of sets) {
+      if (!set.id) continue;
+      const files = await listFolderFiles(set.id);
+      const used = new Set();
+      files.forEach(file => {
+        let name = file.name, k = 2;
+        while (used.has(name.toLowerCase())) { name = file.name.replace(/(\.[^.]*)?$/, m => ` (${k})${m}`); k++; }
+        used.add(name.toLowerCase());
+        jobs.push({ id:file.id, path:(flat ? '' : set.dir + '/') + name });
+      });
+      if (!flat && !files.length) zip.folder(set.dir);
+    }
+    let done = 0, failed = 0, xlsxOk = true;
+    if (which === 'all') {
+      toast('Exporting the Prep Sheet…');
+      const x = await fetchSheetXlsx();
+      if (x) zip.file(`${safeName(S.title)}.xlsx`, x); else xlsxOk = false;
+    }
+    if (!jobs.length && which !== 'all') { toast(`The ${sets[0].dir} folder has no audio files yet.`, true); return; }
+    let next = 0;
+    async function worker(){
+      while (next < jobs.length) {
+        const j = jobs[next++];
+        try { zip.file(j.path, await fetchDriveFile(j.id)); } catch(e) { failed++; }
+        done++; toast(`Downloading audio… ${done} of ${jobs.length}`);
+      }
+    }
+    await Promise.all(Array.from({ length:Math.min(4, jobs.length) }, worker));
+    toast('Building the Zip…');
+    const blob = await zip.generateAsync({ type:'blob', compression:'STORE' });   // audio is already compressed
+    const suffix = which === 'char' ? 'Character Audio' : which === 'pron' ? 'Pronunciation Audio' : 'Prep';
+    saveBlob(blob, `${safeName(S.title)} - ${suffix}.zip`);
+    const notes = [];
+    if (failed) notes.push(`${failed} file${failed === 1 ? '' : 's'} couldn't be downloaded`);
+    if (missing.length) notes.push(`no ${missing.map(x => x.dir).join(' / ')} folder set`);
+    if (!xlsxOk) notes.push('the Prep Sheet couldn\'t be added — use Export Prep Sheet');
+    toast(notes.length ? `Zip saved, but ${notes.join('; ')}.` : `Zip saved · ${jobs.length} audio file${jobs.length === 1 ? '' : 's'}${which === 'all' ? ' + Prep Sheet' : ''}`, notes.length > 0);
+  } catch(e) {
+    toast(e && e.message === 'zip-lib' ? 'Couldn\'t load the Zip tool — check your connection and try again.' : 'Export failed — please try again.', true);
+  } finally {
+    exportBusy = false; EXPORT_IDS.forEach(id => $(id).disabled = false);
+  }
+}
+$('export-char-btn').addEventListener('click', () => exportAudio('char'));
+$('export-pron-btn').addEventListener('click', () => exportAudio('pron'));
+$('export-all-btn').addEventListener('click', () => exportAudio('all'));
 
 // ═══════════════════════════════════════════════════════════
 // PLAYBACK
@@ -3906,20 +4085,25 @@ function loadFromInput(){
 }
 $('load-btn').addEventListener('click', loadFromInput);
 $('sheet-url-input').addEventListener('keydown', ev => { if (ev.key === 'Enter') { ev.preventDefault(); loadFromInput(); } });
+function flashCopied(b, label){
+  b.textContent = 'Link Copied!'; b.classList.add('copied');
+  const dd = b.closest('.hd-dd'), t = dd && dd.querySelector('.hd-dd-btn'), tl = t && t.querySelector('.dd-lbl');
+  const tOld = tl ? tl.textContent : '';
+  if (t) { t.classList.add('copied'); tl.textContent = label + ' Copied!'; }
+  setTimeout(() => { b.textContent = label; b.classList.remove('copied'); if (t) { t.classList.remove('copied'); tl.textContent = tOld; } }, 1800);
+}
 async function copyLink(btnId, label, extra){
   const url = `${appBase()}?sheet=${S.sheetId}${extra}`;
-  const b = $(btnId);
-  try { await navigator.clipboard.writeText(url); b.textContent = 'Link Copied!'; b.classList.add('copied'); setTimeout(() => { b.textContent = label; b.classList.remove('copied'); }, 1800); }
+  try { await navigator.clipboard.writeText(url); flashCopied($(btnId), label); }
   catch(e) { prompt('Copy this link:', url); }
 }
 async function copyStoredLink(btnId, label, url){
-  const b = $(btnId);
-  try { await navigator.clipboard.writeText(url); b.textContent = 'Link Copied!'; b.classList.add('copied'); setTimeout(() => { b.textContent = label; b.classList.remove('copied'); }, 1800); }
+  try { await navigator.clipboard.writeText(url); flashCopied($(btnId), label); }
   catch(e) { prompt('Copy this link:', url); }
 }
 $('share-btn').addEventListener('click', async () => {
-  if (notesHas('ps')) return copyStoredLink('share-btn', 'Share Link', S.notes.ps.trim());   // the Sheet's Prep Suite cell already holds it
-  await copyLink('share-btn', 'Share Link', '');
+  if (notesHas('ps')) return copyStoredLink('share-btn', 'Project Link', S.notes.ps.trim());   // the Sheet's Prep Suite cell already holds it
+  await copyLink('share-btn', 'Project Link', '');
   if (editAccess) writeNotesCells({ ps: psLinkGenerated() }, false);
 });
 $('ro-btn').addEventListener('click', async () => {
@@ -3930,7 +4114,7 @@ $('ro-btn').addEventListener('click', async () => {
 $('switch-btn').addEventListener('click', () => {
   stopCurrent();
   ['grid-char','grid-pron','ctrl-char','ctrl-pron','ctrl-grid','sheet-view','tabs'].forEach(id => $(id).classList.remove('on'));
-  ['edit-btn','acct-btn','open-sheet-btn','export-btn','share-btn','ro-btn','switch-btn','open-folder-btn','audio-folders-btn'].forEach(id => $(id).style.display = 'none');
+  closeMenus(); $('hd-actions').classList.remove('on');
   $('hd-book').innerHTML = ''; $('load').style.display = '';
   $('sheet-error').style.display = 'none'; $('np-error').style.display = 'none'; $('np-progress').innerHTML = '';
   renderRecent();
@@ -3947,7 +4131,7 @@ $('switch-btn').addEventListener('click', () => {
   if (id) await loadSheet(id);
 })();
 </script>
-<div id="tool-version">v15.0</div>
+<div id="tool-version">v16.0</div>
 <div id="tag-footer"></div>
 <script src="/partials/inject-brand.js"></script>
 </body>
