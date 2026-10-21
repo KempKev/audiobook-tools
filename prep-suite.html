@@ -388,6 +388,14 @@
   .af-block input:focus { border-color:var(--accent); }
   .af-block .pill-btn { width:100%; justify-content:center; }
   .af-current { font-size:0.76rem; color:var(--mid); text-align:left; margin-top:4px; line-height:1.6; }
+  /* ── Order (sort) menus on Characters / Pronunciation ── */
+  .order-dd .hd-menu { left:auto; right:0; transform:none; }
+  .order-dd .hd-dd-btn { gap:6px; }
+  .order-dd.open > .hd-dd-btn { border-color:var(--accent); color:var(--accent); background:var(--accent-bg); }
+  .hd-menu-item.cur::after { content:'✓'; margin-left:auto; color:var(--accent); font-size:0.8rem; }
+  .order-note { font-size:0.66rem; color:var(--light); padding:6px 12px 4px; white-space:nowrap; }
+  .order-dd.busy > .hd-dd-btn { opacity:0.55; pointer-events:none; }
+  body.ro .order-dd .owner-only { display:none !important; }
   #tool-version { text-align:center; padding:10px 0 22px; font-family:'Raleway',sans-serif; font-size:0.66rem; font-weight:600; letter-spacing:0.05em; color:#c9c9c9; user-select:none; }
   ::-webkit-scrollbar { width:5px; height:5px; } ::-webkit-scrollbar-thumb { background:#d1d5db; border-radius:10px; }
 
@@ -639,6 +647,10 @@
   <div class="ctrl-right">
     <button class="needs-btn" id="needs-char" type="button" title="Show only entries still to record or marked with *">Needs work <span class="n" id="needs-n-char">0</span></button>
     <button class="needs-btn unconf-btn" id="unconf-char" type="button" title="Show only characters the client hasn't confirmed yet">Unconfirmed <span class="n" id="unconf-n">0</span></button>
+    <div class="hd-dd order-dd" id="order-char">
+      <button class="pill-btn ghost hd-dd-btn" type="button" aria-haspopup="true" aria-expanded="false" title="Sort the characters — the Sheet is reordered to match">⇅ Order <span class="caret">▾</span></button>
+      <div class="hd-menu" role="menu"><button class="hd-menu-item" type="button" role="menuitem" data-order="az">Alphabetically A–Z</button><button class="hd-menu-item" type="button" role="menuitem" data-order="za">Alphabetically Z–A</button><button class="hd-menu-item" type="button" role="menuitem" data-order="page">Page Number</button><button class="hd-menu-item" type="button" role="menuitem" data-order="notesaz">Notes A–Z</button><button class="hd-menu-item" type="button" role="menuitem" data-order="notesza">Notes Z–A</button><div class="hd-menu-sep owner-only"></div><button class="hd-menu-item owner-only order-undo" type="button" role="menuitem" data-order="undo" disabled>↶ Undo last reorder</button><div class="order-note owner-only">Reorders the rows in the Sheet too.</div></div>
+    </div>
     <button class="pill-btn dark" id="new-char" type="button">+ Add Character</button>
     <span class="stats" id="stats-char"></span>
   </div>
@@ -660,6 +672,10 @@
   <div class="chips" id="chips"></div>
   <div class="ctrl-right">
     <button class="needs-btn" id="needs-pron" type="button" title="Show only entries with a * in Category or Notes">Needs work <span class="n" id="needs-n-pron">0</span></button>
+    <div class="hd-dd order-dd" id="order-pron">
+      <button class="pill-btn ghost hd-dd-btn" type="button" aria-haspopup="true" aria-expanded="false" title="Sort the words — the Sheet is reordered to match">⇅ Order <span class="caret">▾</span></button>
+      <div class="hd-menu" role="menu"><button class="hd-menu-item" type="button" role="menuitem" data-order="az">Alphabetically A–Z</button><button class="hd-menu-item" type="button" role="menuitem" data-order="za">Alphabetically Z–A</button><button class="hd-menu-item" type="button" role="menuitem" data-order="page">Page Number</button><button class="hd-menu-item" type="button" role="menuitem" data-order="cat">Category</button><button class="hd-menu-item" type="button" role="menuitem" data-order="notesaz">Notes A–Z</button><button class="hd-menu-item" type="button" role="menuitem" data-order="notesza">Notes Z–A</button><div class="hd-menu-sep owner-only"></div><button class="hd-menu-item owner-only order-undo" type="button" role="menuitem" data-order="undo" disabled>↶ Undo last reorder</button><div class="order-note owner-only">Reorders the rows in the Sheet too.</div></div>
+    </div>
     <button class="pill-btn dark" id="new-pron" type="button">+ Add Pronunciation</button>
     <span class="stats" id="stats-pron"></span>
   </div>
@@ -2713,6 +2729,120 @@ function renderAuthor(g){
 const TAB_DESIGNS = { notes:renderNotes, phonetic:renderPhonetic, accents:renderAccents, synopsis:renderSynopsis, author:renderAuthor };
 
 // ═══════════════════════════════════════════════════════════
+// ORDER — sort Characters / Pronunciation, and reorder the Sheet to match.
+// Rows are moved (not rewritten), so formulas, colours and links travel with them.
+// Blanks always go last, like a Google Sheets sort. Ties fall back to the name A–Z.
+// ═══════════════════════════════════════════════════════════
+const ORDER_KEY = 'prepsuite_order_';
+const ORDER_LABELS = { az:'Alphabetically A–Z', za:'Alphabetically Z–A', page:'Page Number', cat:'Category', notesaz:'Notes A–Z', notesza:'Notes Z–A' };
+const collate = new Intl.Collator(undefined, { numeric:true, sensitivity:'base' });   // "Bk 1 - p9" before "Bk 1 - p12" before "Bk 2 - p3"
+const orderUndo = { char:null, pron:null };
+// Turn a Sheet row (or a loaded entry) into the fields the sorts use
+function orderFields(kind, r){
+  const g = (map, k) => String(r[map[k]] ?? '').trim();
+  return kind === 'char'
+    ? { name:g(CC,'name'), page:g(CC,'page'), notes:g(CC,'notes'), cat:'' }
+    : { name:g(PC,'word'), page:g(PC,'page'), notes:g(PC,'notes'), cat:g(PC,'cat').replace(/\*/g, '').trim() };
+}
+function orderCompare(kind, mode){
+  const by = (field, dir) => (a, b) => {
+    const x = a[field], y = b[field];
+    if (!x !== !y) return x ? -1 : 1;                     // blanks last either way
+    return dir * collate.compare(x, y);
+  };
+  const name = by('name', 1);
+  const main = mode === 'za' ? by('name', -1) : mode === 'page' ? by('page', 1) : mode === 'cat' ? by('cat', 1)
+             : mode === 'notesaz' ? by('notes', 1) : mode === 'notesza' ? by('notes', -1) : name;
+  // Character section rows (names starting 00) stay at the top
+  const sec = a => kind === 'char' && /^00/.test(a.name) ? 0 : 1;
+  return (a, b) => (sec(a) - sec(b)) || main(a, b) || name(a, b) || (a.i - b.i);
+}
+const orderStoreKey = kind => ORDER_KEY + S.sheetId + '_' + kind;
+function markOrderMenu(kind){
+  const dd = $('order-' + kind); if (!dd) return;
+  let cur = ''; try { cur = localStorage.getItem(orderStoreKey(kind)) || ''; } catch(e) {}
+  dd.querySelectorAll('[data-order]').forEach(b => { if (b.dataset.order !== 'undo') b.classList.toggle('cur', b.dataset.order === cur); });
+  dd.querySelector('.order-undo').disabled = !orderUndo[kind] || orderUndo[kind].sheetId !== S.sheetId;
+}
+// Put the cards on screen in the new order straight away
+function orderCards(kind, mode){
+  const list = kind === 'char' ? S.chars : S.prons, grid = $('grid-' + kind), empty = $('empty-' + kind);
+  const cmp = orderCompare(kind, mode);
+  list.map((e, i) => ({ e, i, name: kind === 'char' ? e.name : e.word, page:e.page, notes:e.notes, cat:(e.catRaw || '').replace(/\*/g, '').trim() }))
+    .sort(cmp).forEach(x => grid.insertBefore(x.e.card, empty));
+}
+// Moves that turn the Sheet's current row order into `want` (both lists of 0-based sheet rows)
+function moveRequests(sheetId, start, cur, want){
+  cur = cur.slice(); const reqs = [];
+  want.forEach((row, i) => {
+    const j = cur.indexOf(row); if (j === i) return;
+    reqs.push({ moveDimension:{ source:{ sheetId, dimension:'ROWS', startIndex:start + j, endIndex:start + j + 1 }, destinationIndex:start + i } });
+    cur.splice(j, 1); cur.splice(i, 0, row);
+  });
+  return reqs;
+}
+// Reorder the tab's entry rows. `mode` is a sort, or { keys:[…] } to restore a saved order.
+async function applyOrderToSheet(kind, mode){
+  const tab = kind === 'char' ? S.charTab : S.pronTab, t = q(tab.title);
+  const fresh = await readRange(`${t}!A1:${kind === 'char' ? 'K' : 'M'}`);
+  const recs = [];
+  for (let i = 1; i < fresh.length; i++) { const f = orderFields(kind, fresh[i] || []); if (f.name) recs.push({ ...f, i }); }
+  if (recs.length < 2) return 0;
+  const first = recs[0].i, last = recs[recs.length - 1].i;
+  const span = []; for (let i = first; i <= last; i++) span.push(i);
+  let sorted;
+  if (mode.keys) {                                         // undo: the order the names were in before
+    const pos = new Map(); mode.keys.forEach((k, n) => { if (!pos.has(k)) pos.set(k, n); });
+    const keyOf = r => r.name.toLowerCase() + '#' + recs.filter(x => x.name.toLowerCase() === r.name.toLowerCase()).indexOf(r);
+    sorted = recs.slice().sort((a, b) => (pos.has(keyOf(a)) ? pos.get(keyOf(a)) : 1e9) - (pos.has(keyOf(b)) ? pos.get(keyOf(b)) : 1e9) || a.i - b.i);
+  } else sorted = recs.slice().sort(orderCompare(kind, mode));
+  // Entries first in the new order; empty or formula-only rows inside the list drop to its end
+  const entryRows = new Set(recs.map(r => r.i));
+  const want = sorted.map(r => r.i).concat(span.filter(i => !entryRows.has(i)));
+  const reqs = moveRequests(tab.sheetId, first, span, want);
+  if (!reqs.length) return 0;
+  // Remember the order before, so it can be undone
+  const seen = {};
+  const before = recs.map(r => { const k = r.name.toLowerCase(); seen[k] = (seen[k] || 0); return k + '#' + (seen[k]++); });
+  orderUndo[kind] = { sheetId:S.sheetId, keys:before };
+  await sheetsBatch(reqs);
+  return reqs.length;
+}
+async function chooseOrder(kind, mode){
+  const dd = $('order-' + kind);
+  if (mode !== 'undo') orderCards(kind, mode);
+  if (RO) return;                                           // client view: on screen only
+  if (kind === 'char' && !S.canWriteChar || kind === 'pron' && !S.canWritePron) { toast("Sorted on screen only — this tab's columns don't match the template, so the Sheet wasn't changed.", true); return; }
+  const tokenP = editAccess && tokenValid() ? Promise.resolve(token) : requestToken();   // inside the click
+  tokenP.catch(()=>{});
+  dd.classList.add('busy');
+  try {
+    if (!(await ensureEditAccess(tokenP))) { toast('Sorted on screen only — enable editing to reorder the Sheet too.', true); return; }
+    toast(mode === 'undo' ? 'Putting the previous order back…' : 'Reordering the Sheet…');
+    const undo = orderUndo[kind];
+    const n = await applyOrderToSheet(kind, mode === 'undo' ? { keys:undo.keys } : mode);
+    try { if (mode === 'undo') localStorage.removeItem(orderStoreKey(kind)); else localStorage.setItem(orderStoreKey(kind), mode); } catch(e) {}
+    if (mode === 'undo') orderUndo[kind] = null;
+    toast(n ? (mode === 'undo' ? 'Previous order restored in the Sheet' : `Sheet reordered · ${ORDER_LABELS[mode]}`) : 'Already in that order');
+    await loadSheet(S.sheetId, { quiet:true });
+  } catch(e) {
+    console.error(e);
+    if (e.status === 401) { token = null; toast('Your Google session expired — choose the order again.', true); }
+    else if (e.status === 403 || e.status === 404) { editAccess = false; updateEditUI(); toast(`${accountEmail || 'This account'} can't edit that Sheet — use Switch account.`, true); }
+    else toast("Couldn't reorder the Sheet — check your connection and try again.", true);
+    await loadSheet(S.sheetId, { quiet:true });
+  } finally { dd.classList.remove('busy'); markOrderMenu(kind); }
+}
+['char', 'pron'].forEach(kind => {
+  const dd = $('order-' + kind);
+  dd.querySelector('.hd-dd-btn').addEventListener('click', () => markOrderMenu(kind));
+  dd.querySelector('.hd-menu').addEventListener('click', ev => {
+    const b = ev.target.closest('[data-order]'); if (!b || b.disabled) return;
+    chooseOrder(kind, b.dataset.order);
+  });
+});
+
+// ═══════════════════════════════════════════════════════════
 // SEARCH / TAGS / NEEDS-WORK FILTERS
 // ═══════════════════════════════════════════════════════════
 const sceneTags = { char:[], pron:[] };
@@ -4131,7 +4261,7 @@ $('switch-btn').addEventListener('click', () => {
   if (id) await loadSheet(id);
 })();
 </script>
-<div id="tool-version">v16.0</div>
+<div id="tool-version">v17.0</div>
 <div id="tag-footer"></div>
 <script src="/partials/inject-brand.js"></script>
 </body>
