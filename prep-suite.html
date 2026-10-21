@@ -537,6 +537,8 @@
   .res-old { color:var(--light); text-decoration:line-through; margin-right:6px; }
   .res-new { color:var(--blue-ipa); font-weight:700; }
   .res-new.plain { color:var(--ink); font-weight:600; }
+  .res-recline { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .res-rec-note { font-size:0.72rem; color:var(--mid); font-style:italic; }
   .res-src { display:flex; flex-direction:column; gap:3px; }
   .res-src span { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .res-src .keep { color:var(--mid); font-style:italic; }
@@ -3564,13 +3566,19 @@ async function writeAudioLink(kind, entry, link){
 // ═══════════════════════════════════════════════════════════
 const RESEARCH_PAGE = 'researchtool.html';   // live at tools.theaudiobookguy.co.uk/researchtool.html
 const RES_NS = 'tag-research';
-let resCtx = null;
+let resCtx = null, resAudio = null;
+// Tell the Research Tool how many Source slots recordings are taking, so its numbering matches
+function tellReserve(){
+  if (!resCtx) return;
+  const n = [resCtx.e.s1, resCtx.e.s2, resCtx.e.s3].filter(isDriveLink).length || (resCtx.stage.rec ? 1 : 0);
+  try { $('res-frame').contentWindow.postMessage({ ns:RES_NS, type:'reserve', reserved:n }, location.protocol === 'file:' ? '*' : location.origin); } catch(e) {}
+}
 function openResearch(e){
   if (RO) return;
   if (resCtx && resCtx.e === e) { closeResearch(); return; }
   stopCurrent();
   document.querySelectorAll('.card.res-active').forEach(c => c.classList.remove('res-active'));
-  resCtx = { e, stage:{ main:null, native:null, sources:null }, tokenP:null };
+  resCtx = { e, stage:{ main:null, native:null, sources:null, rec:null }, tokenP:null };
   e.card.classList.add('res-active');
   $('res-word').textContent = e.word;
   $('res-frame').src = `${RESEARCH_PAGE}?suite=1&word=${encodeURIComponent(e.word)}`;
@@ -3591,6 +3599,7 @@ function focusPronCard(key){
 }
 function closeResearch(){
   if (!resCtx) return;
+  if (resAudio) { resAudio.pause(); resAudio = null; }
   const key = resCtx.e.key;
   resCtx.e.card?.classList.remove('res-active');
   resCtx = null;
@@ -3601,34 +3610,40 @@ function closeResearch(){
 }
 $('res-close').addEventListener('click', closeResearch);
 // Sources after saving: Drive recordings stay where they are, picks fill the rest
-function mergedSources(e, picks){
+const REC_PENDING = 'drive:new-recording';
+function mergedSources(e, picks, withRec){
   const cur = [e.s1, e.s2, e.s3].map(v => (v || '').trim());
   const keep = cur.filter(isDriveLink);
+  if (withRec && !keep.length) keep.push(REC_PENDING);   // the recording's new Drive link goes first
+  if (!picks) picks = cur.filter(u => u && !isDriveLink(u)).map(u => ({ url:u }));
   const out = [...keep, ...picks.map(p => p.url).filter(u => !keep.includes(u))];
   return { list: out.slice(0, 3), dropped: Math.max(0, out.length - 3), keep: keep.length };
 }
 function renderStage(){
   if (!resCtx) return;
   const { e, stage } = resCtx, box = $('res-stage');
-  const any = stage.main || stage.native || stage.sources;
+  const any = stage.main || stage.native || stage.sources || stage.rec;
   if (!any) {
-    box.innerHTML = `<div class="res-hint">In the Research Tool, click <b>Use this</b> on RP or GenAm (fills RP IPA and OED Respell) or on the native-language line (fills Native / Alt IPA), and <b>+ Source</b> on up to three dictionaries. They gather here — then <b>Save to Sheet</b>.</div>`;
+    box.innerHTML = `<div class="res-hint">In the Research Tool, click <b>Use recording</b> to take a line's audio as this word's recording, <b>Use this</b> on RP or GenAm (fills RP IPA and OED Respell) or on the native-language line (fills Native / Alt IPA), and <b>+ Source</b> on up to three dictionaries. They gather here — then <b>Save to Sheet</b>.</div>`;
     return;
   }
   const row = (lbl, oldV, newV, plain) => `<div class="res-row"><span class="res-lbl">${esc(lbl)}</span><span>${oldV && oldV !== newV ? `<span class="res-old">${esc(oldV)}</span>` : ''}<span class="res-new${plain ? ' plain' : ''}">${esc(newV || '—')}</span></span></div>`;
   let html = `<div class="res-sec">Ready to save to "${esc(e.word)}"</div>`;
   if (stage.main) html += row(`RP IPA (${stage.main.label || 'main'})`, e.rpIPA, stage.main.ipa) + row('OED Respell', e.respell, stage.main.respell, true);
   if (stage.native) html += row(`Native / Alt IPA${stage.native.label ? ' (' + stage.native.label + ')' : ''}`, e.natIPA, stage.native.ipa);
+  const hasRec = [e.s1, e.s2, e.s3].some(isDriveLink);
+  if (stage.rec) html += `<div class="res-row"><span class="res-lbl">Recording (${esc(stage.rec.label || 'audio')})</span><span class="res-recline"><button class="sym-mini" type="button" id="res-rec-play" title="Listen">▶</button><span class="res-new plain">${esc(fileSafe(e.word))}.mp3</span><span class="res-rec-note">${hasRec ? 'replaces your current recording (same link)' : 'saved to your Audio folder as Source 1'}</span></span></div>`;
   let note = '';
-  if (stage.sources) {
-    const m = mergedSources(e, stage.sources);
-    const names = new Map(stage.sources.map(p => [p.url, p.name]));
-    html += `<div class="res-row"><span class="res-lbl">Sources 1–3</span><span class="res-src">${m.list.length ? m.list.map((u, i) => isDriveLink(u) ? `<span class="keep">${i + 1}. Your recording (kept)</span>` : `<span>${i + 1}. ${esc(names.get(u) || linkLabel(u))}</span>`).join('') : '<span class="keep">None — the Source cells are cleared</span>'}</span></div>`;
+  if (stage.sources || (stage.rec && !hasRec)) {
+    const m = mergedSources(e, stage.sources, !!stage.rec);
+    const names = new Map((stage.sources || []).map(p => [p.url, p.name]));
+    html += `<div class="res-row"><span class="res-lbl">Sources 1–3</span><span class="res-src">${m.list.length ? m.list.map((u, i) => u === REC_PENDING ? `<span class="keep">${i + 1}. The new recording</span>` : isDriveLink(u) ? `<span class="keep">${i + 1}. Your recording (kept)</span>` : `<span>${i + 1}. ${esc(names.get(u) || linkLabel(u))}</span>`).join('') : '<span class="keep">None — the Source cells are cleared</span>'}</span></div>`;
     if (m.dropped) note = `Only three Source cells: ${m.dropped} pick${m.dropped === 1 ? '' : 's'} won't fit because your recording keeps its slot.`;
   }
   box.innerHTML = html + (note ? `<div class="res-note">${esc(note)}</div>` : '') +
     `<div class="res-actions"><span id="res-status"></span><button class="pill-btn ghost" id="res-clear" type="button">Clear</button><button class="pill-btn" id="res-save" type="button">Save to Sheet</button></div>`;
-  $('res-clear').addEventListener('click', () => { resCtx.stage = { main:null, native:null, sources:null }; renderStage(); });
+  $('res-rec-play')?.addEventListener('click', ev => { const b = ev.currentTarget; if (resAudio && !resAudio.paused) { resAudio.pause(); b.classList.remove('playing'); return; } resAudio = new Audio(stage.rec.url); resAudio.onended = () => b.classList.remove('playing'); resAudio.play().then(() => b.classList.add('playing')).catch(() => toast("Couldn't play that recording.", true)); });
+  $('res-clear').addEventListener('click', () => { resCtx.stage = { main:null, native:null, sources:null, rec:null }; tellReserve(); renderStage(); });
   $('res-save').addEventListener('click', saveResearch);
 }
 function resStatus(m, err){ const s = $('res-status'); if (s) { s.textContent = m; s.className = err ? 'err' : ''; } }
@@ -3645,12 +3660,32 @@ async function saveResearch(){
     const t = q(S.pronTab.title), r = e.row;
     const cur = await readRange(`${t}!A${r}`);
     if (((cur[0] || [])[0] || '').trim() !== e.word) { resStatus('That row changed in the Sheet since it loaded — reload and try again.', true); return; }
+    let recLink = null;
+    if (stage.rec) {
+      const folderId = audioFolders().pron;
+      if (!folderId) { resStatus('Set up Audio Folders first (top bar) so the recording has somewhere to go.', true); return; }
+      resStatus('Fetching the recording…');
+      const mp3 = await recordingToMp3(stage.rec.url);
+      resStatus('Saving the recording to Drive…');
+      const oldLink = [e.s1, e.s2, e.s3].find(isDriveLink) || null, oldId = driveIdOf(oldLink);
+      if (oldId && await replaceExisting(oldId, mp3)) recLink = oldLink;
+      else {
+        const id = await uploadNew(mp3, fileSafe(e.word) + '.mp3', folderId);
+        try { await driveFetch(`${DRIVE}/${id}/permissions?fields=id`, { method:'POST', body: JSON.stringify({ role:'reader', type:'anyone' }) }); } catch(_) {}
+        recLink = (await driveFetch(`${DRIVE}/${id}?fields=webViewLink`)).webViewLink || `https://drive.google.com/file/d/${id}/view`;
+      }
+    }
     const data = [];
     if (stage.main) data.push({ range:`${t}!F${r}`, values:[[stage.main.ipa]] }, { range:`${t}!H${r}`, values:[[stage.main.respell || '']] });
     if (stage.native) data.push({ range:`${t}!G${r}`, values:[[stage.native.ipa]] });
-    if (stage.sources) { const m = mergedSources(e, stage.sources).list; while (m.length < 3) m.push(''); data.push({ range:`${t}!I${r}:K${r}`, values:[m] }); }
+    const recIsNew = recLink && ![e.s1, e.s2, e.s3].includes(recLink);
+    if (stage.sources || recIsNew) {
+      const m = mergedSources(e, stage.sources, recIsNew).list.map(u => u === REC_PENDING ? recLink : u);
+      while (m.length < 3) m.push('');
+      data.push({ range:`${t}!I${r}:K${r}`, values:[m] });
+    }
     resStatus('Saving…');
-    await sheetsWrite('RAW', data);
+    if (data.length) await sheetsWrite('RAW', data);
     toast(`Saved research for "${e.word}"`);
     closeResearch();
     await loadSheet(S.sheetId, { quiet:true });
@@ -3659,8 +3694,18 @@ async function saveResearch(){
     console.error(err);
     if (err.status === 401) { token = null; resStatus('Your Google session expired — click Save again.', true); }
     else if (err.status === 403 || err.status === 404) { editAccess = false; updateEditUI(); resStatus(`${accountEmail || 'This account'} can't edit that Sheet — use Switch account.`, true); }
+    else if (err.friendly) resStatus(err.friendly, true);
     else resStatus('Save failed — check your connection and try again.', true);
   } finally { if ($('res-save')) $('res-save').disabled = false; }
+}
+async function recordingToMp3(url){
+  const grab = async u => { const r = await fetch(u); if (!r.ok) throw new Error('fetch ' + r.status); return r.blob(); };
+  try { return await encodeToMp3(await grab(url)); }
+  catch(err) {
+    const m = url.match(/^(https:\/\/upload\.wikimedia\.org\/wikipedia\/[^/]+\/)([0-9a-f]\/[0-9a-f]{2}\/)([^/?#]+)$/);
+    if (!m) throw Object.assign(err, { friendly:"That recording couldn't be converted in this browser — try Chrome." });
+    return encodeToMp3(await grab(`${m[1]}transcoded/${m[2]}${m[3]}/${m[3]}.mp3`));
+  }
 }
 window.addEventListener('message', ev => {
   if (!resCtx || ev.source !== $('res-frame').contentWindow) return;
@@ -3675,6 +3720,8 @@ window.addEventListener('message', ev => {
   else if (d.type === 'use') { if (d.target === 'native') st.native = { ipa:d.ipa, label:d.label }; else st.main = { ipa:d.ipa, respell:d.respell, label:d.label }; }
   else if (d.type === 'unuse') { if (d.target === 'native') st.native = null; else st.main = null; }
   else if (d.type === 'sources' && Array.isArray(d.list)) st.sources = d.list.slice(0, 3);
+  else if (d.type === 'userec' && d.url) { st.rec = { url:d.url, label:d.label }; tellReserve(); }
+  else if (d.type === 'unuserec') { if (!st.rec) return; st.rec = null; tellReserve(); }
   renderStage();
 });
 
@@ -3871,7 +3918,7 @@ $('switch-btn').addEventListener('click', () => {
   if (id) await loadSheet(id);
 })();
 </script>
-<div id="tool-version">v13.1</div>
+<div id="tool-version">v14.0</div>
 <div id="tag-footer"></div>
 <script src="/partials/inject-brand.js"></script>
 </body>
