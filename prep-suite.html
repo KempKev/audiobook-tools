@@ -38,7 +38,9 @@
   .hd-action-btn { padding:6px 13px; background:transparent; color:var(--mid); border:1.5px solid var(--rule); border-radius:20px; font-family:'Raleway',sans-serif; font-size:0.7rem; font-weight:700; letter-spacing:0.03em; text-transform:uppercase; white-space:nowrap; cursor:pointer; transition:all 0.15s; text-decoration:none; display:inline-flex; align-items:center; gap:5px; }
   .hd-action-btn:hover { border-color:var(--accent); color:var(--accent); background:var(--accent-bg); }
   #export-btn { border-color:var(--accent-brd); color:var(--accent); }
-  #acct-btn { text-transform:none; font-weight:600; max-width:240px; overflow:hidden; text-overflow:ellipsis; }
+  #acct-btn { max-width:260px; overflow:hidden; text-overflow:ellipsis; }
+  #switch-btn { font-size:0.8rem; font-weight:800; padding:6px 15px; color:var(--ink); border-color:var(--ink); }
+  #switch-btn:hover { border-color:var(--accent); color:var(--accent); }
   .hd-action-btn.copied, #edit-btn.on { border-color:var(--green); color:var(--green); background:var(--green-bg); }
   .dot { width:7px; height:7px; border-radius:50%; background:currentColor; display:inline-block; }
 
@@ -562,15 +564,15 @@
   </div>
   <div id="hd-right">
     <div id="hd-actions">
+      <button id="switch-btn" class="hd-action-btn" type="button" style="display:none" title="Back to your list of Prep Projects">Projects Menu</button>
       <button id="edit-btn" class="hd-action-btn" type="button" style="display:none" title="Sign in with Google so the suite can add and edit entries in this Sheet"><span class="dot"></span><span id="edit-btn-txt">Enable editing</span></button>
-      <button id="acct-btn" class="hd-action-btn" type="button" style="display:none" title="Sign in with a different Google account">Switch account</button>
-      <a id="open-sheet-btn" class="hd-action-btn" target="_blank" rel="noopener" style="display:none">Open Sheet</a>
-      <a id="export-btn" class="hd-action-btn" style="display:none" title="Download the whole Prep Sheet, every tab, as an Excel (.xlsx) file">⤓ Export Prep</a>
+      <button id="acct-btn" class="hd-action-btn" type="button" style="display:none" title="Sign in with a different Google account">Switch Account</button>
       <button id="share-btn" class="hd-action-btn" type="button" style="display:none" title="Copy a link that opens this project with full editing">Share Link</button>
-      <button id="ro-btn" class="hd-action-btn" type="button" style="display:none" title="Copy a view-only link for clients — no editing or recording">Read-Only Link</button>
-      <button id="audio-folders-btn" class="hd-action-btn" type="button" style="display:none" title="Choose where recordings are saved">Audio Folders</button>
+      <button id="ro-btn" class="hd-action-btn" type="button" style="display:none" title="Copy a view-only link for clients — no editing or recording">Read Only Link</button>
+      <a id="open-sheet-btn" class="hd-action-btn" target="_blank" rel="noopener" style="display:none">Open Sheet</a>
       <a id="open-folder-btn" class="hd-action-btn" target="_blank" rel="noopener" style="display:none">Project Folder</a>
-      <button id="switch-btn" class="hd-action-btn" type="button" style="display:none">Projects</button>
+      <button id="audio-folders-btn" class="hd-action-btn" type="button" style="display:none" title="Choose where recordings are saved">Audio Folders</button>
+      <a id="export-btn" class="hd-action-btn" style="display:none" title="Download the whole Prep Sheet, every tab, as an Excel (.xlsx) file">⤓ Export Prep</a>
     </div>
     <div id="hd-book"></div>
   </div>
@@ -895,14 +897,15 @@ async function loadSheet(sheetId, opts = {}){
     const ranges = [];
     if (charTab) ranges.push(`${q(charTab.title)}!A1:K`);
     if (pronTab) ranges.push(`${q(pronTab.title)}!A1:M`);
-    if (notesTab) ranges.push(`${q(notesTab.title)}!B1:B3`);
+    if (notesTab) ranges.push(`${q(notesTab.title)}!A1:B6`);
     const data = await sheetsGet(`${sheetId}/values:batchGet?${ranges.map(r=>'ranges='+encodeURIComponent(r)).join('&')}`);
     const vr = data.valueRanges || [];
     const charVals = charTab ? (vr[0]?.values || []) : [];
     const pronVals = pronTab ? (vr[charTab ? 1 : 0]?.values || []) : [];
     const nv = notesTab ? (vr[(charTab ? 1 : 0) + (pronTab ? 1 : 0)]?.values || []) : [];
-    const cell = i => ((nv[i] || [])[0] || '').trim();
-    const notes = { b1:cell(0), b2:cell(1), b3:cell(2) };   // B1 project folder · B2 audio holding folder · B3 read-only link
+    const notesRows = notesRowMap(nv);
+    const notes = {};   // b1 project folder · b2 audio holding folder · ps Prep Suite share link · b3 read-only link
+    Object.entries(notesRows).forEach(([k, r]) => { notes[k] = ((nv[r - 1] || [])[1] || '').trim(); });
 
     // Cell colours for Characters J (To Do) and K (Confirmed) — green = done
     let charFmt = [];
@@ -927,7 +930,7 @@ async function loadSheet(sheetId, opts = {}){
     S.charFmt = charFmt;
     S.redColor = detectRed(charFmt);
     S.sheetId = sheetId; S.title = meta.properties.title; S.charTab = charTab || null; S.pronTab = pronTab || null;
-    S.notesTab = notesTab; S.notes = notes; if (!sameSheet) S.notesFilled = false;
+    S.notesTab = notesTab; S.notes = notes; S.notesRows = notesRows; if (!sameSheet) S.notesFilled = false;
     S.tabs = allTabs;
     // Keep any blank rows you'd added on screen across a reload
     Object.values(grids).forEach(g => { const old = sameSheet && S.grids[g.title]; if (old) g.extra = old.extra || 0; });
@@ -1394,8 +1397,9 @@ async function finishCellEdit(save){
     for (let i = ed.g.rows.length; i < ed.r; i++) ed.g.rows[i] = ed.g.rows[i] || [];
     for (let i = 0; i < ed.r; i++) if (!ed.g.rows[i]) ed.g.rows[i] = [];
     row[ed.c] = { ...(row[ed.c] || {}), v: val, f: isFormula, link:'' };
-    if (ed.g.notes && ed.c === 1 && ed.r < 3) {             // Notes/Qs B1–B3 drive folders and the read-only link
-      S.notes['b' + (ed.r + 1)] = val;
+    const nKey = ed.g.notes && ed.c === 1 ? Object.keys(S.notesRows || {}).find(k => S.notesRows[k] === ed.r + 1) : null;
+    if (nKey) {                                             // Notes/Qs link cells drive folders and the share links
+      S.notes[nKey] = val;
       S.projectFolderId = parseFolderId(S.notes.b1) || null;
       S.audioParentId = parseFolderId(S.notes.b2) || S.projectFolderId || null;
     }
@@ -2055,14 +2059,16 @@ $('sheet-view').addEventListener('click', ev => {
 }, true);
 
 // ═══ NOTES/QS ═══════════════════════════════════════════════
-// Rows 1–3: project links. Rows 5–8: General Notes for Series (title, Note/Details header, rows).
-// Then one block per book (template rows 10–20): book name · Questions · Notes for the Proofer · red line · white line.
+// Rows 1–4: project links (Shared Prep Folder · Audio Folders · Prep Suite · Read Only). Rows 6–9: General Notes for Series.
+// Then one block per book (template rows 11–21). Older Sheets have 3 link rows (no Prep Suite row) and still load.
+// Then one block per book: book name · Questions · Notes for the Proofer · red line · white line.
 // Sheets from the older template (General Notes inside each book) still load.
 function parseNotes(g){
   const n = Math.max(g.rows.length, usedExtent(g).lr + 1);
-  const links = [0, 1, 2].map(r => ({ r, label:cellText(g, r, 0), cell:cellAt(g, r, 1) })).filter(x => x.label || (x.cell?.v || '').trim());
+  const L = notesLinkCount(g);
+  const links = [...Array(L).keys()].map(r => ({ r, label:cellText(g, r, 0), cell:cellAt(g, r, 1) })).filter(x => x.label || (x.cell?.v || '').trim());
   let series = null;
-  for (let r = 3; r < n; r++) if (notesKind(cellText(g, r, 0)) === 'series') {
+  for (let r = L; r < n; r++) if (notesKind(cellText(g, r, 0)) === 'series') {
     // Usually a Note | Details header row under the title; older Sheets go straight into the notes
     const hasHdr = isHeaderRow(g, r + 1, false) || /^notes?$/i.test(cellText(g, r + 1, 0));
     series = hasHdr ? parseSection(g, r + 1, n, headerCols(g, r + 1))
@@ -2072,7 +2078,7 @@ function parseNotes(g){
   }
   const seriesEnd = series ? (series.rows.length ? series.rows[series.rows.length - 1] : series.hr) : -1;
   const starts = [];
-  for (let r = 3; r < n - 1; r++) {
+  for (let r = L; r < n - 1; r++) {
     if (r <= seriesEnd) continue;
     const a = cellText(g, r, 0), nk = notesKind(cellText(g, r + 1, 0));
     if (notesKind(a)) continue;
@@ -2802,10 +2808,10 @@ function updateEditUI(){
   const b = $('edit-btn');
   const was = b.classList.contains('on');
   b.classList.toggle('on', editAccess);
-  $('edit-btn-txt').textContent = editAccess ? 'Editing on' : 'Enable editing';
+  $('edit-btn-txt').textContent = editAccess ? 'Editing On' : 'Enable Editing';
   b.title = editAccess ? 'Signed in — add and edit entries in this Sheet' : 'Sign in with Google so the suite can add and edit entries in this Sheet';
   const a = $('acct-btn');
-  a.textContent = accountEmail ? `${accountEmail} · Switch` : 'Switch account';
+  a.textContent = accountEmail ? `${accountEmail} · Switch` : 'Switch Account';
   a.title = accountEmail ? `Signed in as ${accountEmail} — click to use a different Google account` : 'Sign in with a different Google account';
   if (was !== editAccess && S.tab.startsWith('g:') && !cellEdit && $('sheet-view').classList.contains('on')) renderGrid();
 }
@@ -3247,7 +3253,24 @@ async function syncAudioFoldersFromSheet(){
     charAudioId: m.char || (moved ? null : cur.charAudioId || null),
     ...(moved ? { audioFolderId:null } : {}), folderId: S.projectFolderId || cur.folderId || pid });
 }
-// ── Notes/Qs B1 (project folder) · B2 (audio folder) · B3 (read-only link) ──
+// ── Notes & Questions link cells, found by their label in column A ──
+// New template: B1 Shared Prep Folder · B2 Audio Folders · B3 Prep Suite (share link) · B4 Read Only link.
+// Older Sheets: B1 · B2 · B3 read-only link (no Prep Suite row).
+const NOTES_ROWS_NEW = { b1:1, b2:2, ps:3, b3:4 }, NOTES_ROWS_OLD = { b1:1, b2:2, b3:3 };
+function notesRowMap(vals){
+  const lab = i => ((vals[i] || [])[0] || '').trim();
+  const found = {};
+  for (let i = 0; i < 6; i++) {
+    const a = lab(i); if (!a || /general notes|book name|^notes?$/i.test(a)) continue;
+    if (/prep\s*suite/i.test(a)) found.ps = i + 1;
+    else if (/read[\s-]*only/i.test(a)) found.b3 = i + 1;
+    else if (/audio/i.test(a)) found.b2 = i + 1;
+    else if (/folder/i.test(a)) found.b1 = i + 1;
+  }
+  return { ...(found.ps ? NOTES_ROWS_NEW : NOTES_ROWS_OLD), ...found };
+}
+// How many link rows sit at the top of the tab (4 with the Prep Suite row, 3 on older Sheets)
+const notesLinkCount = g => [0, 1, 2, 3].some(r => /prep\s*suite/i.test(cellText(g, r, 0))) || /read[\s-]*only/i.test(cellText(g, 3, 0)) ? 4 : 3;
 // A cell counts as filled only if it holds a link; existing links are always kept.
 // Links always point at the static address (tools.theaudiobookguy.co.uk/prep-suite.html),
 // so they keep working when a new version is uploaded over it.
@@ -3255,21 +3278,22 @@ const STATIC_PATH = '/prep-suite.html';
 const appBase = () => /theaudiobookguy\.co\.uk$/i.test(location.hostname) ? location.origin + STATIC_PATH : location.origin + location.pathname;
 // Older read-only links pointed at a numbered file (prep-suite_7_2_web.html) — those get upgraded
 const isVersionedLink = u => /prep-suite_\d+_\d+_web\.html/i.test(u || '');
-const notesHas = k => k === 'b3' ? (isUrl(S.notes?.b3) && !isVersionedLink(S.notes.b3)) : !!parseFolderId(S.notes?.[k]);
+const notesHas = k => (k === 'b3' || k === 'ps') ? (isUrl(S.notes?.[k]) && !isVersionedLink(S.notes[k])) : !!parseFolderId(S.notes?.[k]);
 const roLinkGenerated = () => `${appBase()}?sheet=${S.sheetId}&view=1`;
+const psLinkGenerated = () => `${appBase()}?sheet=${S.sheetId}`;
 async function writeNotesCells(vals, force){
   if (!S.notesTab || !tokenValid()) return false;
-  const rows = { b1:1, b2:2, b3:3 };
-  const data = Object.entries(vals).filter(([k, v]) => v && (force || !notesHas(k)))
-    .map(([k, v]) => ({ range:`${q(S.notesTab.title)}!B${rows[k]}`, values:[[v]] }));
+  const rows = S.notesRows || NOTES_ROWS_OLD;
+  const items = Object.entries(vals).filter(([k, v]) => v && rows[k] && (force || !notesHas(k)));
+  const data = items.map(([k, v]) => ({ range:`${q(S.notesTab.title)}!B${rows[k]}`, values:[[v]] }));
   if (!data.length) return false;
   try {
     await sheetsWrite('RAW', data);
-    data.forEach(d => {
-      const k = 'b' + d.range.slice(-1); S.notes[k] = d.values[0][0];
+    items.forEach(([k, v]) => {
+      S.notes[k] = v;
       // keep the Notes/Qs tab view in step
       const g = S.grids[S.notesTab.title];
-      if (g) { const r = Number(k[1]) - 1; const row = g.rows[r] || (g.rows[r] = []); while (row.length < 2) row.push({ v:'' }); row[1] = { ...(row[1] || {}), v:d.values[0][0], link:'' }; }
+      if (g) { const r = rows[k] - 1, d = { values:[[v]] }; const row = g.rows[r] || (g.rows[r] = []); while (row.length < 2) row.push({ v:'' }); row[1] = { ...(row[1] || {}), v:d.values[0][0], link:'' }; }
     });
     if (S.tab.startsWith('g:') && gridFor()?.notes && !cellEdit) renderGrid();
     return true;
@@ -3283,14 +3307,14 @@ async function writeAudioParent(pid, force){
   if (ok) { S.audioParentId = pid; setProjectInfo(S.sheetId, { audioParentId:pid }); }
   return ok;
 }
-// Once per project load (with editing on): fill any empty B1/B2/B3 from what the suite knows.
+// Once per project load (with editing on): fill any empty link cells from what the suite knows.
 async function fillNotesBlanks(){
   if (RO || S.notesFilled || !S.notesTab || !tokenValid()) return;
   S.notesFilled = true;
   const info = getProjectInfo(S.sheetId) || {};
   const proj = S.projectFolderId || info.folderId || null;
   const audio = parseFolderId(S.notes?.b2) || proj || info.audioParentId || null;
-  await writeNotesCells({ b1: proj && folderUrl(proj), b2: audio && folderUrl(audio), b3: roLinkGenerated() }, false);
+  await writeNotesCells({ b1: proj && folderUrl(proj), b2: audio && folderUrl(audio), ps: psLinkGenerated(), b3: roLinkGenerated() }, false);
 }
 async function pickAudioFolders(parentId){
   await loadPicker();
@@ -3858,8 +3882,8 @@ $('np-btn').addEventListener('click', async () => {
     step = 'open'; npStep('open','active');
     const ok = await loadSheet(sheet.id);
     if (!ok) throw Object.assign(new Error('open'), { friendly:'The project was created but couldn\'t be opened yet. Open it from Recent projects in a moment.' });
-    // Notes/Qs: B1 project folder, B2 audio folder (same), B3 read-only link — template links are kept
-    await writeNotesCells({ b1: folderUrl(folder.id), b2: folderUrl(folder.id), b3: roLinkGenerated() }, false);
+    // Notes & Questions: B1 project folder, B2 audio folder (same), B3 Prep Suite share link, B4 read-only link — template links are kept
+    await writeNotesCells({ b1: folderUrl(folder.id), b2: folderUrl(folder.id), ps: psLinkGenerated(), b3: roLinkGenerated() }, false);
     S.notesFilled = true;
     npStep('open','done');
     $('np-name').value = ''; $('np-parent').value = '';
@@ -3888,15 +3912,19 @@ async function copyLink(btnId, label, extra){
   try { await navigator.clipboard.writeText(url); b.textContent = 'Link Copied!'; b.classList.add('copied'); setTimeout(() => { b.textContent = label; b.classList.remove('copied'); }, 1800); }
   catch(e) { prompt('Copy this link:', url); }
 }
-$('share-btn').addEventListener('click', () => copyLink('share-btn', 'Share Link', ''));
+async function copyStoredLink(btnId, label, url){
+  const b = $(btnId);
+  try { await navigator.clipboard.writeText(url); b.textContent = 'Link Copied!'; b.classList.add('copied'); setTimeout(() => { b.textContent = label; b.classList.remove('copied'); }, 1800); }
+  catch(e) { prompt('Copy this link:', url); }
+}
+$('share-btn').addEventListener('click', async () => {
+  if (notesHas('ps')) return copyStoredLink('share-btn', 'Share Link', S.notes.ps.trim());   // the Sheet's Prep Suite cell already holds it
+  await copyLink('share-btn', 'Share Link', '');
+  if (editAccess) writeNotesCells({ ps: psLinkGenerated() }, false);
+});
 $('ro-btn').addEventListener('click', async () => {
-  if (notesHas('b3')) {   // Notes/Qs B3 already holds the read-only link — use it
-    const b = $('ro-btn'), url = S.notes.b3.trim();
-    try { await navigator.clipboard.writeText(url); b.textContent = 'Link Copied!'; b.classList.add('copied'); setTimeout(() => { b.textContent = 'Read-Only Link'; b.classList.remove('copied'); }, 1800); }
-    catch(e) { prompt('Copy this link:', url); }
-    return;
-  }
-  await copyLink('ro-btn', 'Read-Only Link', '&view=1');
+  if (notesHas('b3')) return copyStoredLink('ro-btn', 'Read Only Link', S.notes.b3.trim());   // the Sheet's Read Only cell already holds it
+  await copyLink('ro-btn', 'Read Only Link', '&view=1');
   if (editAccess) writeNotesCells({ b3: roLinkGenerated() }, false);
 });
 $('switch-btn').addEventListener('click', () => {
@@ -3919,7 +3947,7 @@ $('switch-btn').addEventListener('click', () => {
   if (id) await loadSheet(id);
 })();
 </script>
-<div id="tool-version">v14.1</div>
+<div id="tool-version">v15.0</div>
 <div id="tag-footer"></div>
 <script src="/partials/inject-brand.js"></script>
 </body>
