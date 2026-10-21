@@ -1447,7 +1447,8 @@ async function toggleNoteConfirmed(r, btn){
 const VIEW_KEY = 'prepsuite_gridview';
 // Tabs from the Prep Sheet template that have a card design
 const CARD_TABS = /^(notes\s*[\/&]?\s*q|phonetic\s*ref|accents?\s*[\/&]?\s*locations?|book\s*synopsis|author\s*general\s*notes)/i;
-const hasCardLayout = g => CARD_TABS.test((g.title || '').trim());
+// Uses the same name matching as the tab designs, so renamed tabs ("Locations & Accents", "Notes & Questions") keep their view
+const hasCardLayout = g => (typeof specialKind === 'function' && !!specialKind(g)) || CARD_TABS.test((g.title || '').trim());
 let gridView = localStorage.getItem(VIEW_KEY) === 'sheet' ? 'sheet' : 'cards';
 const HEADER_A = /^(questions?|notes for the proofer|place|name\s*\/\s*word|file|rp word examples|character|word|name|term)$/i;
 const hasUrlText = v => /https?:\/\/|www\./i.test(v || '');
@@ -3918,7 +3919,7 @@ $('switch-btn').addEventListener('click', () => {
   if (id) await loadSheet(id);
 })();
 </script>
-<div id="tool-version">v14.0</div>
+<div id="tool-version">v14.1</div>
 <div id="tag-footer"></div>
 <script src="/partials/inject-brand.js"></script>
 </body>
