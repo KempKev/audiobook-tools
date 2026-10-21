@@ -210,6 +210,12 @@
   }
   body.suite .use-btn:hover { background: var(--accent); color: #fff; }
   body.suite .use-btn.used { background: #2f6b22; border-color: #2f6b22; color: #fff; }
+  body.suite .use-btn.use-ipa { margin-left: 6px; }
+  body.suite .use-rec { margin-left: auto; border-color: #5b21b6; color: #5b21b6; }
+  body.suite .use-rec:hover { background: #5b21b6; color: #fff; }
+  body.suite .use-rec.used { background: #5b21b6; border-color: #5b21b6; color: #fff; }
+  body.suite .use-rec.no-audio { display: none; }
+  body.suite .qf-row .use-rec.no-audio + .use-ipa { margin-left: auto; }
   body.suite .site-card { position: relative; }
   body.suite .src-toggle {
     display: inline-flex; margin-left: auto; flex-shrink: 0;
@@ -263,7 +269,8 @@
           <svg viewBox="0 0 16 16" fill="none"><polygon points="3,2 13,8 3,14" fill="currentColor"/></svg>
         </button>
         <span id="rpPills"></span>
-        <button class="use-btn" type="button" data-use="rp" title="Send to the Prep Suite">Use this</button>
+        <button class="use-btn use-rec no-audio" type="button" data-userec="rp" title="Save this recording as the word's audio">Use recording</button>
+        <button class="use-btn use-ipa" type="button" data-use="rp" title="Send to the Prep Suite">Use this</button>
       </div>
       <div class="qf-row">
         <span class="qf-label">GenAm</span>
@@ -271,7 +278,8 @@
           <svg viewBox="0 0 16 16" fill="none"><polygon points="3,2 13,8 3,14" fill="currentColor"/></svg>
         </button>
         <span id="genAmPills"></span>
-        <button class="use-btn" type="button" data-use="genam" title="Send to the Prep Suite">Use this</button>
+        <button class="use-btn use-rec no-audio" type="button" data-userec="genam" title="Save this recording as the word's audio">Use recording</button>
+        <button class="use-btn use-ipa" type="button" data-use="genam" title="Send to the Prep Suite">Use this</button>
       </div>
       <div class="qf-row" id="otherRow" style="display:none;">
         <span class="qf-label wide" id="otherLabel">Other</span>
@@ -279,7 +287,8 @@
           <svg viewBox="0 0 16 16" fill="none"><polygon points="3,2 13,8 3,14" fill="currentColor"/></svg>
         </button>
         <span id="otherPills"></span>
-        <button class="use-btn" type="button" data-use="other" title="Send to the Prep Suite">Use this</button>
+        <button class="use-btn use-rec no-audio" type="button" data-userec="other" title="Save this recording as the word's audio">Use recording</button>
+        <button class="use-btn use-ipa" type="button" data-use="other" title="Send to the Prep Suite">Use this</button>
       </div>
       <div class="qf-row" id="foreignRow" style="display:none;">
         <span class="qf-label wide" id="foreignLabel">Native</span>
@@ -287,7 +296,8 @@
           <svg viewBox="0 0 16 16" fill="none"><polygon points="3,2 13,8 3,14" fill="currentColor"/></svg>
         </button>
         <span id="foreignPills"></span>
-        <button class="use-btn" type="button" data-use="foreign" title="Send to the Prep Suite">Use this</button>
+        <button class="use-btn use-rec no-audio" type="button" data-userec="foreign" title="Save this recording as the word's audio">Use recording</button>
+        <button class="use-btn use-ipa" type="button" data-use="foreign" title="Send to the Prep Suite">Use this</button>
       </div>
       <div class="qf-def" id="qfDef" style="display:none;"></div>
       <div class="qf-source" id="qfSource"></div>
@@ -313,7 +323,7 @@
 </main>
 
 <footer>Quick Facts data comes from Wiktionary (CC BY-SA), fetched live when you search. All other sites are opened as plain links in a new tab — nothing is scraped or auto-checked.</footer>
-<div id="tool-version">v4.0</div>
+<div id="tool-version">v5.0</div>
 
 <audio id="qfAudioPlayer" preload="none"></audio>
 <div class="copy-toast" id="copyToast">Copied!</div>
@@ -1153,6 +1163,7 @@ function setupAudioBtn(accent, filename) {
     if (!url) return;
     audioUrls[accent] = url;
     btn.classList.remove('unavailable');
+    const ur = document.querySelector(`.use-rec[data-userec="${accent}"]`); if (ur) ur.classList.remove('no-audio');
     btn.onclick = () => playAudio(accent);
   });
 }
@@ -1392,8 +1403,12 @@ function toSuite(msg) {
   if (!SUITE) return;
   try { window.parent.postMessage(Object.assign({ ns: NS }, msg), location.protocol === 'file:' ? '*' : location.origin); } catch (e) {}
 }
-function resetUsed() { document.querySelectorAll('.use-btn.used').forEach(b => { b.classList.remove('used'); b.textContent = 'Use this'; }); }
-document.querySelectorAll('.use-btn').forEach(btn => btn.addEventListener('click', () => {
+function resetUsed() {
+  document.querySelectorAll('.use-ipa.used').forEach(b => { b.classList.remove('used'); b.textContent = 'Use this'; });
+  document.querySelectorAll('.use-rec').forEach(b => { b.classList.remove('used'); b.classList.add('no-audio'); b.textContent = 'Use recording'; });
+  if (typeof toSuite === 'function') toSuite({ type: 'unuserec' });
+}
+document.querySelectorAll('.use-ipa').forEach(btn => btn.addEventListener('click', () => {
   const d = currentFacts; if (!d) return;
   const key = btn.dataset.use;
   const src = key === 'rp' ? { ipa: d.rpIPA, label: 'RP' }
@@ -1403,7 +1418,7 @@ document.querySelectorAll('.use-btn').forEach(btn => btn.addEventListener('click
   if (!src.ipa) { showToast('Nothing to use on this line'); return; }
   const target = key === 'foreign' ? 'native' : 'main';
   // One pick per cell: RP, GenAm and other accents all fill the main IPA + Respell
-  const sameTarget = [...document.querySelectorAll('.use-btn')].filter(b => (b.dataset.use === 'foreign') === (target === 'native'));
+  const sameTarget = [...document.querySelectorAll('.use-ipa')].filter(b => (b.dataset.use === 'foreign') === (target === 'native'));
   if (btn.classList.contains('used')) {
     btn.classList.remove('used'); btn.textContent = 'Use this';
     toSuite({ type: 'unuse', target });
@@ -1412,6 +1427,17 @@ document.querySelectorAll('.use-btn').forEach(btn => btn.addEventListener('click
   sameTarget.forEach(b => { b.classList.remove('used'); b.textContent = 'Use this'; });
   btn.classList.add('used'); btn.textContent = '✓ Using';
   toSuite({ type: 'use', target, label: src.label, ipa: src.ipa, respell: target === 'main' ? respellWords(src.ipa) : '' });
+}));
+const REC_LABELS = { rp: 'RP', genam: 'GenAm' };
+document.querySelectorAll('.use-rec').forEach(btn => btn.addEventListener('click', () => {
+  const key = btn.dataset.userec, url = audioUrls[key];
+  if (!url) { showToast('No recording on this line'); return; }
+  const d = currentFacts || {};
+  const label = REC_LABELS[key] || (key === 'other' ? (d.other && d.other.label) : ((d.foreign && d.foreign.lang) || 'Native'));
+  if (btn.classList.contains('used')) { btn.classList.remove('used'); btn.textContent = 'Use recording'; toSuite({ type: 'unuserec' }); return; }
+  document.querySelectorAll('.use-rec.used').forEach(b => { b.classList.remove('used'); b.textContent = 'Use recording'; });
+  btn.classList.add('used'); btn.textContent = '✓ Recording';
+  toSuite({ type: 'userec', label, url });
 }));
 function postSources() {
   const w = getWord(); if (!w) return;
@@ -1430,6 +1456,13 @@ window.addEventListener('message', ev => {
   if (!SUITE || ev.source !== window.parent) return;
   if (location.protocol !== 'file:' && ev.origin !== location.origin) return;
   const d = ev.data; if (!d || d.ns !== NS) return;
+  if (d.type === 'reserve') {
+    // A recording is about to take a Source slot — keep the numbering and the limit honest
+    reservedSlots = Math.max(0, Math.min(3, Number(d.reserved) || 0));
+    if (pickedIdx.length > 3 - reservedSlots) { pickedIdx = pickedIdx.slice(0, 3 - reservedSlots); showToast('Your recording takes a Source slot — the last pick was removed'); postSources(); }
+    renderSiteGrid();
+    return;
+  }
   if (d.type === 'init' && Array.isArray(d.sources)) {
     // Mark the dictionaries that are already this word's sources
     reservedSlots = Math.max(0, Math.min(3, Number(d.reserved) || 0));
