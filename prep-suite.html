@@ -514,6 +514,36 @@
   .book-actions { margin-left:auto; display:flex; gap:4px; }
   .book-del:hover { color:var(--red) !important; }
   @media (hover:none) { .mv-wrap { opacity:1; } }
+  /* ── Research panel (pronunciation cards) ── */
+  .sbtn { width:38px; height:38px; border-radius:50%; border:1.5px solid var(--rule); background:#fff; color:var(--mid); cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all 0.15s; }
+  .sbtn:hover, .card.res-active .sbtn { border-color:var(--accent); color:#fff; background:var(--accent); transform:scale(1.08); }
+  .sbtn svg { width:15px; height:15px; }
+  .card.res-active { box-shadow:0 0 0 2px var(--accent), var(--shadow-md); }
+  #res-panel { position:fixed; top:0; right:0; bottom:0; width:min(600px, 100vw); background:var(--bg); box-shadow:-8px 0 28px rgba(0,0,0,0.16); z-index:520; display:flex; flex-direction:column; transform:translateX(105%); transition:transform 0.25s ease; }
+  #res-panel.on { transform:none; }
+  .res-head { display:flex; align-items:center; gap:12px; padding:12px 16px; background:var(--card); border-bottom:1px solid var(--rule); border-top:3px solid var(--accent); }
+  .res-titles { flex:1; min-width:0; }
+  .res-kicker { font-family:'Raleway',sans-serif; font-size:0.62rem; font-weight:800; letter-spacing:0.1em; text-transform:uppercase; color:var(--accent); }
+  .res-word { font-family:'Raleway',sans-serif; font-weight:800; font-size:1.15rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  #res-frame { flex:1; width:100%; border:none; background:var(--bg); }
+  .res-stage { background:var(--card); border-top:1px solid var(--rule); padding:12px 16px 14px; box-shadow:0 -3px 12px rgba(0,0,0,0.05); max-height:46vh; overflow-y:auto; }
+  .res-hint { font-size:0.76rem; color:var(--mid); line-height:1.5; }
+  .res-sec { font-family:'Raleway',sans-serif; font-size:0.66rem; font-weight:800; letter-spacing:0.07em; text-transform:uppercase; color:var(--ink); margin-bottom:8px; }
+  .res-row { display:grid; grid-template-columns:118px 1fr; gap:8px; align-items:baseline; padding:5px 0; border-bottom:1px solid #f0f0f0; font-size:0.82rem; }
+  .res-row:last-of-type { border-bottom:none; }
+  .res-lbl { font-family:'Raleway',sans-serif; font-size:0.6rem; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:var(--light); }
+  .res-old { color:var(--light); text-decoration:line-through; margin-right:6px; }
+  .res-new { color:var(--blue-ipa); font-weight:700; }
+  .res-new.plain { color:var(--ink); font-weight:600; }
+  .res-src { display:flex; flex-direction:column; gap:3px; }
+  .res-src span { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .res-src .keep { color:var(--mid); font-style:italic; }
+  .res-note { font-size:0.7rem; color:var(--amber); margin-top:6px; line-height:1.45; }
+  .res-actions { display:flex; gap:8px; justify-content:flex-end; align-items:center; margin-top:10px; }
+  #res-status { font-size:0.74rem; color:var(--mid); margin-right:auto; }
+  #res-status.err { color:var(--red); }
+  @media (min-width:1180px) { body.res-open { margin-right:600px; } }
+  body.ro .sbtn, body.ro #res-panel { display:none !important; }
 </style>
 </head>
 <body>
@@ -694,6 +724,15 @@
   </div>
 </div>
 
+<div id="res-panel" aria-hidden="true">
+  <div class="res-head">
+    <div class="res-titles"><div class="res-kicker">Research</div><div class="res-word" id="res-word"></div></div>
+    <button class="pill-btn ghost" id="res-close" type="button" title="Close (Esc)">Close</button>
+  </div>
+  <iframe id="res-frame" title="Research Tool"></iframe>
+  <div class="res-stage" id="res-stage"></div>
+</div>
+
 <div id="rec-overlay"><div class="rec-panel" id="rec-panel"></div></div>
 
 <div id="toast"></div>
@@ -779,6 +818,7 @@ function normCat(raw){
 const PLAY_SVG = '<polygon points="5,3 19,12 5,21"/>';
 const PAUSE_SVG = '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';
 const EXT_SVG = '<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>';
+const SEARCH_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4.2-4.2"/></svg>';
 const MIC_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10v1a7 7 0 0 0 14 0v-1M12 18v4"/></svg>';
 function confBtnHtml(on, who){ who = who || 'client'; return `<button class="conf-btn${on ? ' on' : ''}" type="button" title="${on ? `Confirmed by the ${who} — click to undo` : `Click when the ${who} confirms this`}">${on ? '✓' : '✕'} ${who === 'client' ? 'Client ' : ''}Confirmed</button>`; }
 function recBtnHtml(title){ return `<button class="rbtn" type="button" title="${title}">${MIC_SVG}</button>`; }
@@ -951,6 +991,7 @@ function showApp(){
 }
 
 function setTab(tab){
+  if (typeof closeResearch === 'function' && resCtx) closeResearch();
   if (!S.tabs.some(t => t.key === tab)) tab = (S.tabs.find(t => t.kind === 'char') || S.tabs[0] || { key:'char' }).key;
   if (S.tab !== tab) { gsFilter.q = ''; gsFilter.unconf = false; }
   S.tab = tab; localStorage.setItem(TAB_KEY, tab);
@@ -1109,7 +1150,7 @@ function buildProns(rows){
       <div class="card-top">
         <div class="name-wrap"><div class="word">${esc(word)}</div>
           <div class="tags"><span class="tag ${e.cat}">${e.cat}</span>${/^y/i.test(e.inferred) ? '<span class="inf">Inferred</span>' : ''}</div></div>
-        <div class="btn-group">${playBtnHtml('', 'Play ' + esc(word))}${recBtnHtml('Record pronunciation')}</div>
+        <div class="btn-group">${RO ? '' : `<button class="sbtn" type="button" title="Research ${esc(word)}">${SEARCH_SVG}</button>`}${playBtnHtml('', 'Play ' + esc(word))}${recBtnHtml('Record pronunciation')}</div>
       </div>
       ${ipa}
       ${e.notes ? `<div class="cnote">${linkify(e.notes)}</div>` : ''}
@@ -1125,6 +1166,7 @@ function buildProns(rows){
     if (driveSrc) wirePlay(card.querySelector('.pbtn'), driveMedia(driveSrc), card, 'playing');
     card.querySelector('.edit-btn').addEventListener('click', () => openForm('pron', e));
     card.querySelector('.rbtn').addEventListener('click', () => openRecorder('pron', e));
+    card.querySelector('.sbtn')?.addEventListener('click', () => openResearch(e));
   });
   buildChips([...cats].sort());
   const flagged = S.prons.filter(p => p.wip).length;
@@ -3126,7 +3168,7 @@ function closeForm(){ $('modal-overlay').classList.remove('on'); formCtx = null;
 function setModalStatus(msg, err){ const s = $('modal-status'); s.textContent = msg; s.className = err ? 'err' : ''; }
 $('modal-cancel').addEventListener('click', closeForm);
 $('modal-overlay').addEventListener('mousedown', ev => { if (ev.target === $('modal-overlay')) closeForm(); });
-document.addEventListener('keydown', ev => { if (ev.key !== 'Escape') return; if (delCtx) closeDelete(); else if (formCtx) closeForm(); });
+document.addEventListener('keydown', ev => { if (ev.key !== 'Escape') return; if (delCtx) closeDelete(); else if (formCtx) closeForm(); else if (resCtx) closeResearch(); });
 $('new-char').addEventListener('click', () => openForm('char', null));
 $('new-pron').addEventListener('click', () => openForm('pron', null));
 
@@ -3511,6 +3553,116 @@ async function writeAudioLink(kind, entry, link){
   await sheetsWrite('RAW', [{ range:`${t}!I${row}:K${row}`, values:[srcs] }]);
 }
 
+
+// ═══════════════════════════════════════════════════════════
+// RESEARCH PANEL — the Research Tool beside the cards, word already searched.
+// "Use this" / "+ Source" picks in the tool are staged here, then saved to the
+// row: RP or GenAm → RP IPA + OED Respell, Native → Native / Alt IPA, and up to
+// three dictionaries → Source 1–3 (a Drive recording keeps its Source slot).
+// ═══════════════════════════════════════════════════════════
+const RESEARCH_PAGE = 'research-tool.html';
+const RES_NS = 'tag-research';
+let resCtx = null;
+function openResearch(e){
+  if (RO) return;
+  if (resCtx && resCtx.e === e) { closeResearch(); return; }
+  stopCurrent();
+  document.querySelectorAll('.card.res-active').forEach(c => c.classList.remove('res-active'));
+  resCtx = { e, stage:{ main:null, native:null, sources:null }, tokenP:null };
+  e.card.classList.add('res-active');
+  $('res-word').textContent = e.word;
+  $('res-frame').src = `${RESEARCH_PAGE}?suite=1&word=${encodeURIComponent(e.word)}`;
+  $('res-panel').classList.add('on'); $('res-panel').setAttribute('aria-hidden', 'false');
+  document.body.classList.add('res-open');
+  renderStage();
+  setTimeout(() => e.card.scrollIntoView({ behavior:'smooth', block:'nearest' }), 260);
+}
+function closeResearch(){
+  if (!resCtx) return;
+  resCtx.e.card?.classList.remove('res-active');
+  resCtx = null;
+  $('res-panel').classList.remove('on'); $('res-panel').setAttribute('aria-hidden', 'true');
+  document.body.classList.remove('res-open');
+  setTimeout(() => { if (!resCtx) $('res-frame').src = 'about:blank'; }, 300);
+}
+$('res-close').addEventListener('click', closeResearch);
+// Sources after saving: Drive recordings stay where they are, picks fill the rest
+function mergedSources(e, picks){
+  const cur = [e.s1, e.s2, e.s3].map(v => (v || '').trim());
+  const keep = cur.filter(isDriveLink);
+  const out = [...keep, ...picks.map(p => p.url).filter(u => !keep.includes(u))];
+  return { list: out.slice(0, 3), dropped: Math.max(0, out.length - 3), keep: keep.length };
+}
+function renderStage(){
+  if (!resCtx) return;
+  const { e, stage } = resCtx, box = $('res-stage');
+  const any = stage.main || stage.native || stage.sources;
+  if (!any) {
+    box.innerHTML = `<div class="res-hint">In the Research Tool, click <b>Use this</b> on RP or GenAm (fills RP IPA and OED Respell) or on the native-language line (fills Native / Alt IPA), and <b>+ Source</b> on up to three dictionaries. They gather here — then <b>Save to Sheet</b>.</div>`;
+    return;
+  }
+  const row = (lbl, oldV, newV, plain) => `<div class="res-row"><span class="res-lbl">${esc(lbl)}</span><span>${oldV && oldV !== newV ? `<span class="res-old">${esc(oldV)}</span>` : ''}<span class="res-new${plain ? ' plain' : ''}">${esc(newV || '—')}</span></span></div>`;
+  let html = `<div class="res-sec">Ready to save to "${esc(e.word)}"</div>`;
+  if (stage.main) html += row(`RP IPA (${stage.main.label || 'main'})`, e.rpIPA, stage.main.ipa) + row('OED Respell', e.respell, stage.main.respell, true);
+  if (stage.native) html += row(`Native / Alt IPA${stage.native.label ? ' (' + stage.native.label + ')' : ''}`, e.natIPA, stage.native.ipa);
+  let note = '';
+  if (stage.sources) {
+    const m = mergedSources(e, stage.sources);
+    const names = new Map(stage.sources.map(p => [p.url, p.name]));
+    html += `<div class="res-row"><span class="res-lbl">Sources 1–3</span><span class="res-src">${m.list.length ? m.list.map((u, i) => isDriveLink(u) ? `<span class="keep">${i + 1}. Your recording (kept)</span>` : `<span>${i + 1}. ${esc(names.get(u) || linkLabel(u))}</span>`).join('') : '<span class="keep">None — the Source cells are cleared</span>'}</span></div>`;
+    if (m.dropped) note = `Only three Source cells: ${m.dropped} pick${m.dropped === 1 ? '' : 's'} won't fit because your recording keeps its slot.`;
+  }
+  box.innerHTML = html + (note ? `<div class="res-note">${esc(note)}</div>` : '') +
+    `<div class="res-actions"><span id="res-status"></span><button class="pill-btn ghost" id="res-clear" type="button">Clear</button><button class="pill-btn" id="res-save" type="button">Save to Sheet</button></div>`;
+  $('res-clear').addEventListener('click', () => { resCtx.stage = { main:null, native:null, sources:null }; renderStage(); });
+  $('res-save').addEventListener('click', saveResearch);
+}
+function resStatus(m, err){ const s = $('res-status'); if (s) { s.textContent = m; s.className = err ? 'err' : ''; } }
+async function saveResearch(){
+  if (!resCtx) return;
+  const ctx = resCtx, { e, stage } = ctx;
+  if (!S.canWritePron) { resStatus("This tab's columns don't match the template, so saving is off for safety.", true); return; }
+  const tokenP = editAccess && tokenValid() ? Promise.resolve(token) : requestToken();   // inside the click
+  tokenP.catch(()=>{});
+  const btn = $('res-save'); btn.disabled = true;
+  resStatus('Connecting to Google…');
+  try {
+    if (!(await ensureEditAccess(tokenP))) { resStatus('Editing needs to be enabled for this Sheet first.', true); return; }
+    const t = q(S.pronTab.title), r = e.row;
+    const cur = await readRange(`${t}!A${r}`);
+    if (((cur[0] || [])[0] || '').trim() !== e.word) { resStatus('That row changed in the Sheet since it loaded — reload and try again.', true); return; }
+    const data = [];
+    if (stage.main) data.push({ range:`${t}!F${r}`, values:[[stage.main.ipa]] }, { range:`${t}!H${r}`, values:[[stage.main.respell || '']] });
+    if (stage.native) data.push({ range:`${t}!G${r}`, values:[[stage.native.ipa]] });
+    if (stage.sources) { const m = mergedSources(e, stage.sources).list; while (m.length < 3) m.push(''); data.push({ range:`${t}!I${r}:K${r}`, values:[m] }); }
+    resStatus('Saving…');
+    await sheetsWrite('RAW', data);
+    toast(`Saved research for "${e.word}"`);
+    closeResearch();
+    await loadSheet(S.sheetId, { quiet:true });
+  } catch(err) {
+    console.error(err);
+    if (err.status === 401) { token = null; resStatus('Your Google session expired — click Save again.', true); }
+    else if (err.status === 403 || err.status === 404) { editAccess = false; updateEditUI(); resStatus(`${accountEmail || 'This account'} can't edit that Sheet — use Switch account.`, true); }
+    else resStatus('Save failed — check your connection and try again.', true);
+  } finally { if ($('res-save')) $('res-save').disabled = false; }
+}
+window.addEventListener('message', ev => {
+  if (!resCtx || ev.source !== $('res-frame').contentWindow) return;
+  if (location.protocol !== 'file:' && ev.origin !== location.origin) return;
+  const d = ev.data; if (!d || d.ns !== RES_NS) return;
+  const st = resCtx.stage;
+  if (d.type === 'ready') {
+    const existing = [resCtx.e.s1, resCtx.e.s2, resCtx.e.s3].filter(u => isUrl(u) && !isDriveLink(u));
+    const reserved = [resCtx.e.s1, resCtx.e.s2, resCtx.e.s3].filter(isDriveLink).length;
+    ev.source.postMessage({ ns:RES_NS, type:'init', sources:existing, reserved }, location.protocol === 'file:' ? '*' : location.origin);
+  }
+  else if (d.type === 'use') { if (d.target === 'native') st.native = { ipa:d.ipa, label:d.label }; else st.main = { ipa:d.ipa, respell:d.respell, label:d.label }; }
+  else if (d.type === 'unuse') { if (d.target === 'native') st.native = null; else st.main = null; }
+  else if (d.type === 'sources' && Array.isArray(d.list)) st.sources = d.list.slice(0, 3);
+  renderStage();
+});
+
 // ═══════════════════════════════════════════════════════════
 // RECENT PROJECTS + PROJECT FOLDER INFO (this browser only)
 // ═══════════════════════════════════════════════════════════
@@ -3704,7 +3856,7 @@ $('switch-btn').addEventListener('click', () => {
   if (id) await loadSheet(id);
 })();
 </script>
-<div id="tool-version">v12.2</div>
+<div id="tool-version">v13.0</div>
 <div id="tag-footer"></div>
 <script src="/partials/inject-brand.js"></script>
 </body>
