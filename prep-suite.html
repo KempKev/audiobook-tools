@@ -494,7 +494,7 @@
   table.tb tr.tb-row:nth-child(even) td { background:#fafafa; }
   table.tb tr.tb-row:hover td { background:var(--accent-bg); }
   table.tb tr.tb-row.unconf td.tb-first { box-shadow:inset 3px 0 0 var(--red); }
-  table.tb td.tb-ans.ok, table.tb tr.tb-row:hover td.tb-ans.ok { background:#d9ead3; }
+  table.tb tr.tb-row td.tb-ans.ok, table.tb tr.tb-row:nth-child(even) td.tb-ans.ok, table.tb tr.tb-row:hover td.tb-ans.ok { background:#d9ead3; }
   table.tb tr.cs-hide { display:none !important; }
   table.tb .conf-btn { margin-left:0; }
   table.tb .edit-btn { margin-left:0; }
@@ -2015,8 +2015,11 @@ function parseNotes(g){
   const links = [0, 1, 2].map(r => ({ r, label:cellText(g, r, 0), cell:cellAt(g, r, 1) })).filter(x => x.label || (x.cell?.v || '').trim());
   let series = null;
   for (let r = 3; r < n; r++) if (notesKind(cellText(g, r, 0)) === 'series') {
-    const cols = headerCols(g, r + 1);
-    if (cols.length >= 2) { series = parseSection(g, r + 1, n, cols); series.kind = 'series'; series.title = cellText(g, r, 0); series.titleRow = r; }
+    // Usually a Note | Details header row under the title; older Sheets go straight into the notes
+    const hasHdr = isHeaderRow(g, r + 1, false) || /^notes?$/i.test(cellText(g, r + 1, 0));
+    series = hasHdr ? parseSection(g, r + 1, n, headerCols(g, r + 1))
+                    : parseSection(g, r, n, [{ c:0, label:'Note', full:'Note' }, { c:1, label:'Details', full:'Details' }]);
+    series.kind = 'series'; series.title = 'General Notes for Series'; series.titleRow = r;
     break;
   }
   const seriesEnd = series ? (series.rows.length ? series.rows[series.rows.length - 1] : series.hr) : -1;
@@ -2051,7 +2054,21 @@ function parseNotes(g){
     book.entries = book.secs.reduce((t, s) => t + s.rows.filter(rr => rowHas(g, rr, s.cols)).length, 0);
     return book;
   });
-  return { links, series, books };
+  // Older Sheets: book name (row 5), then General Notes, then Questions. Those General Notes are the
+  // series notes — shown as such, and moved under them the first time a book is added or removed.
+  let legacy = null;
+  if (!series && books[0]) {
+    const gi = books[0].secs.findIndex(x => x.kind === 'general');
+    if (gi > -1) {
+      series = books[0].secs.splice(gi, 1)[0];
+      series.kind = 'series'; series.title = 'General Notes for Series'; series.titleRow = series.hr;
+      const nextHdr = books[0].secs[0] ? books[0].secs[0].hr : null;
+      legacy = { nameRow: books[0].r, titleRow: series.hr, before: nextHdr };
+      books[0].entries = books[0].secs.reduce((t, s) => t + s.rows.filter(rr => rowHas(g, rr, s.cols)).length, 0);
+      books[0].empty = books[0].secs.every(s => !s.rows.some(rr => rowHas(g, rr, s.cols)));
+    }
+  }
+  return { links, series, books, legacy };
 }
 const notesBookNames = () => { const ng = gridOfKind('notes'); return ng ? parseNotes(ng).books.filter(b => !b.placeholder).map(b => b.name) : []; };
 
@@ -2081,6 +2098,18 @@ function renderNotes(g){
       ${inner}<div class="book-end" title="End of this book's notes"></div></div>`;
   });
   finishView(g, html, F, 'row');
+}
+
+// Older layout → new: move the first book's name row down to sit just above its Questions,
+// and title the notes above it "General Notes for Series". Returns the reloaded tab.
+async function ensureSeriesLayout(ng){
+  const P = parseNotes(ng); if (!P.legacy || P.legacy.before == null) return ng;
+  const L = P.legacy, t = q(ng.title);
+  await sheetsBatch([{ moveDimension:{ source:{ sheetId:ng.sheetId, dimension:'ROWS', startIndex:L.nameRow, endIndex:L.nameRow + 1 }, destinationIndex:L.before } }]);
+  // the title row moved up one when the name row left
+  await sheetsWrite('RAW', [{ range:`${t}!A${L.titleRow}`, values:[['General Notes for Series']] }]);
+  await loadSheet(S.sheetId, { quiet:true });
+  return gridOfKind('notes');
 }
 
 // ═══ REMOVE BOOK ════════════════════════════════════════════
@@ -2115,6 +2144,13 @@ async function removeBook(ctx){
     if (syn) checks.push({ range:`${q(sg.title)}!A${syn.nameRow + 1}`, want:cellText(sg, syn.nameRow, 0) });
     const cur = await readRanges(checks.map(c => c.range));
     if (checks.some((c, i) => String(((cur[i] || [])[0] || [])[0] ?? '').trim() !== c.want)) { setDelStatus('The Sheet changed since it loaded. Reload and try again — nothing was removed.', true); return; }
+    if (parseNotes(g).legacy) {
+      setDelStatus('Tidying the General Notes for Series first…');
+      const ng = await ensureSeriesLayout(g);
+      const fresh = parseNotes(ng).books.find(x => x.r >= 0 && x.name === book.name && x.nameCol === book.nameCol);
+      if (!fresh) { setDelStatus('The Sheet was tidied — reload and try removing again.', true); return; }
+      Object.assign(ctx, { g:ng, book:fresh }); return removeBook(ctx);
+    }
     setDelStatus('Removing…');
     const reqs = [{ deleteDimension:{ range:{ sheetId:g.sheetId, dimension:'ROWS', startIndex:book.r, endIndex:book.blockEnd } } }];
     if (syn) {
@@ -2193,7 +2229,7 @@ async function saveSyn(ctx){
     const { g, book } = ctx, t = q(g.title);
     if (book.nameRow == null) {                          // a book that's only in Notes/Qs so far
       const at = usedExtent(g).lr + 1;
-      await sheetsBatch([insertRowsReq(g, at, 3)]);
+      await sheetsBatch([insertRowsReq(g, at, 3), fmtReq(g.sheetId, at, at + 3, 0, 1, { bold:false }), fmtReq(g.sheetId, at + 1, at + 2, 0, 1, { bold:true })]);
       await sheetsWrite('RAW', [{ range:`${t}!A${at + 2}:A${at + 3}`, values:[[name], [syn]] }]);
       return 'Synopsis added';
     }
@@ -2269,7 +2305,8 @@ async function saveNewBook(ctx){
   await runModalSave(ctx, async () => { await addBook(name, syn); return `Added "${name}"`; });
 }
 async function addBook(name, syn){
-  const ng = gridOfKind('notes'), sg = gridOfKind('synopsis');
+  let ng = gridOfKind('notes'); const sg = gridOfKind('synopsis');
+  if (ng && parseNotes(ng).legacy) ng = await ensureSeriesLayout(ng);
   const reqs = [], writes = [], checks = [];
   if (ng) {
     const P = parseNotes(ng), first = P.books[0], t = q(ng.title), sid = ng.sheetId;
@@ -2302,10 +2339,12 @@ async function addBook(name, syn){
     if (first) checks.push({ range:`${t}!A${first.nameRow + 1}`, want:cellText(sg, first.nameRow, 0) });
     if (first && first.placeholder && !first.syn.length) {
       writes.push({ range:`${t}!A${first.nameRow + 1}`, values:[[name]] });
-      if (syn) { reqs.push(insertRowsReq(sg, first.nameRow + 1, 1)); writes.push({ range:`${t}!A${first.nameRow + 2}`, values:[[syn]] }); }
+      if (syn) { reqs.push(insertRowsReq(sg, first.nameRow + 1, 1), fmtReq(sg.sheetId, first.nameRow + 1, first.nameRow + 2, 0, 1, { bold:false })); writes.push({ range:`${t}!A${first.nameRow + 2}`, values:[[syn]] }); }
     } else {
-      reqs.push(insertRowsReq(sg, 1, 3), fmtReq(sg.sheetId, 1, 4, 0, 1, { bold:false }));
-      writes.push({ range:`${t}!A2:A3`, values:[[name], [syn]] });
+      const at = first ? first.nameRow : Math.max(2, usedExtent(sg).lr + 2);
+      // name (bold) · synopsis · blank line — then the books already there
+      reqs.push(insertRowsReq(sg, at, 3), fmtReq(sg.sheetId, at, at + 3, 0, 1, { bold:false }), fmtReq(sg.sheetId, at, at + 1, 0, 1, { bold:true }));
+      writes.push({ range:`${t}!A${at + 1}:A${at + 2}`, values:[[name], [syn]] });
     }
   }
   if (!ng && !sg) throw Object.assign(new Error('notabs'), { friendly:'This Sheet has no Notes/Qs or Book Synopsis tab to add a book to.' });
@@ -3653,7 +3692,7 @@ $('switch-btn').addEventListener('click', () => {
   if (id) await loadSheet(id);
 })();
 </script>
-<div id="tool-version">v12.0</div>
+<div id="tool-version">v12.1</div>
 <div id="tag-footer"></div>
 <script src="/partials/inject-brand.js"></script>
 </body>
