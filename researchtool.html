@@ -1,0 +1,1455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Research Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700;800&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:         #f2f2f2;
+    --card:       #ffffff;
+    --ink:        #222222;
+    --mid:        #666666;
+    --light:      #999999;
+    --rule:       #e0e0e0;
+    --accent:     #e05a00;
+    --accent-bg:  #fff3ed;
+    --accent-brd: #f5c9ae;
+    --shadow-sm:  0 1px 4px rgba(0,0,0,0.07);
+    --shadow-md:  0 3px 16px rgba(0,0,0,0.10);
+    --radius:     8px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Open Sans', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    padding-bottom: 40px;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--card); border-bottom: 1px solid var(--rule);
+    padding: 18px 20px; display: flex; align-items: center; gap: 12px;
+    box-shadow: var(--shadow-sm);
+  }
+  header img { height: 40px; width: 40px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+  .header-text h1 { font-family: 'Raleway', sans-serif; font-weight: 800; font-size: 1.15rem; letter-spacing: -0.01em; }
+  .header-text p  { font-size: 0.76rem; color: var(--mid); margin-top: 2px; }
+
+  main { max-width: 900px; margin: 0 auto; padding: 18px 16px 0; }
+
+  /* ── SEARCH BAR ── */
+  .search-card {
+    background: var(--card); border: 1px solid var(--rule); border-radius: var(--radius);
+    box-shadow: var(--shadow-sm); padding: 16px; margin-bottom: 16px;
+    display: flex; gap: 10px;
+  }
+  .search-card input {
+    flex: 1; border: 1px solid var(--rule); border-radius: 6px;
+    padding: 11px 14px; font-family: 'Open Sans', sans-serif; font-size: 0.95rem;
+    color: var(--ink); background: #fafafa; transition: border-color .12s, background .12s;
+  }
+  .search-card input:focus { outline: none; border-color: var(--accent); background: #fff; }
+  .search-card input.shake { animation: shake .3s; border-color: #c0392b; }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    75% { transform: translateX(4px); }
+  }
+  .search-card button {
+    font-family: 'Raleway', sans-serif; font-weight: 700; font-size: 0.88rem;
+    color: #fff; background: var(--accent); border: none; border-radius: 6px;
+    padding: 0 22px; cursor: pointer; transition: background .12s, transform .1s;
+    white-space: nowrap;
+  }
+  .search-card button:hover { background: #c94e00; }
+  .search-card button { min-height: 42px; }
+  .search-card button:active { transform: scale(0.97); }
+  .search-card button:disabled { background: var(--light); cursor: default; }
+
+  /* ── SECTION CARD ── */
+  .section-card {
+    background: var(--card); border: 1px solid var(--rule); border-radius: var(--radius);
+    box-shadow: var(--shadow-sm); margin-bottom: 16px; overflow: hidden;
+  }
+  .section-head {
+    padding: 12px 16px; border-bottom: 1px solid var(--rule);
+    display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+  }
+  .section-title { font-family: 'Raleway', sans-serif; font-weight: 800; font-size: 0.95rem; }
+  .section-sub { font-size: 0.76rem; color: var(--light); }
+
+  /* ── QUICK FACTS ── */
+  #quickFacts { display: block; }
+  #quickFacts.hidden { display: none; }
+  #quickFacts.loading .qf-body { opacity: 0.45; pointer-events: none; }
+  .qf-body { padding: 14px 16px 16px; }
+  .qf-row {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    padding: 9px 0; border-bottom: 1px solid var(--rule);
+  }
+  .qf-row:last-of-type { border-bottom: none; }
+  .qf-label {
+    font-family: 'Raleway', sans-serif; font-weight: 700; font-size: 0.68rem;
+    letter-spacing: 0.06em; text-transform: uppercase; color: var(--light);
+    width: 76px; flex-shrink: 0;
+  }
+  .qf-label.wide { width: auto; min-width: 76px; max-width: 150px; line-height: 1.25; }
+  .qf-audio-btn {
+    display: flex; align-items: center; justify-content: center;
+    width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--rule);
+    background: #fafafa; color: var(--accent); cursor: pointer; flex-shrink: 0;
+    transition: all .12s;
+  }
+  .qf-audio-btn:hover { background: var(--accent-bg); border-color: var(--accent-brd); }
+  .qf-audio-btn.playing { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .qf-audio-btn.unavailable { opacity: 0.3; cursor: default; }
+  .qf-audio-btn svg { width: 13px; height: 13px; }
+  .ipa-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: #fafafa; border: 1px solid var(--rule); border-radius: 16px;
+    padding: 5px 10px 5px 12px; cursor: pointer; transition: all .12s; font-size: 0.85rem;
+  }
+  .ipa-pill:hover { border-color: var(--accent-brd); background: var(--accent-bg); }
+  .ipa-pill-label {
+    font-family: 'Raleway', sans-serif; font-weight: 700; font-size: 0.62rem;
+    letter-spacing: 0.04em; text-transform: uppercase; color: var(--light);
+  }
+  .ipa-pill .pill-text { font-weight: 600; color: var(--ink); }
+  .ipa-pill .pill-copied { display: none; font-size: 0.72rem; color: var(--accent); font-weight: 700; }
+  .ipa-pill.copied .pill-copied { display: inline; }
+  .ipa-pill.copied .pill-text, .ipa-pill.copied .ipa-pill-label, .ipa-pill.copied svg { display: none; }
+  .ipa-pill svg { width: 11px; height: 11px; color: var(--light); }
+  .qf-empty { color: var(--light); font-size: 0.85rem; font-style: italic; }
+  .qf-def { padding-top: 4px; font-size: 0.88rem; color: var(--ink); line-height: 1.5; }
+  .qf-def .pos { font-style: italic; color: var(--mid); margin-right: 6px; }
+  .qf-source { padding-top: 8px; font-size: 0.74rem; color: var(--light); }
+  .qf-source a { color: var(--accent); text-decoration: none; }
+  .qf-source a:hover { text-decoration: underline; }
+  .qf-status { padding: 14px 16px; font-size: 0.85rem; color: var(--light); font-style: italic; }
+  .qf-status.err { color: #a12b1f; font-style: normal; }
+  .qf-suggestions { padding: 0 16px 14px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .qf-suggestions-label {
+    width: 100%; font-size: 0.78rem; color: var(--light); font-style: italic;
+    margin-bottom: 2px;
+  }
+  .qf-suggest-chip {
+    font-family: 'Open Sans', sans-serif; font-size: 0.82rem; font-weight: 600;
+    color: var(--accent); background: var(--accent-bg); border: 1px solid var(--accent-brd);
+    border-radius: 999px; padding: 5px 13px; cursor: pointer; transition: background 0.15s, color 0.15s;
+  }
+  .qf-suggest-chip:hover { background: var(--accent); color: #fff; }
+
+  /* ── SITE GRID ── */
+  .site-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; padding: 12px 16px 16px; }
+  .site-card {
+    display: flex; align-items: center; gap: 10px;
+    border: 1px solid var(--rule); border-radius: 7px; padding: 9px 10px;
+    cursor: pointer; text-decoration: none; color: inherit; background: #fff;
+    transition: all .12s;
+  }
+  .site-card:hover { border-color: var(--accent-brd); background: var(--accent-bg); box-shadow: var(--shadow-sm); }
+  .site-card:active { transform: scale(0.98); }
+  .site-badge {
+    flex-shrink: 0; width: 32px; height: 32px; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Raleway', sans-serif; font-weight: 800; font-size: 0.68rem;
+  }
+  .site-info-text { min-width: 0; }
+  .site-name { font-family: 'Raleway', sans-serif; font-weight: 700; font-size: 0.82rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .site-url { font-size: 0.68rem; color: var(--light); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* ── FURTHER RESEARCH (compact list) ── */
+  .further-grid { display: flex; flex-direction: column; gap: 6px; padding: 12px 16px 16px; }
+  .further-card {
+    display: flex; align-items: center; gap: 10px;
+    border: 1px solid var(--rule); border-radius: 7px; padding: 9px 12px;
+    cursor: pointer; background: #fafafa; transition: all .12s;
+  }
+  .further-card:hover { border-color: var(--accent-brd); background: var(--accent-bg); }
+  .further-icon { flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%; background: #fff; border: 1px solid var(--rule); display: flex; align-items: center; justify-content: center; font-size: 0.8rem; }
+  .further-label { font-size: 0.84rem; color: var(--ink); }
+  .further-label strong { font-weight: 700; }
+
+  .hint { padding: 0 16px 14px; font-size: 0.76rem; color: var(--light); }
+
+  footer {
+    max-width: 900px; margin: 14px auto 0; padding: 0 16px; text-align: center;
+    font-size: 0.72rem; color: var(--light);
+  }
+  #tool-version {
+    max-width: 900px; margin: 10px auto 0; padding: 0 16px 6px; text-align: center;
+    font-family: 'Raleway', sans-serif; font-size: 0.66rem; color: #c9c9c9;
+  }
+
+  .copy-toast {
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: var(--ink); color: #fff; font-size: 0.82rem; font-weight: 600;
+    padding: 9px 18px; border-radius: 20px; opacity: 0; pointer-events: none;
+    transition: opacity .18s, transform .18s; z-index: 50;
+  }
+  .copy-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+
+  /* ── PREP SUITE MODE (opened inside the Prep Suite research panel) ── */
+  body.suite { padding-bottom: 16px; }
+  body.suite header, body.suite footer, body.suite .hint { display: none; }
+  body.suite main { padding-top: 12px; }
+  .use-btn, .src-toggle { display: none; }
+  body.suite .use-btn {
+    display: inline-flex; align-items: center; gap: 4px; margin-left: auto;
+    font-family: 'Raleway', sans-serif; font-weight: 800; font-size: 0.64rem; letter-spacing: 0.05em; text-transform: uppercase;
+    padding: 5px 11px; border-radius: 16px; border: 1.5px solid var(--accent); background: #fff; color: var(--accent);
+    cursor: pointer; transition: all .12s; white-space: nowrap;
+  }
+  body.suite .use-btn:hover { background: var(--accent); color: #fff; }
+  body.suite .use-btn.used { background: #2f6b22; border-color: #2f6b22; color: #fff; }
+  body.suite .site-card { position: relative; }
+  body.suite .src-toggle {
+    display: inline-flex; margin-left: auto; flex-shrink: 0;
+    font-family: 'Raleway', sans-serif; font-weight: 800; font-size: 0.6rem; letter-spacing: 0.04em; text-transform: uppercase;
+    padding: 4px 8px; border-radius: 12px; border: 1px solid var(--rule); background: #fafafa; color: var(--mid); cursor: pointer; white-space: nowrap;
+  }
+  body.suite .src-toggle:hover { border-color: var(--accent); color: var(--accent); }
+  body.suite .src-toggle.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+  body.suite .site-card.picked { border-color: var(--accent); background: var(--accent-bg); }
+  body.suite .site-grid { grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); }
+
+  @media (max-width: 640px) {
+    header { padding: 14px 16px; }
+    main { padding: 14px 10px 0; }
+    .search-card { flex-direction: column; }
+    .site-grid { grid-template-columns: 1fr; padding: 10px 12px 14px; }
+    .qf-label { width: 64px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <img src="data:image/jpeg;base64,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Xd6OrZa2baf7rdKAMOipJ4ZIH2yoVPv3qOgAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACigDJwOta1hpJfEl1lV7J3P1oAoWlpLdNiNeO7HoK3rPTobbDEeZJ/ebt9BVxEVFCooVR0ApaACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAGTRJMhSVQy+hrGvdIZMvbEsv9w9fwrcooA40ggkEYI7GiunvbCK6GSNsnZx/Wufu7WW1fbKvHZh0NAEFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFPgheeQJEpZjUtlaSXcm1BhR95j0FdJaW0drHsjH1J6mgCvp+nR2oDNh5fXsPpV6iigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACmyxpKhSRQynqDTqKAOe1HTXt8yRZeL9VrOrsqx9T0vOZbYc9Sg7/SgDFooPB5ooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKt6fZPdyf3Yx95v6CjTrJruTuIx95v6CulijWKMJGoVR0AoASGJIYxHGuFFPoooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigDN1TThODLCAJe4/vf/Xrn2BUkMCCOCDXZVnapp4uFMkQAmH/AI9QBz1FBBBIIwR1BooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACrFjavdzBF4Ucs3oKjt4XnlWOMZY/pXUWlultCI0/E+poAfDEkMaxxjCin0UUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRTJ5o4ImlndY41GWZjgAV5x4q+KljYs0Gixi9mGQZScRj6etAHpLusalpGVVHUscAVy2s+PvD+lble8E8o/ggG/n0z0FeF614l1rxBOftd1NIG4EMfCj2CitTQ/h3r+q7XNt9lhb/lpcHbx646n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iiigAooooAKydfuNsawKeW+Zvp2rUkdY42dzhVGTXJ3MzTzvI3Vj+QoAjooooAKKKKACiiigAqS3maCZJE6qc/Wo6KAOvhkWaJZEOVYZFPrD0O72ubdz8rcr9fStygAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKiup1t4Gkft0HqfSgDM166wBboeTy/9BWLTpZGlkZ3OWY5NNoAKKKKACiiigAooooAKKKKAAEqQQcEcg11GnXQurcMT+8Xhh71y9WLG5a1nDjlejD1FAHVUU2N1kRXQ5VhkGnUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFc5q939on2If3SdPc+taGtXnlR+TGf3jjk+grAoAKKKKACiiigAooooAKKKKACiiigAooooA0tHvfIfyZT+6Y8E/wAJroK42tzR7/eBBMfmHCMe/tQBrUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABVa/ultIC55c8KvqaluJkt4mkkOFH61zF5cvdTGR+B0A9BQBFI7SSM7nLMck02iigAooooAKKKKACiiigAooooAKKKKACiiigAoBIIIOCKKKAOh0rUBcKIpTiUdD/AHv/AK9aNccpKsCpII5BFdBpeoC4AjlIEw/8eoA0aKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKbLIkUbPIQqjqaJZEhjLyMFUdTXNajevdyd1iH3V/qaAE1C8a7lz0jX7q/1qrRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABQCQQQcEdCKKKAN7TNTEuIrggSdA3Zv8A69alcbWvpuqFMRXJJXoH9PrQBt0UKQwBUgg9CKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACo7ieO3jLytgD8zUV7ex2iZc5c9FHU1zl3cyXUu+Q/QDoKAJL+9e7kyfljH3VqrRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFAFyw1CS1O378XdT2+ldDbXMVzHuibPqO4rkqfDK8MgeJirDuKAOvorLsdWSXCXGEf+92P+Fag5HFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRUNzcxWybpWx6DuaAJqy7/VViylvh37t2H+NZ99qUtzlV+SL0HU/WqNADpHaRy7sWY9SabRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFW7O/mtcBTuj/ut/SqlFAHT2moQXOAG2P/AHW/pVuuNq9aanPBgMfMT0br+dAHSUVTtdRt7jADbH/utxVygAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiimSyxwrulcKvqTQA+mySJEhaRgqjuTWVdayoytsuT/AHm6flWRPNJO+6Vyx9+1AGreax1W1H/AyP5CsiR2kctIxZj3NNooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAq1bX9xb4CPlR/C3IqrRQBu2+sxNgToUPqORWjDPFMMxSK30NcjQCVIKkgjuKAOyormYdSuov+Wm8ej81eh1odJoiPdT/AEoA2KKpxalayf8ALUKfRhirSSI4yjqw9jmgB1FFFABRRRQAUUUUAFFFFABRRRQAUUVDJd28X35kHtnJoAmorOl1i3T7gdz7DA/WqM2sztxEqxj8zQBvk4GT0qnPqVtDkGTe3onNc9NcTTf62Rm9iePyqKgDUuNYlfIhURj1PJrNkkeVt0jMzepNNooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACgEg5HBoooAmS7uE+7NIB6bqnTVLtf+WmfqooooAni1e4LAFYj+B/xrRt7p5Blgv4CiigCyrk+lPY4oooAieVgDgCs651KaLO1Y/wAQf8aKKAKj6vdN0KL9F/xqF9Qun6zN+HH8qKKAK7yySf6x2b6nNNoooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAP/9k=" alt="The Audiobook Guy">
+  <div class="header-text">
+    <h1>Research Tool</h1>
+    <p>Search a word, then jump to a dictionary or pronunciation site</p>
+  </div>
+</header>
+
+<main>
+
+  <div class="search-card">
+    <input type="text" id="wordInput" placeholder="Type a word…" autocomplete="off" autocapitalize="off" spellcheck="false">
+    <button id="searchBtn">Search</button>
+  </div>
+
+  <div class="hint">You can click any site below as soon as you've typed a word — you don't need to press Search first. Search only powers the Quick Facts bar below.</div>
+
+  <div class="section-card" id="quickFacts">
+    <div class="section-head">
+      <span class="section-title">Quick Facts</span>
+      <span class="section-sub">RP, General American &amp; native-language, via Wiktionary</span>
+    </div>
+    <div id="qfStatus" class="qf-status">Type a word and press Search to see IPA, respelling and a short definition.</div>
+    <div id="qfSuggestions" class="qf-suggestions" style="display:none;"></div>
+    <div class="qf-body" id="qfBody" style="display:none;">
+      <div class="qf-row">
+        <span class="qf-label">RP</span>
+        <button class="qf-audio-btn unavailable" id="rpAudioBtn" title="Play RP audio">
+          <svg viewBox="0 0 16 16" fill="none"><polygon points="3,2 13,8 3,14" fill="currentColor"/></svg>
+        </button>
+        <span id="rpPills"></span>
+        <button class="use-btn" type="button" data-use="rp" title="Send to the Prep Suite">Use this</button>
+      </div>
+      <div class="qf-row">
+        <span class="qf-label">GenAm</span>
+        <button class="qf-audio-btn unavailable" id="genAmAudioBtn" title="Play GenAm audio">
+          <svg viewBox="0 0 16 16" fill="none"><polygon points="3,2 13,8 3,14" fill="currentColor"/></svg>
+        </button>
+        <span id="genAmPills"></span>
+        <button class="use-btn" type="button" data-use="genam" title="Send to the Prep Suite">Use this</button>
+      </div>
+      <div class="qf-row" id="otherRow" style="display:none;">
+        <span class="qf-label wide" id="otherLabel">Other</span>
+        <button class="qf-audio-btn unavailable" id="otherAudioBtn" title="Play audio">
+          <svg viewBox="0 0 16 16" fill="none"><polygon points="3,2 13,8 3,14" fill="currentColor"/></svg>
+        </button>
+        <span id="otherPills"></span>
+        <button class="use-btn" type="button" data-use="other" title="Send to the Prep Suite">Use this</button>
+      </div>
+      <div class="qf-row" id="foreignRow" style="display:none;">
+        <span class="qf-label wide" id="foreignLabel">Native</span>
+        <button class="qf-audio-btn unavailable" id="foreignAudioBtn" title="Play audio">
+          <svg viewBox="0 0 16 16" fill="none"><polygon points="3,2 13,8 3,14" fill="currentColor"/></svg>
+        </button>
+        <span id="foreignPills"></span>
+        <button class="use-btn" type="button" data-use="foreign" title="Send to the Prep Suite">Use this</button>
+      </div>
+      <div class="qf-def" id="qfDef" style="display:none;"></div>
+      <div class="qf-source" id="qfSource"></div>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-head">
+      <span class="section-title">Dictionaries &amp; Pronunciation</span>
+      <span class="section-sub">Opens a new tab, word pre-searched</span>
+    </div>
+    <div class="site-grid" id="siteGrid"></div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-head">
+      <span class="section-title">Further Research</span>
+    </div>
+    <div class="further-grid" id="furtherGrid"></div>
+  </div>
+
+
+</main>
+
+<footer>Quick Facts data comes from Wiktionary (CC BY-SA), fetched live when you search. All other sites are opened as plain links in a new tab — nothing is scraped or auto-checked.</footer>
+<div id="tool-version">v4.0</div>
+
+<audio id="qfAudioPlayer" preload="none"></audio>
+<div class="copy-toast" id="copyToast">Copied!</div>
+
+<script>
+var currentFacts = null, pickedIdx = [], reservedSlots = 0;   // Prep Suite picks (see the bridge at the end)
+// ══════════════════════════════════════════════════════════════════
+// SITE DEFINITIONS — plain outbound links only, no fetching
+// ══════════════════════════════════════════════════════════════════
+function buildSites(word) {
+  const w    = encodeURIComponent(word.trim().toLowerCase());
+  const wRaw = encodeURIComponent(word.trim());
+  return [
+    { name: "Oxford Learner's",    url: 'oxfordlearnersdictionaries.com', abbr: 'OL',  color: '#1a3a5c', open: `https://www.oxfordlearnersdictionaries.com/definition/english/${w}` },
+    { name: 'Oxford English Dict.',url: 'oed.com',                        abbr: 'OED', color: '#1a3a5c', open: `https://www.oed.com/search/dictionary/?scope=Entries&q=${w}` },
+    { name: 'Merriam-Webster',     url: 'merriam-webster.com',            abbr: 'MW',  color: '#5a3e1b', open: `https://www.merriam-webster.com/dictionary/${w}` },
+    { name: 'Collins Dictionary',  url: 'collinsdictionary.com',          abbr: 'COL', color: '#2c5282', open: `https://www.collinsdictionary.com/dictionary/english/${w}` },
+    { name: 'Longman Dictionary',  url: 'ldoceonline.com',                abbr: 'LDO', color: '#2d6a4f', open: `https://www.ldoceonline.com/dictionary/${w}` },
+    { name: 'Forvo',               url: 'forvo.com',                      abbr: 'FV',  color: '#276221', open: `https://forvo.com/search/${wRaw}/` },
+    { name: 'Wiktionary',          url: 'en.wiktionary.org',              abbr: 'WK',  color: '#3d5a3e', open: `https://en.wiktionary.org/wiki/${wRaw}` },
+    { name: 'Wikipedia',           url: 'en.wikipedia.org',               abbr: 'WP',  color: '#4a4a4a', open: `https://en.wikipedia.org/wiki/Special:Search?search=${wRaw}` },
+    { name: 'Dictionary.com',      url: 'dictionary.com',                 abbr: 'DC',  color: '#c0392b', open: `https://www.dictionary.com/browse/${w}` },
+    { name: 'The Free Dictionary', url: 'thefreedictionary.com',          abbr: 'TFD', color: '#2471a3', open: `https://www.thefreedictionary.com/${wRaw}` },
+    { name: 'PronounceNames',      url: 'pronouncenames.com',             abbr: 'PN',  color: '#5a2d82', open: `https://www.pronouncenames.com/search?name=${wRaw}` },
+    { name: 'Howjsay',             url: 'howjsay.com',                    abbr: 'HJ',  color: '#117a65', open: `https://howjsay.com/how-to-pronounce-${w}` },
+  ];
+}
+
+function buildFurther(word) {
+  const enc = encodeURIComponent(word.trim());
+  return [
+    { icon: '🔍', label: `OneLook: "${word}"`,                url: `https://www.onelook.com/?w=${enc}` },
+    { icon: '🔊', label: `YouGlish: "${word}"`,               url: `https://youglish.com/pronounce/${enc}/english` },
+    { icon: '🌍', label: `Google Translate: "${word}"`,        url: `https://translate.google.com/?sl=auto&tl=en&text=${enc}&op=translate` },
+    { icon: '▶',  label: `YouTube: "${word} pronunciation"`,  url: `https://www.youtube.com/results?search_query=${enc}+pronunciation` },
+    { icon: 'G',  label: `Google: "${word} pronunciation"`,   url: `https://www.google.com/search?q=${enc}+pronunciation` },
+  ];
+}
+
+// ══════════════════════════════════════════════════════════════════
+// DOM refs & rendering of static grids (word swapped in at click-time)
+// ══════════════════════════════════════════════════════════════════
+const wordInput  = document.getElementById('wordInput');
+const searchBtn  = document.getElementById('searchBtn');
+const siteGrid   = document.getElementById('siteGrid');
+const furtherGrid= document.getElementById('furtherGrid');
+const qfStatus   = document.getElementById('qfStatus');
+const qfSuggest  = document.getElementById('qfSuggestions');
+const qfBody     = document.getElementById('qfBody');
+const qfDef      = document.getElementById('qfDef');
+const otherRow   = document.getElementById('otherRow');
+const otherLabel = document.getElementById('otherLabel');
+const foreignRow = document.getElementById('foreignRow');
+const foreignLabel = document.getElementById('foreignLabel');
+const qfSource   = document.getElementById('qfSource');
+const copyToast  = document.getElementById('copyToast');
+const audioPlayer= document.getElementById('qfAudioPlayer');
+
+function getWord() { return wordInput.value.trim(); }
+
+function requireWord() {
+  const w = getWord();
+  if (!w) {
+    wordInput.focus();
+    wordInput.classList.remove('shake'); void wordInput.offsetWidth;
+    wordInput.classList.add('shake');
+    setTimeout(() => wordInput.classList.remove('shake'), 320);
+    return null;
+  }
+  return w;
+}
+
+function renderSiteGrid() {
+  const placeholderWord = getWord() || '…';
+  const sites = buildSites(placeholderWord || 'word');
+  siteGrid.innerHTML = sites.map((s, i) => `
+    <div class="site-card" data-idx="${i}" data-kind="site">
+      <div class="site-badge" style="background:${s.color};color:#fff;">${s.abbr}</div>
+      <div class="site-info-text">
+        <div class="site-name">${s.name}</div>
+        <div class="site-url">${s.url}</div>
+      </div>
+      <button class="src-toggle${pickedIdx.includes(i) ? ' on' : ''}" type="button" data-src="${i}" title="Use as a source link on the pronunciation">${pickedIdx.includes(i) ? 'Source ' + (reservedSlots + pickedIdx.indexOf(i) + 1) : '+ Source'}</button>
+    </div>`).join('');
+  siteGrid.querySelectorAll('.site-card').forEach(card => card.classList.toggle('picked', pickedIdx.includes(Number(card.dataset.idx))));
+  siteGrid.querySelectorAll('.site-card').forEach(card => {
+    card.addEventListener('click', ev => {
+      if (ev.target.closest('.src-toggle')) { toggleSource(Number(card.dataset.idx)); return; }
+      const w = requireWord();
+      if (!w) return;
+      const site = buildSites(w)[Number(card.dataset.idx)];
+      window.open(site.open, '_blank', 'noopener');
+    });
+  });
+}
+
+function renderFurtherGrid() {
+  const further = buildFurther('word');
+  furtherGrid.innerHTML = further.map((f, i) => `
+    <div class="further-card" data-idx="${i}">
+      <div class="further-icon">${f.icon}</div>
+      <div class="further-label">${f.label.replace(/"word"/, '<strong>' + '…' + '</strong>')}</div>
+    </div>`).join('');
+  furtherGrid.querySelectorAll('.further-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const w = requireWord();
+      if (!w) return;
+      const item = buildFurther(w)[Number(card.dataset.idx)];
+      window.open(item.url, '_blank', 'noopener');
+    });
+  });
+}
+
+renderSiteGrid();
+renderFurtherGrid();
+wordInput.addEventListener('input', () => { renderSiteGrid(); renderFurtherGrid(); });
+
+// ══════════════════════════════════════════════════════════════════
+// SEARCH — triggers Quick Facts fetch only
+// ══════════════════════════════════════════════════════════════════
+wordInput.addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
+searchBtn.addEventListener('click', doSearch);
+
+function doSearch() {
+  const w = requireWord();
+  if (!w) return;
+  fetchQuickFacts(w);
+}
+
+// ══════════════════════════════════════════════════════════════════
+// QUICK FACTS — Wiktionary only, via official MediaWiki Action API
+// ══════════════════════════════════════════════════════════════════
+async function fetchQuickFacts(word) {
+  searchBtn.disabled = true;
+  searchBtn.textContent = 'Searching…';
+  qfBody.style.display = 'none';
+  otherRow.style.display = 'none';
+  foreignRow.style.display = 'none';
+  qfSuggest.style.display = 'none';
+  qfSuggest.innerHTML = '';
+  qfStatus.style.display = 'block';
+  qfStatus.className = 'qf-status';
+  qfStatus.textContent = `Looking up "${word}" on Wiktionary…`;
+
+  try {
+    const data = await scrapeWiktionary(word);
+    // A foreign-language entry counts here too — without it, a word whose only
+    // pronunciation is French or Spanish falls straight through to the
+    // "did you mean" path even though the parse succeeded.
+    const hasIPA = !!(data && (data.rpIPA || data.genAmIPA
+                     || (data.other && data.other.ipa)
+                     || usableForeign(data.foreign)));
+
+    if (!data || (!hasIPA && !data.definition)) {
+      qfStatus.className = 'qf-status';
+      qfStatus.textContent = `No Wiktionary entry found for "${word}". Try the dictionary links below.`;
+      renderSuggestions(await fetchSpellingSuggestions(word, data && data.formOf));
+      return;
+    }
+
+    // The entry exists but only points at another spelling — a documented
+    // misspelling, for instance — so there is no pronunciation of its own.
+    if (!hasIPA && data.formOf) {
+      qfStatus.className = 'qf-status';
+      qfStatus.textContent = `No Wiktionary entry found for "${word}". Try the dictionary links below.`;
+      renderSuggestions(await fetchSpellingSuggestions(word, data.formOf));
+      return;
+    }
+    renderQuickFacts(word, data);
+    qfStatus.style.display = 'none';
+    qfBody.style.display = 'block';
+  } catch (e) {
+    qfStatus.className = 'qf-status err';
+    qfStatus.textContent = 'Something went wrong fetching Wiktionary data. Try the dictionary links below.';
+  } finally {
+    searchBtn.disabled = false;
+    searchBtn.textContent = 'Search';
+  }
+}
+
+// ── SPELLING SUGGESTIONS ──
+// Uses Wiktionary's own search index (MediaWiki Action API), same open
+// CORS/reuse terms as the lookup above. Only ever runs after a direct
+// lookup has already failed, so it costs nothing on the common path.
+async function fetchSpellingSuggestions(word, seed) {
+  const out = [];
+  const add = t => { const c = String(t || '').trim(); if (c && !out.some(o => o.toLowerCase() === c.toLowerCase())) out.push(c); };
+  add(seed);   // the entry's own "misspelling of X" target, when there is one
+
+  try {
+    const url =
+      `https://en.wiktionary.org/w/api.php?origin=*&action=query` +
+      `&list=search&srsearch=${encodeURIComponent(word)}&srlimit=5` +
+      `&srinfo=suggestion&srprop=&formatversion=2&format=json`;
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 6000);
+    const res = await fetch(url, { signal: controller.signal });
+    clearTimeout(timeout);
+    if (!res.ok) return [];
+
+    const json = await res.json();
+
+    // "Did you mean" correction, when MediaWiki is confident enough to offer one
+    add(json?.query?.searchinfo?.suggestion);
+    // Close title matches from the search results themselves
+    (json?.query?.search || []).forEach(r => add(r.title));
+  } catch (e) {
+    // Network failure still leaves any seed suggestion usable
+  }
+
+  // Drop anything that's just the original word re-typed, and cap the list
+  return out.filter(t => t.toLowerCase() !== word.toLowerCase()).slice(0, 5);
+}
+
+function renderSuggestions(words) {
+  if (!words.length) { qfSuggest.style.display = 'none'; qfSuggest.innerHTML = ''; return; }
+  qfSuggest.innerHTML =
+    '<div class="qf-suggestions-label">Did you mean:</div>' +
+    words.map(w => `<button type="button" class="qf-suggest-chip">${escHtml(w)}</button>`).join('');
+  qfSuggest.querySelectorAll('.qf-suggest-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      wordInput.value = chip.textContent;
+      renderSiteGrid();
+      renderFurtherGrid();
+      doSearch();
+    });
+  });
+  qfSuggest.style.display = 'flex';
+}
+
+async function scrapeWiktionary(word) {
+  // en.wiktionary titles are case-sensitive: "Schedule" and "schedule" are
+  // separate pages, and only one of them usually carries the pronunciation.
+  const raw = word.trim();
+  const variants = [];
+  const add = t => { if (t && !variants.includes(t)) variants.push(t); };
+  add(raw);
+  add(raw.toLowerCase());
+  add(raw.charAt(0).toUpperCase() + raw.slice(1));
+
+  const url =
+    `https://en.wiktionary.org/w/api.php?origin=*&action=query` +
+    `&prop=revisions&rvprop=content&rvslots=main` +
+    `&formatversion=2&format=json&titles=${variants.map(encodeURIComponent).join('%7C')}`;
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 8000);
+  const res = await fetch(url, { signal: controller.signal });
+  clearTimeout(timeout);
+  if (!res.ok) return null;
+
+  const json  = await res.json();
+  const pages = json?.query?.pages;
+  if (!pages || !pages.length) return null;
+
+  // Parse every variant that exists and keep whichever entry is most complete.
+  let best = null, bestScore = -1, foreign = null;
+  variants.forEach((title, i) => {
+    const page = pages.find(p => p.title === title);
+    if (!page || page.missing) return;
+    const wikitext = page?.revisions?.[0]?.slots?.main?.content || '';
+    if (!wikitext) return;
+
+    // Foreign pronunciation is collected whether or not the English parse
+    // succeeds, so a word that exists in both languages can show both.
+    if (!foreign) {
+      const f = parseForeignWikitext(wikitext);
+      if (f) foreign = Object.assign({}, f, { title });
+    }
+
+    const parsed = parseWikitext(wikitext);
+    if (!parsed) return;
+
+    let score = 0;
+    if (parsed.rpIPA || parsed.genAmIPA)        score += 4;
+    else if (parsed.other && parsed.other.ipa)  score += 2;
+    if (parsed.definition)                      score += 1;
+    if (i === 0)                                score += 0.5;   // tie-break to what was typed
+
+    if (score > bestScore) { bestScore = score; best = Object.assign({}, parsed, { title }); }
+  });
+
+  // The foreign section pointed at a generating template rather than a
+  // written-out transcription. Turn it into a real one before returning, so
+  // everything downstream sees the shape it expects.
+  if (foreign && !foreign.ipa && foreign.genTemplate) {
+    const generated = await expandGeneratedIPA(foreign.title, foreign.genTemplate);
+    if (generated) foreign = Object.assign({}, foreign, { ipa: generated });
+  }
+
+  if (best) return Object.assign(best, { foreign });
+
+  // No English entry at all, but another language has a pronunciation — the
+  // foreign-name case, which must not be reported as "not found".
+  if (foreign) {
+    return {
+      rpIPA: '', genAmIPA: '', rpAudioFile: '', genAmAudioFile: '',
+      definition: '', partOfSpeech: '', other: null, formOf: '',
+      foreign, title: foreign.title,
+    };
+  }
+  return null;
+}
+
+// A foreign entry earns its row on a transcription or a recording. Some
+// entries carry only the audio, and that is still worth showing.
+function usableForeign(f) {
+  return (f && (f.ipa || f.audioFile)) ? f : null;
+}
+
+// ── ACCENT CLASSIFICATION ──
+// Wiktionary tags accents with {{a|...}} or with an inline a= parameter.
+// Labels vary a lot, and a single tag can cover both accents ({{a|RP|GA}}).
+const RP_RE = /^(rp|received pronunciation|uk|gb|british|brit|britain|england|english english|ssb|ssbe|sse|standard southern british|southern british|southern england|general british|british english)$/;
+const GA_RE = /^(ga|genam|gen am|gen-am|general american|general-american|us|usa|american|america|north america|northern america|american english|us english|general america)$/;
+
+// Qualifiers that describe a phonological process or a register, not an accent.
+// These narrow whatever accent they sit under, so they must never become a row
+// of their own — "yod-coalescence" is a feature of RP, not an alternative to it.
+const NON_ACCENT_RE = /(merger|coalesc|dropping|vocalis|vocaliz|tensing|raising|lowering|flapping|assimilat|laxing|weakening|reduction|elision|epenthesis|glottalis|glottaliz)/;
+const NON_ACCENT_WORDS = new Set([
+  'careful speech','rapid speech','fast speech','slow speech','connected speech',
+  'formal','informal','colloquial','emphatic','dated','obsolete','archaic','rare',
+  'proscribed','nonstandard','non-standard','standard','stressed','unstressed',
+  'weak','strong','weak form','strong form','common','uncommon','also','rarely',
+  'sometimes','often','usually','especially','chiefly','now','traditional',
+  'modern','older','younger','some speakers','most speakers','hypercorrect',
+  'spelling pronunciation','phonetic respelling','key','noun','verb','adjective'
+]);
+
+// A narrower set again: these mark a pronunciation as not in current general
+// use, so it should never backfill a row — unlike a merger or coalescence,
+// which still describes how people actually speak today.
+const SKIP_WORDS = new Set([
+  'dated','obsolete','archaic','rare','proscribed','nonstandard','non-standard',
+  'hypercorrect','spelling pronunciation','phonetic respelling','weak','weak form',
+  'unstressed','emphatic','strong form','uncommon','rarely'
+]);
+
+function isNonAccent(token) {
+  return NON_ACCENT_WORDS.has(token) || NON_ACCENT_RE.test(token);
+}
+
+function classifyAccent(qual) {
+  const tokens = String(qual || '')
+    .split(/[|,;]/)
+    .map(t => t.trim().replace(/[.\u200e\u200f]/g, '').toLowerCase())
+    .filter(Boolean);
+  const rp = tokens.some(t => RP_RE.test(t));
+  const ga = tokens.some(t => GA_RE.test(t));
+
+  // Only a genuine place-name style qualifier can label an "other accent" row.
+  const meaningful = tokens.filter(t => !isNonAccent(t));
+  let label = '';
+  if (!rp && !ga && meaningful.length) {
+    label = meaningful[0].replace(/\b\w/g, c => c.toUpperCase());
+  }
+  const skip = !rp && !ga && !meaningful.length && tokens.some(t => SKIP_WORDS.has(t));
+  return { rp, ga, label, skip };
+}
+
+// Infer accent from standard Wiktionary audio filenames (En-uk-…, En-us-…)
+function accentFromFilename(file) {
+  const s = String(file).toLowerCase();
+  if (/\ben[-_](uk|gb|rp)\b|\ben[-_](uk|gb|rp)[-_]/.test(s)) return 'rp';
+  if (/\ben[-_]us\b|\ben[-_]us[-_]/.test(s)) return 'ga';
+  return '';
+}
+
+// Split a template's argument list into positional and named (key=value) parts
+function splitTemplateArgs(argString) {
+  const named = {}, pos = [];
+  argString.split('|').forEach(a => {
+    const t = a.trim();
+    if (!t) return;
+    const km = t.match(/^([A-Za-z0-9_-]+)\s*=\s*([\s\S]*)$/);
+    if (km) named[km[1].toLowerCase()] = km[2].trim();
+    else pos.push(t);
+  });
+  return { named, pos };
+}
+
+// Pull out only the ==Pronunciation== subsection(s), so IPA in Etymology
+// (often a foreign-language source word) can never be mistaken for English.
+function extractPronunciationText(text) {
+  const re = /^(={3,})\s*Pronunciation\s*\d*\s*\1\s*$/gmi;
+  let out = '', m;
+  while ((m = re.exec(text)) !== null) {
+    const level = m[1].length;
+    const rest = text.slice(m.index + m[0].length);
+    const nm = rest.match(new RegExp('^={2,' + level + '}[^=\\n]', 'm'));
+    out += (nm ? rest.slice(0, nm.index) : rest) + '\n';
+  }
+  return out.trim();
+}
+
+function parseWikitext(wikitext) {
+  // ── Split into language sections, keep English ──
+  const langSectionRegex = /^==\s*([^=\n]+?)\s*==\s*$/gm;
+  const sections = [];
+  let match, lastIndex = 0, lastLang = null;
+  while ((match = langSectionRegex.exec(wikitext)) !== null) {
+    if (lastLang !== null) sections.push({ lang: lastLang, text: wikitext.slice(lastIndex, match.index) });
+    lastLang = match[1].trim();
+    lastIndex = match.index + match[0].length;
+  }
+  if (lastLang !== null) sections.push({ lang: lastLang, text: wikitext.slice(lastIndex) });
+
+  const englishSection = sections.find(s => s.lang.toLowerCase() === 'english');
+  if (!englishSection) return null;
+  const text = englishSection.text;
+
+  const pronText   = extractPronunciationText(text);
+  const scanText   = pronText || text;
+  const strictLang = !pronText;   // no Pronunciation heading found — only trust explicit lang=en
+
+  // ── Walk the pronunciation block line by line ──
+  // Accent tags live on the same line as their transcription, so line-scoped
+  // parsing removes any chance of a tag leaking across from a neighbouring line.
+  const ipas = [], auds = [];
+  const accentStack = [];   // index = bullet depth
+
+  scanText.split(/\r?\n/).forEach(rawLine => {
+    const line = rawLine.trim();
+    if (!line) return;
+
+    const tags  = [...line.matchAll(/\{\{(?:a|accent|qualifier)\|([^{}]*)\}\}/gi)].map(m => m[1]).join('|');
+    const depth = ((line.match(/^[*:#]+/) || [''])[0].length) || 1;
+
+    if (tags) {
+      accentStack[depth] = tags;
+      accentStack.length = depth + 1;        // drop deeper, now-stale sub-qualifiers
+    } else if (depth === 1) {
+      accentStack.length = 0;                // fresh untagged top-level bullet starts clean
+    }
+
+    // A nested tag NARROWS its parent rather than replacing it, so
+    // "* {{a|RP}}" then "** {{a|yod-coalescence}}" is still RP.
+    const lineAccent = accentStack.slice(1, depth + 1).filter(Boolean).join('|');
+
+    // IPA templates on this line
+    [...line.matchAll(/\{\{IPA\|([^{}]*)\}\}/gi)].forEach(m => {
+      const { named, pos } = splitTemplateArgs(m[1]);
+      const lang = (pos[0] && !/^[\/\[]/.test(pos[0])) ? pos[0].toLowerCase() : (named.lang || '').toLowerCase();
+      if (lang && lang !== 'en') return;
+      if (strictLang && lang !== 'en') return;
+      const values = pos.filter(a => /^[\/\[]/.test(a));
+      if (!values.length) return;
+      const acc = classifyAccent(named.a || named.accent || lineAccent || '');
+      values.forEach(v => ipas.push({ value: v, acc, phonemic: v.startsWith('/') }));
+    });
+
+    // Audio templates on this line — handles both {{audio|en|file|a=US}}
+    // and the older {{audio|file|Audio (US)|lang=en}} form
+    [...line.matchAll(/\{\{audio\|([^{}]*)\}\}/gi)].forEach(m => {
+      const { named, pos } = splitTemplateArgs(m[1]);
+      const lang = (pos[0] && !/\.(ogg|oga|wav|mp3|flac)$/i.test(pos[0])) ? pos[0].toLowerCase() : (named.lang || '').toLowerCase();
+      if (lang && lang !== 'en' && lang.length <= 3) return;
+      const file = pos.find(a => /\.(ogg|oga|wav|mp3|flac)$/i.test(a));
+      if (!file) return;
+
+      let qual = named.a || named.accent || '';
+      if (!qual) {
+        const desc = pos.find(a => a !== file && /\(|audio/i.test(a));
+        if (desc) qual = desc.replace(/audio/ig, '').replace(/[()]/g, ' ').trim();
+      }
+      if (!qual) qual = lineAccent || '';
+
+      let acc = classifyAccent(qual);
+      if (!acc.rp && !acc.ga) {
+        const guess = accentFromFilename(file);
+        if (guess === 'rp')      acc = { rp: true,  ga: false, label: '' };
+        else if (guess === 'ga') acc = { rp: false, ga: true,  label: '' };
+      }
+      auds.push({ value: file, acc });
+    });
+  });
+
+  // ── Choose what goes in each row (phonemic /…/ preferred over phonetic […]) ──
+  const pick = list => (list.find(e => e.phonemic) || list[0] || {}).value || '';
+
+  let rpIPA     = pick(ipas.filter(e => e.acc.rp));
+  let genAmIPA  = pick(ipas.filter(e => e.acc.ga));
+
+  // An entry with no accent qualifier — or with only a sub-qualifier such as
+  // "yod-coalescence" — is general, so it backfills whichever row is still empty.
+  const untaggedIPA = ipas.filter(e => !e.acc.rp && !e.acc.ga && !e.acc.label && !e.acc.skip);
+  if (untaggedIPA.length) {
+    const v = pick(untaggedIPA);
+    if (!rpIPA)    rpIPA    = v;
+    if (!genAmIPA) genAmIPA = v;
+  }
+
+  let rpAudioFile    = (auds.find(e => e.acc.rp) || {}).value || '';
+  let genAmAudioFile = (auds.find(e => e.acc.ga) || {}).value || '';
+  const untaggedAud  = auds.filter(e => !e.acc.rp && !e.acc.ga && !e.acc.label && !e.acc.skip);
+  if (untaggedAud.length) {
+    if (!rpAudioFile)    rpAudioFile    = untaggedAud[0].value;
+    if (!genAmAudioFile) genAmAudioFile = untaggedAud[0].value;
+  }
+
+  // ── Other-accent row: only when RP or GenAm came up short ──
+  let other = null;
+  if (!rpIPA || !genAmIPA) {
+    const o = ipas.find(e => !e.acc.rp && !e.acc.ga && e.acc.label);
+    if (o) {
+      const oa = auds.find(e => e.acc.label && e.acc.label.toLowerCase() === o.acc.label.toLowerCase());
+      other = { label: o.acc.label, ipa: o.value, audioFile: oa ? oa.value : '' };
+    }
+  }
+
+  // ── Definition ──
+  // Part-of-speech headings are level 3 normally, but drop to level 4 under
+  // "Etymology 1 / 2 / ...", so accept any depth. Walk every POS section and
+  // every sense line until one yields readable text, because the first line is
+  // sometimes a bare template that cleans away to nothing.
+  const posRegex = /^(={3,5})\s*(Noun|Verb|Adjective|Adverb|Interjection|Pronoun|Proper noun|Preposition|Conjunction|Determiner|Numeral|Article|Particle)\s*\1\s*$/gm;
+  let definition = '', partOfSpeech = '', formOf = '';
+  let pm;
+  while (!definition && (pm = posRegex.exec(text)) !== null) {
+    const after = text.slice(pm.index + pm[0].length);
+    const stop  = after.search(/^={2,5}[^=\n]/m);
+    const body  = stop === -1 ? after : after.slice(0, stop);
+    const lines = body.match(/^#(?![:*#])\s*.+$/gm) || [];
+
+    for (const rawLine of lines) {
+      const inner = rawLine.replace(/^#\s*/, '');
+      if (!formOf) formOf = extractFormOf(inner);
+      const cleaned = cleanWikitext(inner);
+      if (cleaned && cleaned.replace(/[()\s,.;:]/g, '').length > 1) {
+        definition   = cleaned;
+        partOfSpeech = pm[2].toLowerCase();
+        break;
+      }
+    }
+  }
+
+  return { rpIPA, genAmIPA, rpAudioFile, genAmAudioFile, definition, partOfSpeech, other, formOf };
+}
+
+// ── FOREIGN-LANGUAGE PRONUNCIATION ────────────────────────────────
+// The parser above reads only the English section, which means a foreign name
+// or loanword with no English entry returns nothing at all — "jeune" and
+// "toujours" both have full French entries on en.wiktionary and both came back
+// empty. This scans the other language sections and reports what it finds with
+// the language name attached, so it reads as French rather than being passed
+// off as English.
+function parseForeignWikitext(wikitext) {
+  const langSectionRegex = /^==\s*([^=\n]+?)\s*==\s*$/gm;
+  const sections = [];
+  let match, lastIndex = 0, lastLang = null;
+  while ((match = langSectionRegex.exec(wikitext)) !== null) {
+    if (lastLang !== null) sections.push({ lang: lastLang, text: wikitext.slice(lastIndex, match.index) });
+    lastLang = match[1].trim();
+    lastIndex = match.index + match[0].length;
+  }
+  if (lastLang !== null) sections.push({ lang: lastLang, text: wikitext.slice(lastIndex) });
+
+  const candidates = [];
+
+  for (const sec of sections) {
+    // Skip English (handled by parseWikitext) and Translingual, which is a
+    // script/symbol section rather than a spoken language.
+    if (/^(english|translingual)$/i.test(sec.lang)) continue;
+
+    const pronText = extractPronunciationText(sec.text);
+    const scanText = pronText || sec.text;
+    let ipa = '', audioFile = '', genTemplate = '';
+
+    scanText.split(/\r?\n/).forEach(rawLine => {
+      const line = rawLine.trim();
+      if (!line) return;
+
+      if (!ipa) {
+        for (const m of line.matchAll(/\{\{IPA\|([^{}]*)\}\}/gi)) {
+          const { pos } = splitTemplateArgs(m[1]);
+          const values = pos.filter(a => /^[\/\[]/.test(a));
+          if (values.length) {
+            ipa = values.find(v => v.startsWith('/')) || values[0];
+            break;
+          }
+        }
+      }
+      // A generating template rather than a written-out transcription —
+      // keep the call itself so it can be expanded through the API later.
+      if (!genTemplate) genTemplate = findGeneratorTemplate(line);
+
+      if (!audioFile) {
+        for (const m of line.matchAll(/\{\{audio\|([^{}]*)\}\}/gi)) {
+          const { pos } = splitTemplateArgs(m[1]);
+          const file = pos.find(a => /\.(ogg|oga|wav|mp3|flac)$/i.test(a));
+          if (file) { audioFile = file; break; }
+        }
+      }
+    });
+
+    if (ipa || genTemplate || audioFile) {
+      candidates.push({ lang: sec.lang, ipa, audioFile, genTemplate });
+    }
+  }
+
+  // The first language section on the page wins — but a section carrying only
+  // a recording never beats a later one with a real transcription, so the pick
+  // is still "first language", just never a degraded version of it.
+  return candidates.find(c => c.ipa || c.genTemplate) || candidates[0] || null;
+}
+
+// ── AUTO-GENERATED FOREIGN TRANSCRIPTIONS ─────────────────────────
+// Several of the biggest languages never write their IPA into the page source.
+// French, Spanish, Italian, Portuguese, Russian, Polish, Latin, Japanese and
+// others call a generating template — {{fr-IPA}}, {{es-IPA}}, {{ja-pron}} —
+// which builds the transcription from the spelling at render time. Wiktionary's
+// own guidance is to use those in place of {{IPA}}, so on a page like "jeune"
+// there is no /ʒœn/ anywhere in the wikitext to find. The template call is
+// captured here and expanded through the API in expandGeneratedIPA().
+//
+// Case-sensitive on purpose: "IPA" is always upper case in these names and
+// "pron" always lower, which keeps {{IPA|fr|/…/}} and {{audio|…}} out of it.
+const GEN_IPA_FULL = /\{\{\s*([a-z]{2,3}(?:-[a-z]{2,4})?-(?:IPA|pron|pronunciation))\s*((?:\|[^{}]*)?)\}\}/;
+const GEN_IPA_NAME = /\{\{\s*([a-z]{2,3}(?:-[a-z]{2,4})?-(?:IPA|pron|pronunciation))\s*[|}]/;
+
+function findGeneratorTemplate(line) {
+  const full = line.match(GEN_IPA_FULL);
+  if (full) return '{{' + full[1] + (full[2] || '') + '}}';
+
+  // Arguments contained a nested template, so the whole call could not be
+  // matched cleanly. Expanding the bare name still works: with no parameter
+  // these templates fall back to the page title, which is the common case.
+  const name = line.match(GEN_IPA_NAME);
+  return name ? '{{' + name[1] + '}}' : '';
+}
+
+// One extra API round trip, and only ever on a foreign entry that had no
+// written-out IPA — English lookups are untouched by this.
+async function expandGeneratedIPA(title, template) {
+  if (!title || !template) return '';
+  try {
+    const url =
+      `https://en.wiktionary.org/w/api.php?origin=*&action=expandtemplates` +
+      `&prop=wikitext&formatversion=2&format=json` +
+      `&title=${encodeURIComponent(title)}&text=${encodeURIComponent(template)}`;
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 6000);
+    const res = await fetch(url, { signal: controller.signal });
+    clearTimeout(timeout);
+    if (!res.ok) return '';
+    const json = await res.json();
+    return extractIPAFromRendered(json?.expandtemplates?.wikitext || '');
+  } catch (e) {
+    return '';
+  }
+}
+
+// Module:IPA wraps every transcription it renders in <span class="IPA">, so
+// that is the reliable handle. Templates often emit alternatives (fr-IPA does
+// for several endings); the first phonemic /…/ wins, then the first phonetic.
+function extractIPAFromRendered(rendered) {
+  const spans = [...String(rendered).matchAll(
+    /<span[^>]*class="[^"]*\bIPA\b[^"]*"[^>]*>([\s\S]*?)<\/span>/gi
+  )].map(m => stripMarkup(m[1])).filter(v => /^[\/\[]/.test(v));
+
+  if (spans.length) return spans.find(v => v.startsWith('/')) || spans[0];
+
+  // No span survived — fall back to a bare transcription in the plain text.
+  const bare = stripMarkup(rendered)
+    .match(/\/[^\/\n|{}]{1,60}\/|\[[^\[\]\n|{}]{1,60}\]/);
+  return bare ? bare[0].trim() : '';
+}
+
+// Strip the HTML and wiki-link scaffolding a template expansion comes wrapped
+// in, leaving the readable text.
+function stripMarkup(str) {
+  return String(str)
+    .replace(/<[^>]*>/g, '')
+    .replace(/\[\[[^\]|]*\|([^\]]*)\]\]/g, '$1')
+    .replace(/\[\[([^\]]*)\]\]/g, '$1')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .trim();
+}
+
+// Pull the target word out of a "form of" template, e.g.
+// {{misspelling of|en|separate}} -> "separate". This is the most reliable
+// spelling correction available, because it comes from the entry itself.
+const FORM_OF_RE = /\{\{\s*(?:common\s+)?(?:misspelling|alternative spelling|alternative form|alt form|altform|alt sp|altsp|obsolete spelling|archaic spelling|nonstandard spelling|informal spelling|pronunciation spelling|eye dialect|standard spelling)(?:\s+of)?\s*\|([^{}]*)\}\}/i;
+
+function pickFormOfTarget(argString) {
+  const parts = argString.split('|').map(a => a.trim()).filter(a => a && !a.includes('='));
+  // First arg is usually the language code, so step past it when it looks like one
+  return (parts[0] && /^[a-z-]{2,3}$/.test(parts[0])) ? (parts[1] || '') : (parts[0] || '');
+}
+
+function extractFormOf(line) {
+  const m = line.match(FORM_OF_RE);
+  return m ? pickFormOfTarget(m[1]) : '';
+}
+
+function cleanWikitext(str) {
+  let s = str;
+
+  // Sense labels: {{lb|en|countable|informal}} -> (countable, informal)
+  s = s.replace(/\{\{(?:lb|lbl|label|tlb)\|en\|([^{}]+)\}\}/gi,
+    (m, p) => '(' + p.split('|').filter(x => !x.includes('=')).join(', ') + ')');
+
+  // Qualifiers and glosses -> (…)
+  s = s.replace(/\{\{(?:q|qual|qualifier|gloss|gl)\|([^{}]+)\}\}/gi,
+    (m, p) => '(' + p.split('|')[0] + ')');
+
+  // "<Something> of" templates -> readable text rather than being deleted
+  s = s.replace(/\{\{\s*([a-z][a-z'\- ]*?)\s+of\s*\|([^{}]*)\}\}/gi, (m, name, args) => {
+    const target = pickFormOfTarget(args);
+    if (!target) return '';
+    return name.trim().replace(/^\w/, c => c.toUpperCase()) + ' of ' + target;
+  });
+
+  // Same idea for the shorthand forms that omit the word "of"
+  s = s.replace(/\{\{\s*(?:alt form|altform|alt sp|altsp)\s*\|([^{}]*)\}\}/gi, (m, args) => {
+    const target = pickFormOfTarget(args);
+    return target ? 'Alternative form of ' + target : '';
+  });
+
+  // Inline links and mentions keep their visible word
+  s = s.replace(/\{\{(?:l|m|w|ll|taxfmt)\|(?:[a-z-]{2,3}\|)?([^{}|]+)(?:\|[^{}]*)?\}\}/gi, '$1');
+
+  // Anything still templated gets dropped
+  s = s.replace(/\{\{[^{}]*\}\}/g, '');
+
+  s = s.replace(/\[\[([^\]|]+)\|([^\]]+)\]\]/g, '$2');
+  s = s.replace(/\[\[([^\]]+)\]\]/g, '$1');
+  s = s.replace(/'''?/g, '');
+  s = s.replace(/<[^>]+>/g, '');
+  s = s.replace(/\s*\(\s*\)\s*/g, ' ');
+  s = s.replace(/\s+([,.;:])/g, '$1');
+  s = s.replace(/\s+/g, ' ').trim();
+  return s;
+}
+
+// ── AUDIO URL RESOLVER — Wiktionary filename → actual CDN URL ──
+async function resolveAudioUrl(filename) {
+  if (!filename) return '';
+  const enc = encodeURIComponent(filename.replace(/ /g, '_'));
+  const url = `https://en.wiktionary.org/w/api.php?origin=*&action=query&titles=File:${enc}&prop=imageinfo&iiprop=url&format=json`;
+  try {
+    const res = await fetch(url);
+    const json = await res.json();
+    const pages = json?.query?.pages;
+    if (!pages) return '';
+    const page = Object.values(pages)[0];
+    return page?.imageinfo?.[0]?.url || '';
+  } catch (e) { return ''; }
+}
+
+// ══════════════════════════════════════════════════════════════════
+// RENDER QUICK FACTS
+// ══════════════════════════════════════════════════════════════════
+const audioUrls = { rp: '', genam: '', other: '', foreign: '' };
+const AUDIO_BTN_IDS = { rp: 'rpAudioBtn', genam: 'genAmAudioBtn', other: 'otherAudioBtn', foreign: 'foreignAudioBtn' };
+
+function renderQuickFacts(word, data) {
+  currentFacts = data; resetUsed();
+  const shown = data.title || word;
+  const enc   = encodeURIComponent(shown);
+  qfSource.innerHTML = `via <a href="https://en.wiktionary.org/wiki/${enc}" target="_blank" rel="noopener">Wiktionary</a>`
+    + (shown !== word ? ` — entry for <strong>${escHtml(shown)}</strong>` : '');
+
+  buildPills('rpPills', data.rpIPA);
+  buildPills('genAmPills', data.genAmIPA);
+
+  setupAudioBtn('rp', data.rpAudioFile);
+  setupAudioBtn('genam', data.genAmAudioFile);
+
+  if (data.other && data.other.ipa) {
+    otherLabel.textContent = data.other.label;
+    buildPills('otherPills', data.other.ipa);
+    setupAudioBtn('other', data.other.audioFile);
+    otherRow.style.display = 'flex';
+  } else {
+    otherRow.style.display = 'none';
+    setupAudioBtn('other', '');
+  }
+
+  // Foreign-language row. No Respell pill here on purpose: ipaToRespell()
+  // maps English phonemes, so symbols like ʁ or ɥ would pass through raw and
+  // read as broken. A recording with no transcription beside it still earns
+  // the row — the pills fall back to an em dash.
+  const foreign = usableForeign(data.foreign);
+  if (foreign) {
+    foreignLabel.textContent = foreign.lang || 'Native';
+    buildPills('foreignPills', foreign.ipa || '', false);
+    setupAudioBtn('foreign', foreign.audioFile);
+    foreignRow.style.display = 'flex';
+  } else {
+    foreignRow.style.display = 'none';
+    setupAudioBtn('foreign', '');
+  }
+
+  if (data.definition) {
+    const pos = data.partOfSpeech ? `<span class="pos">${escHtml(data.partOfSpeech)}</span>` : '';
+    qfDef.innerHTML = pos + escHtml(data.definition);
+    qfDef.style.display = 'block';
+  } else {
+    qfDef.style.display = 'none';
+  }
+}
+
+function buildPills(containerId, ipa, withRespell = true) {
+  const container = document.getElementById(containerId);
+  if (!ipa) {
+    container.innerHTML = '<span class="qf-empty">—</span>';
+    return;
+  }
+  const respell = withRespell ? respellWords(ipa) : '';
+  const copyIcon = `<svg viewBox="0 0 16 16" fill="none"><rect x="5" y="5" width="8" height="9" rx="1.2" stroke="currentColor" stroke-width="1.4"/><path d="M3 11V3.5A1.5 1.5 0 0 1 4.5 2H11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>`;
+  container.innerHTML = '';
+  container.appendChild(makePill('IPA', ipa, copyIcon));
+  if (respell) container.appendChild(makePill('Respell', respell, copyIcon));
+}
+
+function makePill(label, value, iconSvg) {
+  const pill = document.createElement('span');
+  pill.className = 'ipa-pill';
+  pill.title = 'Click to copy';
+  pill.innerHTML = `<span class="ipa-pill-label">${label}</span><span class="pill-text">${escHtml(value)}</span><span class="pill-copied">Copied</span>${iconSvg}`;
+  pill.addEventListener('click', () => copyToClipboard(value, pill));
+  return pill;
+}
+
+function setupAudioBtn(accent, filename) {
+  const btn = document.getElementById(AUDIO_BTN_IDS[accent]);
+  if (!btn) return;
+  btn.classList.remove('playing');
+  btn.classList.add('unavailable');
+  audioUrls[accent] = '';
+  btn.onclick = null;
+  if (!filename) return;
+  resolveAudioUrl(filename).then(url => {
+    if (!url) return;
+    audioUrls[accent] = url;
+    btn.classList.remove('unavailable');
+    btn.onclick = () => playAudio(accent);
+  });
+}
+
+function playAudio(accent) {
+  const url = audioUrls[accent];
+  if (!url) return;
+  audioPlayer.pause();
+  Object.values(AUDIO_BTN_IDS).forEach(id => {
+    const b = document.getElementById(id);
+    if (b) b.classList.remove('playing');
+  });
+  audioPlayer.src = url;
+  audioPlayer.play();
+  const btn = document.getElementById(AUDIO_BTN_IDS[accent]);
+  if (!btn) return;
+  btn.classList.add('playing');
+  audioPlayer.onended = () => btn.classList.remove('playing');
+}
+
+// ── COPY TO CLIPBOARD ──
+function copyToClipboard(value, el) {
+  if (!value) return;
+  const done = () => {
+    el.classList.add('copied');
+    setTimeout(() => el.classList.remove('copied'), 1200);
+    showToast('Copied!');
+  };
+  navigator.clipboard.writeText(value).then(done).catch(() => {
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = value; ta.style.cssText = 'position:fixed;opacity:0;';
+      document.body.appendChild(ta); ta.focus(); ta.select();
+      document.execCommand('copy'); document.body.removeChild(ta);
+      done();
+    } catch (e) { showToast('Copy failed'); }
+  });
+}
+
+let toastTimer = null;
+function showToast(msg) {
+  copyToast.textContent = msg;
+  copyToast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => copyToast.classList.remove('show'), 1400);
+}
+
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ══════════════════════════════════════════════════════════════════
+// IPA → OED RESPELL — ported unchanged from SmartSearch extension V4.1
+// (27/27 tests passing there; reused as-is)
+// ══════════════════════════════════════════════════════════════════
+function _tokeniseRespell(s) {
+  const tokens = [];
+  let i = 0;
+  const lc = s.toLowerCase();
+  const v3 = ['igh','air','arr','err','irr','awr','oor'];
+  const v2 = ['ah','ay','aw','oy','oh','ow','ee','oo','er','ar','ur','uu','uh'];
+  const v1 = ['a','e','i','o','u'];
+  const cd = ['sh','th','dh','ch','zh','ng','hw','kh'];
+  while (i < s.length) {
+    let m = false;
+    for (const v of v3) { if (lc.slice(i,i+3)===v) { tokens.push({type:'V',val:s.slice(i,i+3)}); i+=3; m=true; break; } }
+    if (m) continue;
+    for (const v of v2) { if (lc.slice(i,i+2)===v) { tokens.push({type:'V',val:s.slice(i,i+2)}); i+=2; m=true; break; } }
+    if (m) continue;
+    for (const c of cd) { if (lc.slice(i,i+2)===c) { tokens.push({type:'C',val:s.slice(i,i+2)}); i+=2; m=true; break; } }
+    if (m) continue;
+    for (const v of v1) { if (lc[i]===v) { tokens.push({type:'V',val:s[i]}); i+=1; m=true; break; } }
+    if (m) continue;
+    tokens.push({type:'C',val:s[i]}); i++;
+  }
+  return tokens;
+}
+
+const _SHORT_V = new Set(['a','e','i','o','u']);
+
+function _onsetCount(cons, prevVowel) {
+  const n = cons.length;
+  if (n === 0) return 0;
+  const short = prevVowel && _SHORT_V.has(prevVowel.val.toLowerCase());
+  if (n === 1) {
+    if (cons[0].val.toLowerCase() === 'ng') return 0;
+    if (short) return 0;
+    return 1;
+  }
+  if (n === 2) {
+    const first = cons[0].val.toLowerCase(), second = cons[1].val.toLowerCase();
+    if (first === 'ng') return 1;
+    if (short) return 1;
+    if (['r','l','w'].includes(second)) return 2;
+    return 1;
+  }
+  if (n === 3) return 2;
+  return Math.floor(n / 2);
+}
+
+function _trailingSyllabic(trailingCons, prevVowel) {
+  const n = trailingCons.length;
+  if (n < 2) return null;
+  const last = trailingCons[n-1].val.toLowerCase();
+  if (['l','m','n'].includes(last)) {
+    const short = prevVowel && _SHORT_V.has(prevVowel.val.toLowerCase());
+    const _ONSET2L = new Set(['fl','bl','sl','pl','gl']);
+    const pairVal = n === 2 ? (trailingCons[0].val + trailingCons[1].val).toLowerCase() : '';
+    const extraCoda = (short && n === 2 && !_ONSET2L.has(pairVal)) ? 1 : 0;
+    const codaCount = (n - 2) + extraCoda;
+    if (codaCount >= n) return null;
+    return { mainCodaCount: codaCount, syllabicPart: trailingCons.slice(codaCount).map(t=>t.val).join('') };
+  }
+  return null;
+}
+
+function syllabifyRespell(respell) {
+  if (!respell) return respell;
+  const toks = _tokeniseRespell(respell);
+  const vIdx = toks.map((t,i) => t.type==='V' ? i : -1).filter(i => i >= 0);
+  if (vIdx.length === 0) return respell;
+  if (vIdx.length === 1) {
+    const trail = toks.slice(vIdx[0] + 1);
+    const syl = _trailingSyllabic(trail, toks[vIdx[0]]);
+    if (syl) {
+      const main = toks.slice(0, vIdx[0] + 1 + syl.mainCodaCount).map(t=>t.val).join('');
+      return (main ? main + '-' : '') + syl.syllabicPart;
+    }
+    return respell;
+  }
+  const syls = [];
+  let start = 0;
+  for (let v = 0; v < vIdx.length; v++) {
+    const vi = vIdx[v], nextVi = vIdx[v+1];
+    if (nextVi === undefined) {
+      const rem = toks.slice(start);
+      const lastV = rem.map((t,i) => t.type==='V' ? i : -1).filter(i => i>=0).pop();
+      const trail = rem.slice(lastV + 1);
+      const syl = _trailingSyllabic(trail, rem[lastV]);
+      if (syl) {
+        const main = rem.slice(0, rem.length - (trail.length - syl.mainCodaCount)).map(t=>t.val).join('');
+        if (main) syls.push(main);
+        syls.push(syl.syllabicPart);
+        break;
+      }
+      syls.push(rem.map(t=>t.val).join(''));
+      break;
+    }
+    const cs = vi + 1;
+    const cons = toks.slice(cs, nextVi);
+    const nCoda = cons.length - _onsetCount(cons, toks[vi]);
+    syls.push(toks.slice(start, cs + nCoda).map(t=>t.val).join(''));
+    start = cs + nCoda;
+  }
+  return syls.join('-');
+}
+
+// Names with a space ("Caer Lys") are respelled word by word: KAIR LEESS, not kair- lees
+function respellWords(ipa) {
+  const inner = String(ipa || '').replace(/^[\/\[]/, '').replace(/[\/\]]$/, '').trim();
+  const words = inner.split(/\s+/).filter(Boolean);
+  return words.length > 1 ? words.map(w => ipaToRespell('/' + w + '/')).join(' ') : ipaToRespell(ipa);
+}
+
+function ipaToRespell(ipa) {
+  if (!ipa) return '';
+  let s = ipa.replace(/^[\/\[]/, '').replace(/[\/\]]$/, '');
+  s = s.replace(/[ᵃᵇᶜᵈᵉᶠᵍʰⁱʲᵏˡᵐⁿᵒᵖʳˢᵗᵘᵛʷˣʸᶻᵊ]/g, '');
+  s = s.replace(/\u0303/g, '');
+  s = s.replace(/ʔ/g, '');
+  s = s.replace(/[ɹr]/g, '\x03');
+  s = s.replace(/i/g, '\x06');
+  s = s.replace(/\./g, '|');
+  s = s.replace(/ˈ/g, '\x01');
+  s = s.replace(/ˌ/g, '');
+  const rawParts = s.split(/(\x01|\|)/);
+  const syllables = [];
+  let nextStress = 0;
+  for (const part of rawParts) {
+    if (part === '\x01')  { nextStress = 1; }
+    else if (part === '|') { nextStress = 0; }
+    else if (part !== '') { syllables.push({ stress: nextStress, text: part }); nextStress = 0; }
+  }
+  const rules = [
+    [/t͡ʃ/g, '\x05h'], [/d͡ʒ/g, '\x05'],
+    [/tʃ/g,  '\x05h'], [/dʒ/g,  '\x05'],
+    [/ɑː\x03/g, 'a\x04'], [/ɔː\x03/g, 'aw\x04'], [/ɜː\x03/g, 'u\x04'], [/uː\x03/g, 'oo\x04'],
+    [/ɪə\x03?/g, 'ee\x04'], [/ɪː\x03?/g, 'ee\x04'],
+    [/eə\x03?/g, 'ai\x04'], [/ɛː\x03?/g, 'ai\x04'], [/ɛə\x03?/g, 'ai\x04'],
+    [/ʊə\x03?/g, 'oo\x04'],
+    [/eɪ/g, 'ay'], [/aɪ/g, 'igh'], [/ɔɪ/g, 'oy'], [/əʊ/g, 'oh'], [/aʊ/g, 'ow'],
+    [/æ\x03/g, 'a\x04\x04'], [/ɛ\x03/g, 'e\x04\x04'], [/e\x03/g, 'e\x04\x04'],
+    [/ɪ\x03/g, 'i\x04\x04'], [/ə\x03/g, 'e\x04'], [/ʌ\x03/g, 'u\x04'],
+    [/\x06ː/g, 'ee'],
+    [/ɑː/g, 'ah'], [/ɔː/g, 'aw'], [/uː/g, 'oo'], [/ɜː/g, 'u\x04'], [/ɜ/g, 'u\x04'],
+    [/ɪ/g, 'i'], [/\x06/g, 'ee'],
+    [/e/g, 'e'], [/ɛ/g, 'e'],
+    [/æ/g, 'a'], [/ɑ/g, 'ah'], [/ɒ/g, 'o'],
+    [/ɔ/g, 'aw'], [/ʊ/g, 'uu'], [/ʌ/g, 'u'], [/ə/g, 'uh'],
+    [/ŋ/g, 'ng'], [/ʃ/g, 'sh'], [/ʒ/g, 'zh'], [/θ/g, 'th'], [/ð/g, 'dh'],
+    [/\x03/g, '\x04'],
+    [/j/g, 'y'], [/x/g, 'kh'], [/ʍ/g, 'hw'], [/ɡ/g, 'g'],
+    [/[bdfghklmnpstvwz]/g, m => m],
+  ];
+  const converted = syllables.map(syl => {
+    let t = syl.text;
+    rules.forEach(([pat, rep]) => { t = typeof rep === 'function' ? t.replace(pat, rep) : t.replace(pat, rep); });
+    t = t.replace(/\x04/g, 'r');
+    t = t.replace(/\x05h/g, 'ch');
+    t = t.replace(/\x05/g,  'j');
+    t = t.replace(/^(hw[^c]*)ch/, '$1tch');
+    return { stress: syl.stress, parts: syllabifyRespell(t).split('-') };
+  });
+  const allParts = [];
+  let stressedIdx = -1;
+  converted.forEach(chunk => {
+    if (chunk.stress === 1 && stressedIdx === -1) stressedIdx = allParts.length;
+    chunk.parts.forEach(p => allParts.push(p));
+  });
+  if (allParts.length === 0) return '';
+  if (allParts.length === 1) return allParts[0];
+  if (stressedIdx >= 0) allParts[stressedIdx] = allParts[stressedIdx].toUpperCase();
+  return allParts.join('-');
+}
+
+// ══════════════════════════════════════════════════════════════════
+// LINK + PREP SUITE BRIDGE
+// ?word=Caer%20Lys  → opens with that word searched.
+// ?suite=1          → opened inside the Prep Suite's research panel: "Use this"
+//                     and "+ Source" send picks back to the suite (same site only).
+// ══════════════════════════════════════════════════════════════════
+const PARAMS = new URLSearchParams(location.search);
+const SUITE = PARAMS.get('suite') === '1' && window.parent !== window;
+const NS = 'tag-research';
+if (SUITE) document.body.classList.add('suite');
+function toSuite(msg) {
+  if (!SUITE) return;
+  try { window.parent.postMessage(Object.assign({ ns: NS }, msg), location.protocol === 'file:' ? '*' : location.origin); } catch (e) {}
+}
+function resetUsed() { document.querySelectorAll('.use-btn.used').forEach(b => { b.classList.remove('used'); b.textContent = 'Use this'; }); }
+document.querySelectorAll('.use-btn').forEach(btn => btn.addEventListener('click', () => {
+  const d = currentFacts; if (!d) return;
+  const key = btn.dataset.use;
+  const src = key === 'rp' ? { ipa: d.rpIPA, label: 'RP' }
+            : key === 'genam' ? { ipa: d.genAmIPA, label: 'GenAm' }
+            : key === 'other' ? { ipa: d.other && d.other.ipa, label: d.other && d.other.label }
+            : { ipa: d.foreign && d.foreign.ipa, label: (d.foreign && d.foreign.lang) || 'Native' };
+  if (!src.ipa) { showToast('Nothing to use on this line'); return; }
+  const target = key === 'foreign' ? 'native' : 'main';
+  // One pick per cell: RP, GenAm and other accents all fill the main IPA + Respell
+  const sameTarget = [...document.querySelectorAll('.use-btn')].filter(b => (b.dataset.use === 'foreign') === (target === 'native'));
+  if (btn.classList.contains('used')) {
+    btn.classList.remove('used'); btn.textContent = 'Use this';
+    toSuite({ type: 'unuse', target });
+    return;
+  }
+  sameTarget.forEach(b => { b.classList.remove('used'); b.textContent = 'Use this'; });
+  btn.classList.add('used'); btn.textContent = '✓ Using';
+  toSuite({ type: 'use', target, label: src.label, ipa: src.ipa, respell: target === 'main' ? respellWords(src.ipa) : '' });
+}));
+function postSources() {
+  const w = getWord(); if (!w) return;
+  const sites = buildSites(w);
+  toSuite({ type: 'sources', list: pickedIdx.map(i => ({ name: sites[i].name, url: sites[i].open })) });
+}
+function toggleSource(i) {
+  if (!getWord()) { requireWord(); return; }
+  if (pickedIdx.includes(i)) pickedIdx = pickedIdx.filter(x => x !== i);
+  else if (pickedIdx.length >= 3 - reservedSlots) { showToast(reservedSlots ? `Source ${reservedSlots === 1 ? '1 holds' : '1–' + reservedSlots + ' hold'} your recording — ${3 - reservedSlots} left to pick` : 'Up to 3 sources — untick one first'); return; }
+  else pickedIdx.push(i);
+  renderSiteGrid();
+  postSources();
+}
+window.addEventListener('message', ev => {
+  if (!SUITE || ev.source !== window.parent) return;
+  if (location.protocol !== 'file:' && ev.origin !== location.origin) return;
+  const d = ev.data; if (!d || d.ns !== NS) return;
+  if (d.type === 'init' && Array.isArray(d.sources)) {
+    // Mark the dictionaries that are already this word's sources
+    reservedSlots = Math.max(0, Math.min(3, Number(d.reserved) || 0));
+    const sites = buildSites(getWord() || 'word');
+    pickedIdx = d.sources.map(u => sites.findIndex(s => s.open === u)).filter(i => i > -1).slice(0, 3 - reservedSlots);
+    renderSiteGrid();
+  }
+});
+(function initFromLink() {
+  const w = (PARAMS.get('word') || PARAMS.get('w') || '').trim();
+  if (w) { wordInput.value = w; renderSiteGrid(); renderFurtherGrid(); doSearch(); }
+  toSuite({ type: 'ready' });
+  // On the tools site (not in Wix or the suite) the shared Audiobook Guy header/footer goes round it
+  if (!SUITE && window.top === window && /theaudiobookguy\.co\.uk$/i.test(location.hostname)) {
+    const h = document.createElement('div'); h.id = 'tag-header'; document.body.prepend(h);
+    const f = document.createElement('div'); f.id = 'tag-footer'; document.body.appendChild(f);
+    const sc = document.createElement('script'); sc.src = '/partials/inject-brand.js'; document.body.appendChild(sc);
+  }
+})();
+</script>
+
+</body>
+</html>
