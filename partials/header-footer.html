@@ -56,6 +56,15 @@
   .tag-brand-header .tag-brand-logo-link img { width: 150px; height: 150px; display: block; }
   .tag-brand-footer .tag-brand-logo-link img { width: 120px; height: 120px; display: block; }
 
+  /* header right column: Search button with Buy Me a Coffee centred underneath */
+  .tag-brand-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+
   /* nav */
   .tag-brand-nav {
     background: #fff;
@@ -139,6 +148,20 @@
   .tag-brand-coffee-fallback .tag-brand-coffee-img { display: none; }
   .tag-brand-coffee-fallback .tag-brand-coffee { display: inline-flex; }
 
+  /* header-size coffee button: same width as the Search button so it sits centred beneath it */
+  .tag-brand-header .tag-brand-coffee-link { margin: 0; }
+  .tag-brand-header .tag-brand-coffee-img { height: 41px; width: 150px; }
+  .tag-brand-header .tag-brand-coffee {
+    height: 41px;
+    width: 150px;
+    padding: 0 10px;
+    justify-content: center;
+    gap: 6px;
+    font-size: 21px;
+    border-radius: 8px;
+  }
+  .tag-brand-header .tag-brand-coffee .tag-brand-cup { font-size: 16px; }
+
   /* affiliate note */
   .tag-brand-support .tag-brand-affiliate {
     font-size: 12px;
@@ -157,10 +180,16 @@
         <a class="tag-brand-logo-link" href="https://www.theaudiobookguy.co.uk/" target="_blank" rel="noopener">
           <img src="/The_Audiobook_Guy_Logo.jpg" alt="The Audiobook Guy">
         </a>
-        <a class="tag-brand-btn" href="https://www.theaudiobookguy.co.uk/search" target="_blank" rel="noopener">
-          <i class="tag-brand-search-ic">&#128269;</i>
-          <span>Search...</span>
-        </a>
+        <div class="tag-brand-col">
+          <a class="tag-brand-btn" href="https://www.theaudiobookguy.co.uk/search" target="_blank" rel="noopener">
+            <i class="tag-brand-search-ic">&#128269;</i>
+            <span>Search...</span>
+          </a>
+          <a class="tag-brand-coffee-link" href="https://www.buymeacoffee.com/theaudiobookguy" target="_blank" rel="noopener">
+            <img class="tag-brand-coffee-img" src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me a Coffee" onerror="this.parentNode.classList.add('tag-brand-coffee-fallback')">
+            <span class="tag-brand-coffee"><span class="tag-brand-cup">&#9749;</span>Buy me a coffee</span>
+          </a>
+        </div>
       </div>
     </div>
     <nav class="tag-brand-nav">
