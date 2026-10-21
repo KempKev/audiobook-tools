@@ -519,6 +519,8 @@
   .sbtn:hover, .card.res-active .sbtn { border-color:var(--accent); color:#fff; background:var(--accent); transform:scale(1.08); }
   .sbtn svg { width:15px; height:15px; }
   .card.res-active { box-shadow:0 0 0 2px var(--accent), var(--shadow-md); }
+  .card.res-flash { animation:resFlash 2.2s ease-out; }
+  @keyframes resFlash { 0%, 35% { box-shadow:0 0 0 3px var(--accent), 0 0 0 9px var(--accent-bg), var(--shadow-md); } 100% { box-shadow:var(--shadow-sm); } }
   #res-panel { position:fixed; top:0; right:0; bottom:0; width:min(600px, 100vw); background:var(--bg); box-shadow:-8px 0 28px rgba(0,0,0,0.16); z-index:520; display:flex; flex-direction:column; transform:translateX(105%); transition:transform 0.25s ease; }
   #res-panel.on { transform:none; }
   .res-head { display:flex; align-items:center; gap:12px; padding:12px 16px; background:var(--card); border-bottom:1px solid var(--rule); border-top:3px solid var(--accent); }
@@ -3560,7 +3562,7 @@ async function writeAudioLink(kind, entry, link){
 // row: RP or GenAm → RP IPA + OED Respell, Native → Native / Alt IPA, and up to
 // three dictionaries → Source 1–3 (a Drive recording keeps its Source slot).
 // ═══════════════════════════════════════════════════════════
-const RESEARCH_PAGE = 'research-tool.html';
+const RESEARCH_PAGE = 'researchtool.html';   // live at tools.theaudiobookguy.co.uk/researchtool.html
 const RES_NS = 'tag-research';
 let resCtx = null;
 function openResearch(e){
@@ -3577,10 +3579,22 @@ function openResearch(e){
   renderStage();
   setTimeout(() => e.card.scrollIntoView({ behavior:'smooth', block:'nearest' }), 260);
 }
+// Scroll a pronunciation card to the middle of the screen and flash it, so it's easy to find again
+function focusPronCard(key){
+  const p = S.prons.find(x => x.key === key); if (!p || !p.card) return;
+  if (p.card.style.display === 'none') { $('search-pron').value = ''; sceneTags.pron = []; renderTags('pron'); needsOn.pron = false; $('needs-pron').classList.remove('on'); activeCat = 'All'; buildChips([...new Set(S.prons.map(x => x.cat))].sort()); refilterPron(); }
+  requestAnimationFrame(() => {
+    p.card.scrollIntoView({ behavior:'smooth', block:'center' });
+    p.card.classList.remove('res-flash'); void p.card.offsetWidth; p.card.classList.add('res-flash');
+    setTimeout(() => p.card.classList.remove('res-flash'), 2200);
+  });
+}
 function closeResearch(){
   if (!resCtx) return;
+  const key = resCtx.e.key;
   resCtx.e.card?.classList.remove('res-active');
   resCtx = null;
+  setTimeout(() => focusPronCard(key), 280);   // after the panel has slid away and the cards have moved back
   $('res-panel').classList.remove('on'); $('res-panel').setAttribute('aria-hidden', 'true');
   document.body.classList.remove('res-open');
   setTimeout(() => { if (!resCtx) $('res-frame').src = 'about:blank'; }, 300);
@@ -3640,6 +3654,7 @@ async function saveResearch(){
     toast(`Saved research for "${e.word}"`);
     closeResearch();
     await loadSheet(S.sheetId, { quiet:true });
+    focusPronCard(e.key);
   } catch(err) {
     console.error(err);
     if (err.status === 401) { token = null; resStatus('Your Google session expired — click Save again.', true); }
@@ -3856,7 +3871,7 @@ $('switch-btn').addEventListener('click', () => {
   if (id) await loadSheet(id);
 })();
 </script>
-<div id="tool-version">v13.0</div>
+<div id="tool-version">v13.1</div>
 <div id="tag-footer"></div>
 <script src="/partials/inject-brand.js"></script>
 </body>
