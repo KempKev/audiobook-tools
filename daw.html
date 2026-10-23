@@ -80,6 +80,10 @@
   .tb-btn.icon { padding: 0; width: 32px; font-size: 0.95rem; }
   .tb-btn svg { width: 15px; height: 15px; }
   .tb-sep { width: 1px; height: 22px; background: var(--rule); margin: 0 4px; }
+  /* Recording Settings Checker — a tinted button so the long name reads as one feature, not a crowd of words */
+  #check-btn { background: var(--accent-bg); border-color: var(--accent-brd); color: var(--accent-dk); padding: 0 12px 0 9px; gap: 7px; }
+  #check-btn:hover:not(:disabled) { background: var(--accent); border-color: var(--accent); color: #fff; }
+  #check-btn svg { width: 16px; height: 16px; }
 
   /* ── START SCREEN ── */
   .start-card { max-width: 760px; margin: 20px auto; padding: 34px 38px 30px; position: relative; }
@@ -330,6 +334,60 @@
   .an-res.warn { background: #fffbeb; border-color: #fde68a; } .an-res.warn em { color: #854d0e; }
   .an-res.plain { background: #fafafa; }
   .btn-sm { padding: 7px 12px; font-size: 0.72rem; }
+
+  /* ── ACX Audio Fixer card ── */
+  .fx-sec[data-type="acx"] .switch-lbl input, .fx-sec[data-type="acx"] .switch-lbl .switch { display: none; }
+  .fx-sec[data-type="acx"] .fx-sec-head { background: var(--accent-bg); }
+  .fx-sec[data-type="acx"] .fx-name { font-weight: 700; color: var(--accent-dk); }
+  .acx-out:empty { display: none; }
+  .acx-table { width: 100%; border-collapse: collapse; font-size: 0.74rem; margin-top: 4px; }
+  .acx-table th { font-family: 'Raleway', sans-serif; font-weight: 700; font-size: 0.62rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--light); text-align: right; padding: 3px 4px; }
+  .acx-table th:first-child, .acx-table td:first-child { text-align: left; }
+  .acx-table td { padding: 5px 4px; border-top: 1px solid var(--rule); text-align: right; font-variant-numeric: tabular-nums; color: var(--mid); white-space: nowrap; }
+  .acx-table td.after { font-weight: 700; } .acx-table td.after.ok { color: var(--green); } .acx-table td.after.bad { color: var(--red); }
+  .acx-table td.tgt { font-size: 0.66rem; color: var(--light); }
+  .acx-sub { font-family: 'Raleway', sans-serif; font-weight: 700; font-size: 0.64rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--light); margin-top: 10px; }
+  .acx-list { margin: 4px 0 0 16px; font-size: 0.74rem; color: var(--ink); line-height: 1.55; }
+  .acx-adv { border: 1px solid var(--rule); border-radius: 6px; padding: 7px 9px; margin-top: 6px; font-size: 0.72rem; line-height: 1.5; }
+  .acx-adv b { display: block; margin-bottom: 2px; }
+  .acx-adv span { color: var(--mid); }
+  .acx-adv.bad { background: var(--red-bg); border-color: #fecaca; } .acx-adv.bad b { color: var(--red); }
+  .acx-adv.warn { background: #fffbeb; border-color: #fde68a; } .acx-adv.warn b { color: #854d0e; }
+
+  /* ── Recording Settings Checker ── */
+  .ck-what { display: grid; gap: 8px; margin-bottom: 14px; }
+  .ck-item { border: 1px solid var(--rule); border-radius: var(--radius); padding: 10px 12px; }
+  .ck-item > div { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
+  .ck-item b { font-family: 'Raleway', sans-serif; font-weight: 800; font-size: 0.86rem; }
+  .ck-item p, .ck-how p, .ck-how li { font-size: 0.78rem; color: var(--mid); line-height: 1.55; }
+  .ck-pill { font-size: 0.68rem; font-weight: 600; color: var(--accent-dk); background: var(--accent-bg); border: 1px solid var(--accent-brd); border-radius: 999px; padding: 2px 9px; }
+  .ck-how { background: #fafafa; border-radius: var(--radius); padding: 12px 14px; margin-bottom: 12px; }
+  .ck-how > b { font-family: 'Raleway', sans-serif; font-size: 0.82rem; }
+  .ck-how ol { margin: 6px 0 6px 18px; }
+  .ck-how li { margin-bottom: 3px; }
+  .ck-target { font-size: 0.78rem; color: var(--ink); line-height: 1.5; }
+  .ck-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 6px; }
+  .ck-card { border: 1px solid var(--rule); border-radius: var(--radius); padding: 10px 12px; display: flex; flex-direction: column; gap: 2px; }
+  .ck-card .ck-lbl { font-family: 'Raleway', sans-serif; font-weight: 700; font-size: 0.66rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--mid); }
+  .ck-card b { font-size: 1.2rem; font-variant-numeric: tabular-nums; }
+  .ck-card .ck-tgt { font-size: 0.68rem; color: var(--light); }
+  .ck-card em { font-style: normal; font-size: 0.72rem; font-weight: 600; margin-top: 4px; }
+  .ck-card.ok { background: #f0fdf4; border-color: #bbf7d0; } .ck-card.ok em { color: var(--green); }
+  .ck-card.warn { background: #fffbeb; border-color: #fde68a; } .ck-card.warn em { color: #854d0e; }
+  .ck-card.bad { background: var(--red-bg); border-color: #fecaca; } .ck-card.bad em, .ck-card.bad b { color: var(--red); }
+  .ck-h { font-family: 'Raleway', sans-serif; font-weight: 800; font-size: 0.86rem; margin: 18px 0 6px; }
+  .ck-tip { border: 1px solid var(--rule); border-left-width: 4px; border-radius: 6px; padding: 9px 12px; margin-top: 8px; }
+  .ck-tip b { font-size: 0.82rem; display: flex; align-items: center; gap: 8px; }
+  .ck-tip p { font-size: 0.76rem; color: var(--mid); line-height: 1.55; margin-top: 3px; }
+  .ck-tip a { color: var(--accent); font-weight: 600; }
+  .ck-tip.ok { border-left-color: var(--green); } .ck-tip.ok b { color: var(--green); }
+  .ck-tip.warn { border-left-color: #eab308; }
+  .ck-tip.bad { border-left-color: var(--red); } .ck-tip.bad b { color: var(--red); }
+  .ck-tip.plain { border-left-color: var(--light); }
+  .ck-maybe { font-family: 'Raleway', sans-serif; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--mid); background: var(--bg); border-radius: 999px; padding: 2px 7px; }
+  #dev-check-note { margin-top: 14px; font-size: 0.76rem; color: var(--mid); line-height: 1.5; }
+  #dev-check-note a { color: var(--accent); font-weight: 600; }
+  @media (max-width: 560px) { .ck-cards { grid-template-columns: 1fr; } }
   .fx-master { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 10px 12px; margin-bottom: 12px; border: 1.5px solid var(--accent-brd); background: var(--accent-bg); border-radius: var(--radius); }
   .fx-master .fx-note { margin-left: auto; }
   #fx-panel.byp #fx-list { opacity: 0.5; }
@@ -438,6 +496,7 @@
       <button class="tb-btn" id="export-btn" title="Export a mix of the project">Export</button>
       <span class="tb-sep"></span>
       <button class="tb-btn" id="devices-btn" title="Choose microphone and output">Mic &amp; Output</button>
+      <button class="tb-btn" id="check-btn" title="Test your mic, gain and room before you record"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="1" y="9" width="2.6" height="5" rx="1"/><rect x="5" y="6" width="2.6" height="8" rx="1"/><rect x="9" y="3" width="2.6" height="11" rx="1" opacity="0.35"/><path d="M10.2 9.6l1.6 1.6 3.2-3.6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>Recording Settings Checker</button>
       <button class="tb-btn" id="settings-btn" title="Project settings">Settings</button>
       <button class="tb-btn" id="fx-btn" title="Track effects and audio analysis (Alt/Opt + F)">Effects</button>
       <span class="spacer"></span>
@@ -529,6 +588,7 @@
       <li><b>Record over selected item</b> — click an item, press <b>R</b>, and the new take replaces just that item. Recording keeps going until you stop it, so you can carry on past the item's end.</li>
       <li><b>Record over time selection</b> — drag across the armed track to select a stretch (it can cover several items) and press <b>R</b>. Only that stretch is replaced; recording keeps going until you stop it.</li>
       <li>Press <b>Space</b>, <b>Esc</b> or <b>R</b> to stop. Takes are written as WAV files into your project's Audio Files folder while you record.</li>
+      <li><b>Recording Settings Checker</b> (next to Mic &amp; Output) — record a short guided test (3 seconds of silence, about 25 seconds of reading, 3 more seconds of silence) and it measures your raw peaks, RMS and room tone against the recommended levels: peaks −12 to −6 dB (never above −3 dB), RMS −35 to −25 dB, room tone −60 dB or lower. It tells you whether to change your gain, your delivery or your room, and flags things like clipping, hum, rumble, a noise gate left on, plosives and room echo. You can also select any recording on the timeline and check that instead.</li>
       <li><b>Every take keeps all of your audio</b> — the pre-roll and anything after the end of the item or selection are recorded too. The new item sits exactly where you punched in, and you can <b>Alt/Opt-drag</b> inside it to slide the take, or drag its edges to reveal the extra audio, to blend it with the takes either side.</li>
     </ul>
 
@@ -538,7 +598,7 @@
       <li><b>Split</b> (<b>S</b>) cuts selected items — or the selected track — at the cursor, with a tiny crossfade so the cut is seamless.</li>
       <li><b>Delete</b> (<b>Delete</b>, <b>Backspace</b> or <b>Shift + D</b>) removes the selection and leaves a gap; everything else stays exactly where it is.</li>
       <li><b>Delete &amp; Join</b> (<b>Shift + Delete</b>, <b>Alt/Opt + Delete</b> or <b>Alt/Opt + Shift + D</b>) closes the gap so everything after slides up, and crossfades the two pieces either side. The cursor jumps to a second before the join so you can press Play and hear it.</li>
-      <li><b>Close Gaps</b> (<b>Alt/Opt + Shift + Space</b>) slides the items on the selected tracks back to back so there's no silence between them.</li>
+      <li><b>Close Gaps</b> (<b>Alt/Opt + Shift + Space</b>) slides the items on the selected tracks back to back so there's no silence between them, with a short crossfade at each join so there are no clicks.</li>
       <li>Drag an item's top bar to move it, including onto another track. Drag its edges to trim, and the small squares at its top corners to fade in or out. Overlap two items on a track and they crossfade automatically. <b>Alt/Opt-drag</b> inside an item slides its audio while the item stays put — the audio loops round, so you can always slide it, even when the item is the full length of its take (a faint dotted line shows where the take starts over).</li>
       <li><b>Ripple editing</b> (<b>Alt/Opt + P</b>, or the <b>Ripple</b> switch) — when it's on, everything after an edit moves with it: Delete closes the gap, trimming the end of an item pulls or pushes what follows, moving an item carries the rest of the track along, and pasting or importing makes room. Turn it off to change one item without disturbing anything else.</li>
       <li>Every edit is non-destructive — your original takes are never changed, and Undo goes all the way back.</li>
@@ -546,12 +606,13 @@
 
     <h3>Track effects &amp; analysis</h3>
     <ul>
-      <li>Open <b>Effects</b> (<b>Alt/Opt + F</b>, the <b>FX</b> button on a track, or right-click) to build an effects chain for a whole track. Use <b>＋ Add effect</b> to add Noise Reduction, EQ, a Compressor or a Limiter — as many as you like, even two of the same — and the <b>✕</b> on an effect to remove it (Undo brings it back). Drag the <b>⋮⋮</b> handle to change the order: the sound flows from the top effect to the bottom one. Press <b>▾</b> (or click an empty part of an effect's title bar) to fold its settings away, and <b>↺</b> to reset an effect to its starting settings — a learned noise profile is kept.</li>
-      <li>Each effect has its own on/off switch, and <b>Effects chain</b> switches them all on or off at once (<b>Alt/Opt + Shift + F</b>) so you can hear before and after. Every new track comes with a ready-made chain — EQ (High-pass 80 Hz), Noise Reduction (press <b>Learn</b> to give it a profile), Compressor and Limiter (−3.5 dB) — with <b>Effects chain</b> switched off until you want it. Effects run whenever you play or export; your takes are never changed. A track with effects on shows an orange <b>FX</b> button — crossed out while the chain is switched off.</li>
+      <li>Open <b>Effects</b> (<b>Alt/Opt + F</b>, the <b>FX</b> button on a track, or right-click) to build an effects chain for a whole track. Use <b>＋ Add effect</b> to add Noise Reduction, EQ, a Compressor, a Limiter or the ACX Audio Fixer — as many as you like, even two of the same — and the <b>✕</b> on an effect to remove it (Undo brings it back). Drag the <b>⋮⋮</b> handle to change the order: the sound flows from the top effect to the bottom one. Press <b>▾</b> (or click an empty part of an effect's title bar) to fold its settings away, and <b>↺</b> to reset an effect to its starting settings — a learned noise profile is kept.</li>
+      <li>Each effect has its own on/off switch, and <b>Effects chain</b> switches them all on or off at once (<b>Alt/Opt + Shift + F</b>) so you can hear before and after. Every new track comes with a ready-made chain — EQ (High-pass 80 Hz), Noise Reduction (press <b>Learn</b> to give it a profile), Compressor, Limiter (−3.5 dB) and the ACX Audio Fixer — with <b>Effects chain</b> switched off until you want it. Effects run whenever you play or export; your takes are never changed. A track with effects on shows an orange <b>FX</b> button — crossed out while the chain is switched off.</li>
       <li><b>Noise Reduction</b> — press <b>Learn</b>, then play a few seconds of just room tone (no voice) and stop. The DAW learns that noise and takes it out. <b>Amount</b> sets how much: 0% leaves the audio as it is, 100% is complete silence. Use the least that sounds clean — too much can make a voice sound watery.</li>
       <li><b>EQ</b> — start from a preset (High-pass 80 Hz, Male or Female voice, Harsh sibilance, Boxy space and more), then fine-tune each band. The curve shows what you're doing to the sound.</li>
-      <li><b>Compressor</b> — <b>Strength</b> evens out loud and quiet moments and <b>Boost</b> raises the level afterwards. <b>Make ACX-ready</b> measures the track and sets the compressor, boost and limiter for you, aiming for about −20 dB RMS with peaks no higher than −3.5 dB. If there's no Limiter after the compressor, it adds one.</li>
+      <li><b>Compressor</b> — <b>Strength</b> evens out loud and quiet moments and <b>Boost</b> raises the level afterwards.</li>
       <li><b>Limiter</b> — stops peaks going over the ceiling without distorting. The <b>ACX −3.5 dB</b> preset keeps you safely inside ACX's −3 dB peak limit.</li>
+      <li><b>ACX Audio Fixer</b> — sits at the end of the chain and sets up the effects above it for ACX. Press <b>Run ACX Audio Fixer</b> and it listens to the whole track, finds the cleanest room tone and learns your noise from it, then sets the high-pass EQ, Noise Reduction, Compressor and Limiter so the track lands at about −20 dB RMS, peaks at −3.5 dB and a noise floor close to −85 dB. Any of those effects that are missing are added for you. It shows before-and-after numbers and everything it changed, and if your raw recording is outside the recommended levels it explains why that matters. It makes no sound of its own, and Undo puts everything back.</li>
       <li><b>Audio Analysis</b> shows the highest peak and the RMS as you play. <b>Scan whole track</b> checks the entire track (after effects and volume) and shows its peak, RMS and noise floor against the ACX requirements.</li>
     </ul>
 
@@ -575,7 +636,7 @@
 </section>
 
 <div id="disclaimer">The Audiobook Guy DAW is still under construction. While we work on it, we can't guarantee its stability and can't be held responsible for lost recordings, projects or files. Please keep backups of anything important.</div>
-<div id="tool-version">v5.2</div>
+<div id="tool-version">v6.0</div>
 <div id="tag-footer"></div>
 
 <!-- ═══ MODALS ═══ -->
@@ -623,7 +684,35 @@
     <div class="field"><label for="dev-inch">Input channel</label><select id="dev-inch"><option value="in1">Input 1 (left)</option><option value="in2">Input 2 (right)</option><option value="mix">Both, mixed</option></select><div class="note">For mono projects. Most interfaces put a single mic on Input 1. Stereo projects record both.</div></div>
     <div class="field"><label for="dev-out">Speakers / headphones</label><select id="dev-out"></select><div class="note" id="dev-out-note"></div></div>
     <div class="field"><label>Input level</label><div class="meter" id="dev-meter" style="width:100%"><div class="fill"></div><div class="peak"></div></div></div>
+    <div class="note" id="dev-check-note">Not sure your levels are right? Run the <a href="#" id="dev-check-link">Recording Settings Checker</a> — it records a short test and tells you what to adjust.</div>
     <div class="modal-actions"><button class="btn-secondary" id="dev-test">Play test tone</button><button class="btn-primary" data-close>Done</button></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="check-modal">
+  <div class="modal wide">
+    <button class="modal-close" data-close>✕</button>
+    <h2>Recording Settings Checker</h2>
+    <div id="ck-intro">
+      <p class="sub">Before you record a whole chapter, check your mic, gain and room. Record a short test and the checker tells you what to adjust. It always measures your raw recording, with effects off.</p>
+      <div class="ck-what">
+        <div class="ck-item"><div><b>Peaks</b><span class="ck-pill">−12 to −6 dB · never above −3 dB</span></div><p>The loudest moments of your recording. Too high and they clip — distortion that can't be removed. Too low and you'll need a big boost later, which brings the background noise up with it. Peaks are mostly set by your <b>gain</b>.</p></div>
+        <div class="ck-item"><div><b>RMS</b><span class="ck-pill">−35 to −25 dB</span></div><p>Your average level — how loud you are overall. If your peaks are right but your RMS is low, the answer is your delivery, not more gain.</p></div>
+        <div class="ck-item"><div><b>Room Tone</b><span class="ck-pill">−60 dB or lower</span></div><p>The sound of your space while you're silent: fans, traffic, hiss from your gear. The quieter it is, the less noise reduction you'll need and the more natural your voice will sound.</p></div>
+      </div>
+      <div class="ck-how"><b>Your test recording</b>
+        <ol><li>Set your mic and headphones in <b>Mic &amp; Output</b>.</li>
+          <li>Press <b>Record a test</b>. Stay completely silent for 3 seconds — that's your room tone.</li>
+          <li>When the prompt next to the time display says <b>read now</b>, read for about 25 seconds at your normal narration level.</li>
+          <li>Stay silent for 3 more seconds. The test stops by itself and is checked straight away.</li></ol>
+        <p>The test is recorded at the end of your project on the armed track, so nothing you've recorded is touched. Delete it afterwards if you don't need it.</p>
+      </div>
+      <div class="ck-target" id="ck-target"></div>
+      <div class="progress" id="ck-progress"><div></div></div>
+      <div class="modal-status" id="ck-status"></div>
+      <div class="modal-actions"><button class="btn-secondary" id="ck-analyse">Check selected recording</button><button class="btn-primary" id="ck-record">Record a test</button></div>
+    </div>
+    <div id="ck-report" hidden></div>
   </div>
 </div>
 
@@ -718,6 +807,7 @@
     <option value="eq">EQ</option>
     <option value="comp">Compressor</option>
     <option value="lim">Limiter</option>
+    <option value="acx">ACX Audio Fixer</option>
   </select>
 
   <section class="fx-sec" id="fx-sec-an">
@@ -1039,7 +1129,7 @@ async function readZip(file) {
 // THE AUDIOBOOK GUY DAW — v5.2
 // ═══════════════════════════════════════════════════════════
 'use strict';
-const APP_VERSION = '5.2';
+const APP_VERSION = '6.0';
 const PROJECT_EXT = '.tagdaw';
 const AUDIO_DIR   = 'Audio Files';
 const DEF_TRACK_H = 96, MIN_TRACK_H = 60, MAX_TRACK_H = 480;
@@ -1678,17 +1768,21 @@ const FX_TYPES = {
   eq:   { name: 'EQ', make: () => eqFrom('flat', true) },
   comp: { name: 'Compressor', make: () => ({ strength: 40, boost: 0 }) },
   lim:  { name: 'Limiter', make: () => ({ ceiling: -3.5 }) },
+  // makes no sound of its own — it sets up the effects above it (see runAcxFixer)
+  acx:  { name: 'ACX Audio Fixer', make: () => ({ last: null }) },
 };
 function fxId() { return 'fx' + Date.now().toString(36).slice(-4) + Math.random().toString(36).slice(2, 7); }
 function newFx(type, extra) { return Object.assign(FX_TYPES[type].make(), { id: fxId(), type, on: true }, extra || {}); }
 // New tracks start with a ready-made voice chain, switched off until wanted:
-// EQ (High-pass 80 Hz) → Noise Reduction (no profile yet) → Compressor (Medium) → Limiter (−3.5 dB).
+// EQ (High-pass 80 Hz) → Noise Reduction (no profile yet) → Compressor (Medium) → Limiter (−3.5 dB),
+// with the ACX Audio Fixer at the end, ready to set them all up.
 function defaultFx() {
   return { on: false, list: [
     newFx('eq', eqFrom('hpf', true)),
     newFx('nr'),
     newFx('comp'),
     newFx('lim'),
+    newFx('acx'),
   ] };
 }
 function normInst(f) {
@@ -1712,11 +1806,12 @@ function normFx(fx) {
 function findFx(t, id) { return t && t.fx && t.fx.list.find(x => x.id === id) || null; }
 // does this effect actually run? (a noise reduction that's learning always does)
 function fxRuns(fx, x, learnId) {
+  if (x.type === 'acx') return false;   // sets up other effects; never part of the sound itself
   if (x.type === 'nr' && x.id === learnId) return true;
   return fx.on !== false && x.on && (x.type !== 'nr' || !!x.profile);
 }
 function fxActive(t) { const f = t && t.fx; return !!f && f.list.some(x => fxRuns(f, x)); }
-function fxBypassed(t) { const f = t && t.fx; return !!f && f.on === false && f.list.some(x => x.on); }
+function fxBypassed(t) { const f = t && t.fx; return !!f && f.on === false && f.list.some(x => x.on && x.type !== 'acx'); }
 function compParams(cp) { const s = clamp(+cp.strength || 0, 0, 100) / 100; return { thr: -12 - 18 * s, ratio: 1.5 + 4.5 * s, knee: 6, makeup: +cp.boost || 0 }; }
 // learned profile (dB per FFT bin at the rate it was learned) → linear magnitudes at `rate`
 function nrProfileFor(nr, rate) {
@@ -2225,7 +2320,12 @@ function stopRecording() {
 }
 
 async function finishRecording() {
-  const r = rec; if (!r || r.finished) return; r.finished = true; rec = null;
+  const r = rec; if (!r || r.finished) return;
+  await finishTake(r);
+  if (r.ckTest) ckAfterTest(r);   // a Recording Settings Checker test — check it straight away
+}
+async function finishTake(r) {
+  r.finished = true; rec = null;
   updateRecStatus();
   if (ui.armed == null) closeInput();
   const rate = r.rate;
@@ -2305,6 +2405,7 @@ function updateRecStatus() {
   const t = currentTime();
   if (rec.stopping) { el.textContent = 'Saving…'; el.className = 'pre'; }
   else if (t < rec.a) { el.textContent = 'Pre-roll ' + Math.ceil(rec.a - t); el.className = 'pre'; }
+  else if (rec.ckTest) { const [msg, cls] = ckRecStatus(t); el.textContent = msg; el.className = cls; }
   else if (rec.b !== Infinity && t > rec.b) { el.textContent = '● Recording · past the end'; el.className = 'live'; }
   else { el.textContent = '● Recording'; el.className = 'live'; }
 }
@@ -3074,19 +3175,25 @@ function deleteSel(join) {
   markStatic(); updateTimeDisplay();
 }
 
-// Alt+Shift+Space — slide items back to back so there's no silence between them.
+// Alt+Shift+Space — slide items back to back so there's no silence between them,
+// with a short crossfade at every join so there are no clicks.
 function removeGaps() {
   if (rec) return;
   const tracks = targetTracks();
   edit(() => {
     tracks.forEach(tr => {
       const sorted = tr.items.slice().sort((a, b) => a.start - b.start || a.id - b.id);
-      let shift = 0, cur = null;
+      let shift = 0, cur = null, last = null;
+      const joins = [];
       for (const it of sorted) {
         it.start -= shift;
         if (cur !== null && it.start > cur + 1e-6) { const gap = it.start - cur; shift += gap; it.start -= gap; }
+        // now butted against the item before it (items that already overlap crossfade on their own)
+        if (last && Math.abs(it.start - itemEnd(last)) < 1e-6) joins.push([last, it]);
+        if (cur === null || itemEnd(it) >= cur - 1e-9) last = it;
         cur = cur === null ? itemEnd(it) : Math.max(cur, itemEnd(it));
       }
+      joins.forEach(([l, r]) => crossfadeJunction(l, r));
     });
   });
   ui.cursor = clamp(ui.cursor, 0, projectEnd());
@@ -4067,14 +4174,17 @@ const FX_BODY = {
   comp: `<label class="fx-slider"><span class="k">Strength</span><input type="range" class="comp-str" min="0" max="100" step="1"><span class="v comp-str-v"></span></label>
     <label class="fx-slider"><span class="k">Boost</span><input type="range" class="comp-boost" min="-12" max="30" step="0.5"><span class="v comp-boost-v"></span></label>
     <div class="fx-note live comp-gr"></div>
-    <div class="fx-row"><button class="btn-primary btn-sm acx-btn">Make ACX-ready</button><span class="fx-note acx-status"></span></div>
-    <div class="progress acx-prog"><div></div></div>
-    <div class="fx-note"><b>Strength</b> evens out loud and quiet moments; <b>Boost</b> raises the whole track afterwards. <b>Make ACX-ready</b> measures the track and sets this compressor and a limiter after it for you — about −20 dB RMS, with peaks held at −3.5 dB.</div>`,
+    <div class="fx-note"><b>Strength</b> evens out loud and quiet moments; <b>Boost</b> raises the whole track afterwards. To set this up for ACX automatically, use the <b>ACX Audio Fixer</b> at the end of the chain.</div>`,
   lim: `<select class="lim-preset" title="Limiter preset">
       <option value="-3.5">ACX — limit at −3.5 dB</option><option value="-1">General — limit at −1.0 dB</option>
       <option value="-0.3">Loudest — limit at −0.3 dB</option><option value="custom">Custom</option></select>
     <label class="fx-slider"><span class="k">Ceiling</span><input type="range" class="lim-ceil" min="-12" max="0" step="0.1"><span class="v lim-ceil-v"></span></label>
     <div class="fx-note">Stops peaks going above the ceiling, without distorting. ACX needs peaks at −3 dB or lower.</div>`,
+  acx: `<div class="fx-note">Sets up the effects <b>above it</b> to bring this track to ACX levels: a high-pass EQ, Noise Reduction learned from your room tone, the Compressor at about −20 dB RMS and the Limiter at −3.5 dB, with the noise floor aimed at −85 dB. You'll see every setting it changes, and you can still adjust them yourself afterwards.</div>
+    <div class="fx-row"><button class="btn-primary btn-sm acx-run">Run ACX Audio Fixer</button><span class="fx-note acx-status"></span></div>
+    <div class="progress acx-prog"><div></div></div>
+    <div class="acx-out"></div>
+    <div class="fx-row"><button class="btn-secondary btn-sm acx-check">Recording Settings Checker</button><span class="fx-note">Check your mic, gain and room before you record.</span></div>`,
 };
 let fxDragId = null;
 
@@ -4166,7 +4276,9 @@ function buildFxCard(x) {
   } else if (x.type === 'comp') {
     bindFxSlider(q('.comp-str'), (t, v) => { const f = inst(t); if (f) f.strength = v; });
     bindFxSlider(q('.comp-boost'), (t, v) => { const f = inst(t); if (f) f.boost = v; });
-    q('.acx-btn').addEventListener('click', () => makeAcxReady(id, el));
+  } else if (x.type === 'acx') {
+    q('.acx-run').addEventListener('click', () => runAcxFixer(id, el));
+    q('.acx-check').addEventListener('click', () => openChecker());
   } else if (x.type === 'lim') {
     bindFxSlider(q('.lim-ceil'), (t, v) => { const f = inst(t); if (f) f.ceiling = Math.round(v * 10) / 10; });
     q('.lim-preset').addEventListener('change', () => {
@@ -4205,7 +4317,9 @@ function updateFxCard(el, x, i, t, name) {
     const sv = Math.round(x.strength);
     setRange(q('.comp-str'), sv); q('.comp-str-v').textContent = (sv < 34 ? 'Gentle' : sv < 67 ? 'Medium' : 'Strong') + ' · ' + sv;
     setRange(q('.comp-boost'), x.boost); q('.comp-boost-v').textContent = fmtGain(+x.boost);
-    q('.acx-btn').disabled = fxBusy || !!rec;
+  } else if (x.type === 'acx') {
+    q('.acx-run').disabled = fxBusy || !!rec;
+    renderAcxOut(q('.acx-out'), x);
   } else if (x.type === 'lim') {
     const cs = String(x.ceiling);
     q('.lim-preset').value = ['-3.5', '-1', '-0.3'].includes(cs) ? cs : 'custom';
@@ -4218,6 +4332,7 @@ function fxSummary(x) {
   if (x.type === 'nr') return x.profile ? Math.round(x.amount) + '%' : 'Needs Learn';
   if (x.type === 'eq') { const p = EQ_PRESETS.find(pp => pp[0] === x.preset); return p ? p[1].split(' — ')[0] : 'Custom'; }
   if (x.type === 'comp') { const sv = Math.round(x.strength); return (sv < 34 ? 'Gentle' : sv < 67 ? 'Medium' : 'Strong') + ' · ' + fmtGain(+x.boost); }
+  if (x.type === 'acx') return x.last ? (x.last.pass ? 'ACX levels pass' : 'Check the results') : 'Not run yet';
   return fmtGain(+x.ceiling);
 }
 function clearDropMarks() { document.querySelectorAll('#fx-list .drop-before, #fx-list .drop-after').forEach(c => c.classList.remove('drop-before', 'drop-after')); }
@@ -4276,6 +4391,7 @@ function renderLearn(el, t, x) {
     const card = document.querySelector(`#fx-list .fx-sec[data-id="${f.id}"]`);
     if (card) card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     if (type === 'nr') toast('Noise Reduction added — press Learn to give it a noise profile.');
+    if (type === 'acx') toast('ACX Audio Fixer added — it sets up the effects above it when you press Run.');
   });
   const list = $('fx-list');
   list.addEventListener('dragover', e => {
@@ -4305,49 +4421,672 @@ function renderLearn(el, t, x) {
   });
 })();
 
-// Measures the track, then sets this compressor's boost and a limiter after it
-// so the track lands at about −20 dB RMS with peaks at −3.5 dB
-// (ACX: RMS −23 to −18 dB, peaks −3 dB or lower).
-async function makeAcxReady(compId, card) {
-  const t = fxTrack(); if (!t || !findFx(t, compId) || fxBusy || rec) return;
+// ═══════════════════════════════════════════════════════════
+// AUDIO ANALYSIS HELPERS — shared by the ACX Audio Fixer and the
+// Recording Settings Checker
+// ═══════════════════════════════════════════════════════════
+// Recommended levels for a raw recording (before any effects)
+const REC = { pkLo: -12, pkHi: -6, pkMax: -3, rmsLo: -35, rmsHi: -25, rtMax: -60 };
+const ROOM_ARTICLE = 'https://www.theaudiobookguy.co.uk/post/how-to-set-up-a-microphone-for-voice-over';
+const ROOM_LINK = `<a href="${ROOM_ARTICLE}" target="_blank" rel="noopener">How to set up a microphone for voice over</a>`;
+const dbP = p => p > 1e-20 ? 10 * Math.log10(p) : -Infinity;   // power → dB
+const fdb = v => Number.isFinite(v) ? (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v).toFixed(1) + ' dB' : '−∞';
+const escH = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const tick = ms => new Promise(r => setTimeout(r, ms || 0));
+
+// The effect processors run directly in the page (same code as the audio
+// thread), fed 128 frames at a time — used to learn a noise profile offline.
+const FXJS = (() => {
+  const cache = {};
+  return rate => {
+    if (cache[rate]) return cache[rate];
+    class AudioWorkletProcessor {
+      constructor() { const self = this; this.port = { onmessage: null, last: null, postMessage(d) { self.port.last = d; } }; }
+    }
+    const reg = {};
+    new Function('AudioWorkletProcessor', 'registerProcessor', 'sampleRate', FX_SRC)(AudioWorkletProcessor, (n, c) => { reg[n] = c; }, rate);
+    return (cache[rate] = reg);
+  };
+})();
+
+// ── FFT and spectra ─────────────────────────────────────────
+const fftTabs = {}, hannTabs = {};
+function fft(re, im) {
+  const n = re.length;
+  let T = fftTabs[n];
+  if (!T) {
+    const lev = Math.round(Math.log2(n)), rev = new Uint32Array(n), cs = new Float64Array(n / 2), sn = new Float64Array(n / 2);
+    for (let i = 0; i < n; i++) { let r = 0, x = i; for (let j = 0; j < lev; j++) { r = (r << 1) | (x & 1); x >>= 1; } rev[i] = r; }
+    for (let i = 0; i < n / 2; i++) { cs[i] = Math.cos(2 * Math.PI * i / n); sn[i] = Math.sin(2 * Math.PI * i / n); }
+    T = fftTabs[n] = { rev, cs, sn };
+  }
+  const { rev, cs, sn } = T;
+  for (let i = 0; i < n; i++) { const j = rev[i]; if (j > i) { let t = re[i]; re[i] = re[j]; re[j] = t; t = im[i]; im[i] = im[j]; im[j] = t; } }
+  for (let size = 2; size <= n; size <<= 1) {
+    const half = size >> 1, step = n / size;
+    for (let i = 0; i < n; i += size) {
+      for (let j = 0, k = 0; j < half; j++, k += step) {
+        const a = i + j, b = a + half, c = cs[k], s = sn[k];
+        const tr = re[b] * c + im[b] * s, ti = im[b] * c - re[b] * s;
+        re[b] = re[a] - tr; im[b] = im[a] - ti; re[a] += tr; im[a] += ti;
+      }
+    }
+  }
+}
+function hann(n) { if (!hannTabs[n]) { const w = new Float64Array(n); for (let i = 0; i < n; i++) w[i] = 0.5 - 0.5 * Math.cos(2 * Math.PI * i / n); hannTabs[n] = w; } return hannTabs[n]; }
+// average power spectrum of x[a..b), Hann frames of N with half overlap
+function powerSpectrum(x, a, b, N) {
+  if (b - a < N) return null;
+  const out = new Float64Array(N / 2 + 1), re = new Float64Array(N), im = new Float64Array(N), w = hann(N);
+  let frames = 0;
+  for (let s = a; s + N <= b; s += N / 2) {
+    for (let i = 0; i < N; i++) { re[i] = x[s + i] * w[i]; im[i] = 0; }
+    fft(re, im);
+    for (let k = 0; k <= N / 2; k++) out[k] += re[k] * re[k] + im[k] * im[k];
+    frames++;
+  }
+  for (let k = 0; k <= N / 2; k++) out[k] /= frames;
+  return out;
+}
+function bandSum(S, df, f0, f1) { let s = 0; const k1 = Math.min(S.length - 1, Math.floor(f1 / df)); for (let k = Math.max(1, Math.ceil(f0 / df)); k <= k1; k++) s += S[k]; return s; }
+// RBJ low-pass, run in place
+function lowpass(x, f, rate) {
+  const w0 = 2 * Math.PI * f / rate, cw = Math.cos(w0), al = Math.sin(w0) / (2 * Math.SQRT1_2);
+  const a0 = 1 + al, b0 = (1 - cw) / 2 / a0, b1 = (1 - cw) / a0, b2 = b0, a1 = -2 * cw / a0, a2 = (1 - al) / a0;
+  let x1 = 0, x2 = 0, y1 = 0, y2 = 0;
+  for (let i = 0; i < x.length; i++) { const v = x[i], y = b0 * v + b1 * x1 + b2 * x2 - a1 * y1 - a2 * y2; x2 = x1; x1 = v; y2 = y1; y1 = y; x[i] = y; }
+  return x;
+}
+const pct = (arr, f) => { if (!arr.length) return NaN; const s = Float64Array.from(arr).sort(); return s[Math.min(s.length - 1, Math.max(0, Math.floor(f * (s.length - 1))))]; };
+
+// The quietest half-second from `from` on (exact digital silence ignored) —
+// the same noise floor measurement as 'Scan whole track'.
+function quietestHalfSecond(L, R, from, rate) {
+  const winN = Math.round(0.5 * rate);
+  let wss = 0, wn = 0, minW = Infinity, zr = 0, wbad = false;
+  for (let i = from; i < L.length; i++) {
+    const l = L[i], r = R[i], p = (l * l + r * r) * 0.5; wss += p;
+    if (l === 0 && r === 0) { if (++zr >= 64) wbad = true; } else zr = 0;
+    if (++wn === winN) { const m = wss / wn; if (!wbad && m > 1e-12 && m < minW) minW = m; wss = 0; wn = 0; wbad = zr >= 64; }
+  }
+  if (!isFinite(minW) && wn > rate * 0.1 && !wbad) { const m = wss / wn; if (m > 1e-12) minW = m; }
+  return isFinite(minW) ? dbP(minW) : -Infinity;
+}
+
+// ═══════════════════════════════════════════════════════════
+// ACX AUDIO FIXER (an effect in the chain)
+// Runs the same sequence as the ACX Audio Fixer app, but instead of making
+// a new file it sets up the effects above it so you can see (and change)
+// everything it did:  EQ high-pass → Noise Reduction learned from the room
+// tone → Compressor boost for −20 dB RMS → Limiter at −3.5 dB, with Noise
+// Reduction tuned so the noise floor lands close to −85 dB.
+// ═══════════════════════════════════════════════════════════
+const ACX_RMS = -20, ACX_FLOOR = -85, ACX_FLOOR_LO = -87, ACX_FLOOR_HI = -83, NR_MAX = 95;
+const round1 = v => Math.round(v * 10) / 10, QUANTUM = 128;
+function trackSpan(t) { return { ts: Math.min(...t.items.map(i => i.start)), te: Math.max(...t.items.map(itemEnd)) }; }
+
+// The raw track (no effects, no volume): peak, RMS, noise floor and clipping,
+// plus the level of every 50 ms so the room tone can be found afterwards.
+async function scanDryTrack(t, onProg) {
+  const rate = P.settings.rate, { ts, te } = trackSpan(t), SEG = 60, WIN = Math.round(0.05 * rate), winN = Math.round(0.5 * rate);
+  const dry = { on: false, list: [] }, db = [], dead = [];
+  let pk = 0, ss = 0, n = 0, clips = 0, run = 0;
+  let hs = 0, hn = 0, minW = Infinity, hz = 0, hbad = false;   // half-second windows (noise floor)
+  let ws = 0, wn = 0, wz = 0, wzMax = 0;                         // 50 ms windows (room tone search)
+  for (let s0 = ts; s0 < te - 1e-6; s0 += SEG) {
+    const e = Math.min(te, s0 + SEG);
+    const [L, R] = await renderTrackRange(t, dry, s0, e, rate, false);
+    for (let i = 0; i < L.length; i++) {
+      const l = L[i], r = R[i], al = l < 0 ? -l : l, ar = r < 0 ? -r : r, a = al > ar ? al : ar;
+      if (a > pk) pk = a;
+      if (a >= 0.989) { if (++run === 3) clips++; } else run = 0;
+      const p = (l * l + r * r) * 0.5; ss += p; n++;
+      const zero = l === 0 && r === 0;
+      hs += p; if (zero) { if (++hz >= 64) hbad = true; } else hz = 0;
+      if (++hn === winN) { const m = hs / hn; if (!hbad && m > 1e-12 && m < minW) minW = m; hs = 0; hn = 0; hbad = hz >= 64; }
+      ws += p; if (zero) { if (++wz > wzMax) wzMax = wz; } else wz = 0;
+      if (++wn === WIN) { const m = ws / wn; db.push(m > 1e-13 ? 10 * Math.log10(m) : -130); dead.push(wzMax >= 64 || m <= 1e-13 ? 1 : 0); ws = 0; wn = 0; wzMax = wz; }
+    }
+    if (onProg) onProg((e - ts) / (te - ts));
+    await tick();
+  }
+  return { ts, te, rate, WIN, db: Float64Array.from(db), dead: Uint8Array.from(dead), clips,
+    peakDb: pk > 0 ? 20 * Math.log10(pk) : -Infinity, rmsDb: dbP(n ? ss / n : 0), floorDb: isFinite(minW) ? dbP(minW) : -Infinity };
+}
+
+// The quietest steady stretch of the track (no breaths, clicks or digital
+// silence) — room tone at the very start or end gets a small head start.
+function pickRoomTone(raw) {
+  const { db, dead } = raw, nW = db.length, sec = 0.05;
+  if (nW < 4) return null;
+  const tryLen = L => {
+    let best = null;
+    const startZone = Math.round(3 / sec), endZone = nW - Math.round(6 / sec);
+    for (let s = 0; s + L <= nW; s++) {
+      let sum = 0, mx = -Infinity, ok = true;
+      for (let w = s; w < s + L; w++) { if (dead[w]) { ok = false; break; } sum += Math.pow(10, db[w] / 10); if (db[w] > mx) mx = db[w]; }
+      if (!ok) continue;
+      const mean = 10 * Math.log10(sum / L);
+      let score = mean + 0.5 * (mx - mean);
+      if (s + L <= startZone || s >= endZone) score -= 1;
+      if (!best || score < best.score) best = { s, e: s + L, mean, score };
+    }
+    return best;
+  };
+  const best = tryLen(10) || tryLen(5) || tryLen(3);
+  if (!best) return null;
+  const lim = best.mean + 3, maxL = 80;   // widen while the level stays steady, up to 4 seconds
+  while (best.e - best.s < maxL) {
+    const canL = best.s > 0 && !dead[best.s - 1] && db[best.s - 1] <= lim;
+    const canR = best.e < nW && !dead[best.e] && db[best.e] <= lim;
+    if (!canL && !canR) break;
+    if (canR && (!canL || db[best.e] <= db[best.s - 1])) best.e++; else best.s--;
+  }
+  return { a: raw.ts + best.s * sec, b: raw.ts + best.e * sec, db: best.mean };
+}
+
+// Learns a noise profile from the room tone, exactly as Noise Reduction's
+// Learn does: the audio goes through the effects above it first, then the
+// quietest 40% of what it heard becomes the profile.
+async function learnRegion(t, above, region, rate) {
+  const { ts } = trackSpan(t), pre = Math.min(region.a - ts, 0.25);
+  const [L, R] = await renderTrackRange(t, { on: true, list: above }, region.a - pre, region.b, rate, false);
+  const nr = new (FXJS(rate)['tag-nr'])({ processorOptions: { learn: true, amount: 0, noise: null } });
+  const inp = [new Float32Array(QUANTUM), new Float32Array(QUANTUM)], out = [new Float32Array(QUANTUM), new Float32Array(QUANTUM)];
+  for (let f0 = Math.round(pre * rate); f0 < L.length; f0 += QUANTUM) {
+    for (let i = 0; i < QUANTUM; i++) { const k = f0 + i; inp[0][i] = k < L.length ? L[k] : 0; inp[1][i] = k < R.length ? R[k] : 0; }
+    nr.process([inp], [out]);
+  }
+  nr.dump();
+  const d = nr.port.last;
+  if (!d || !d.profile || d.frames < 4) return null;
+  return { profile: Array.from(d.profile, v => round1(20 * Math.log10(v + 1e-12))), rate, secs: round1(d.heard * NR_HOP / rate) };
+}
+// the noise floor in the room tone, after the chain
+async function regionFloorDb(t, chain, region, rate) {
+  const { ts } = trackSpan(t), a = Math.max(ts, region.a - 1.5);
+  const [L, R] = await renderTrackRange(t, chain, a, region.b, rate, false);
+  return quietestHalfSecond(L, R, Math.round((region.a - a) * rate), rate);
+}
+
+async function runAcxFixer(fid, card) {
+  const t = fxTrack(); if (!t || !findFx(t, fid) || fxBusy || rec) return;
   const status = card.querySelector('.acx-status'), prog = card.querySelector('.acx-prog');
   if (!t.items.length) { setNote(status, 'There\'s no audio on this track yet.', 'err'); return; }
+  if (play) stopPlayback();
   fxBusy = true; renderFx(); fxProg(prog, 0);
-  const step = (a, b) => p => fxProg(prog, a + p * (b - a));
+  const say = (msg, p) => { setNote(status, msg, 'live'); if (p != null) fxProg(prog, p); };
+  const span = (a, b, msg) => p => say(msg, a + p * (b - a));
   try {
+    const rate = P.settings.rate;
     const fx = JSON.parse(JSON.stringify(t.fx)), wasBypassed = fx.on === false;
-    fx.on = true;
-    const ci = fx.list.findIndex(f => f.id === compId), comp = fx.list[ci];
-    comp.on = true; comp.boost = 0;
-    let lim = fx.list.slice(ci + 1).find(f => f.type === 'lim'), added = false;
-    if (!lim) { lim = newFx('lim', { ceiling: -3.5 }); fx.list.push(lim); added = true; }
-    const later = fx.list.slice(ci + 1).filter(f => f.type === 'lim'), was = later.map(f => f.on);
-    later.forEach(f => { f.on = false; });              // measure before limiting
-    setNote(status, 'Measuring the track…');
-    const r0 = await scanTrack(t, fx, false, step(0, 0.34));
+    const ix = fx.list.findIndex(f => f.id === fid), me = fx.list[ix];
+    const pre = fx.list.slice(0, ix), post = fx.list.slice(ix + 1);
+    const added = [], changes = [], notes = [];
+
+    // 1 — make sure the chain above has an EQ, Noise Reduction, Compressor and Limiter
+    let eq = pre.find(f => f.type === 'eq');
+    if (!eq) { eq = newFx('eq', eqFrom('hpf', true)); pre.unshift(eq); added.push('EQ'); }
+    let nr = pre.find(f => f.type === 'nr');
+    if (!nr) { nr = newFx('nr'); pre.splice(pre.indexOf(eq) + 1, 0, nr); added.push('Noise Reduction'); }
+    let comp = pre.filter(f => f.type === 'comp').pop();
+    if (!comp) {
+      comp = newFx('comp');
+      const li = pre.findIndex((f, i) => f.type === 'lim' && i > pre.indexOf(nr));
+      pre.splice(li >= 0 ? li : pre.length, 0, comp); added.push('Compressor');
+    }
+    let lim = pre.slice(pre.indexOf(comp) + 1).filter(f => f.type === 'lim').pop();
+    if (!lim) { lim = newFx('lim', { ceiling: -3.5 }); pre.push(lim); added.push('Limiter'); }
+    const chain = { on: true, list: pre };
+    // EQ: the high-pass clears rumble before the noise is learned
+    const hpWasOn = eq.hp.on;
+    if (eq.preset === 'flat') Object.assign(eq, eqFrom('hpf', true), { id: eq.id, collapsed: eq.collapsed });
+    else if (!eq.hp.on) { eq.hp.on = true; eq.hp.f = 80; eq.preset = 'custom'; }
+    eq.on = true; comp.on = true; lim.on = true; lim.ceiling = -3.5;
+
+    // 2 — listen to the raw recording and find the room tone
+    say('Listening to your raw recording…', 0);
+    const raw = await scanDryTrack(t, span(0, 0.15, 'Listening to your raw recording…'));
+    if (!isFinite(raw.rmsDb) || raw.rmsDb < -100) throw new Error('silent');
+    const region = pickRoomTone(raw);
+
+    // 3 — learn the noise from it
+    say('Learning your room tone…', 0.15);
+    nr.on = false;
+    if (region) {
+      const prof = await learnRegion(t, pre.slice(0, pre.indexOf(nr)), region, rate);
+      if (prof) Object.assign(nr, prof, { on: true, amount: 50 });
+    }
+    if (!nr.on) notes.push('No clean stretch of room tone was found to learn the noise from, so Noise Reduction was left off. Leave a few seconds of silence at the start or end of the track and run it again.');
+
+    // 4 — measure before limiting and set the compressor's boost
+    const lims = pre.slice(pre.indexOf(comp) + 1).filter(f => f.type === 'lim'), was = lims.map(f => f.on);
+    lims.forEach(f => { f.on = false; }); comp.boost = 0;
+    const r0 = await scanTrack(t, chain, false, span(0.18, 0.33, 'Measuring the level…'));
     if (!r0 || !isFinite(r0.rmsDb) || r0.rmsDb < -100) throw new Error('silent');
-    comp.boost = clamp(Math.round((-20 - r0.rmsDb) * 10) / 10, -12, 30);
-    later.forEach((f, i) => { f.on = was[i]; });
-    lim.on = true; lim.ceiling = -3.5;
-    setNote(status, 'Setting the level…');
-    const r1 = await scanTrack(t, fx, false, step(0.34, 0.67));
-    comp.boost = clamp(Math.round((comp.boost + (-20 - r1.rmsDb)) * 10) / 10, -12, 30);
-    setNote(status, 'Checking the result…');
-    const r2 = await scanTrack(t, fx, false, step(0.67, 1));
+    comp.boost = clamp(round1(ACX_RMS - r0.rmsDb), -12, 30);
+    lims.forEach((f, i) => { f.on = was[i]; }); lim.on = true;
+
+    // 5 — tune Noise Reduction so the room tone lands on the target, then re-check the level
+    let nrMaxed = false;
+    const rf = () => regionFloorDb(t, chain, region, rate);
+    const tuneNR = async target => {
+      if (!nr.on || !region) return;
+      nr.amount = 0;
+      const f0 = await rf();
+      if (f0 <= target + 0.5) return;   // already quiet enough
+      nr.amount = NR_MAX;
+      if (await rf() > target) { nrMaxed = true; return; }
+      let lo = 0, hi = NR_MAX;
+      for (let i = 0; i < 9; i++) {
+        const mid = (lo + hi) / 2; nr.amount = mid;
+        const f = await rf();
+        if (Math.abs(f - target) <= 0.3) break;
+        if (f > target) lo = mid; else hi = mid;
+      }
+      nr.amount = round1(nr.amount);
+    };
+    say('Setting Noise Reduction…', 0.33); await tuneNR(ACX_FLOOR);
+    const r1 = await scanTrack(t, chain, false, span(0.4, 0.55, 'Setting the level…'));
+    comp.boost = clamp(round1(comp.boost + (ACX_RMS - r1.rmsDb)), -12, 30);
+    let floorTarget = ACX_FLOOR;
+    say('Fine-tuning Noise Reduction…', 0.55); await tuneNR(floorTarget);
+
+    // 6 — check the result, and correct it if the level or noise floor drifted
+    let res = null;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const p0 = 0.6 + attempt * 0.13;
+      res = await scanTrack(t, chain, false, span(p0, p0 + 0.13, attempt ? 'Fine-tuning…' : 'Checking the result…'));
+      const rmsOff = Math.abs(res.rmsDb - ACX_RMS) > 0.5;
+      const floorOff = nr.on && !nrMaxed && isFinite(res.floorDb) && (res.floorDb > ACX_FLOOR_HI || res.floorDb < ACX_FLOOR_LO) && !(nr.amount === 0 && res.floorDb < ACX_FLOOR_LO);
+      if ((!rmsOff && !floorOff) || attempt === 2) break;
+      if (rmsOff) comp.boost = clamp(round1(comp.boost + (ACX_RMS - res.rmsDb)), -12, 30);
+      if (nr.on && region) {
+        // the quietest part of the whole track may sit a little above or below the room tone
+        const f2 = await rf();
+        floorTarget = ACX_FLOOR - (isFinite(res.floorDb) && isFinite(f2) ? res.floorDb - f2 : 0);
+        await tuneNR(floorTarget);
+      }
+    }
+    if (nrMaxed) notes.push(`The background noise is too loud to bring all the way down to ${ACX_FLOOR} dB without harming the voice — Noise Reduction is at its ${NR_MAX}% maximum.`);
+    const pass = res.peakDb <= -3 && res.rmsDb >= -23 && res.rmsDb <= -18 && res.floorDb <= -60;
+    if (!pass && res.rmsDb < -23) notes.push('The track is still too quiet — the Compressor\'s boost is at its limit. Try a higher Strength and run it again.');
+
+    // what it changed
+    if (added.length) changes.push(`Added ${added.join(', ')} above the ACX Audio Fixer`);
+    changes.push(`EQ — high-pass at ${eq.hp.f} Hz${hpWasOn ? '' : ' (switched on)'}`);
+    changes.push(nr.on ? `Noise Reduction — ${Math.round(nr.amount)}%, learned from ${(+nr.secs).toFixed(1)} s of room tone at ${fmtTime(region.a, false)}` : 'Noise Reduction — off');
+    changes.push(`Compressor — Strength ${Math.round(comp.strength)}, Boost ${fmtGain(comp.boost)}`);
+    changes.push('Limiter — ceiling −3.5 dB');
+    if (wasBypassed) changes.push('Effects chain switched on');
+    if (post.some(f => f.on && f.type !== 'acx')) notes.push('Effects below the ACX Audio Fixer weren\'t included and can change the levels — move them above it, or switch them off.');
     const live = findTrack(t.id); if (!live) return;
+    if (Math.abs(live.vol) > 0.05) notes.push('Set this track\'s volume back to 0 dB so the export matches these numbers.');
+
+    me.last = {
+      when: Date.now(), pass,
+      raw: { peakDb: raw.peakDb, rmsDb: raw.rmsDb, floorDb: raw.floorDb, rtDb: region ? region.db : NaN, clips: raw.clips },
+      after: { peakDb: res.peakDb, rmsDb: res.rmsDb, floorDb: res.floorDb },
+      changes, notes, advice: fixerAdvice(raw, region, comp.boost, nrMaxed),
+    };
+    fx.on = true; fx.list = pre.concat([me], post);
     const before = snapshot(); live.fx = fx; pushUndo(before);
-    showScan(r2, 'Checked before the track volume.');
-    const ok = r2.rmsDb >= -23 && r2.rmsDb <= -18 && r2.peakDb <= -3;
-    let msg = ok ? `Done — boost set to ${fmtGain(comp.boost)}. The track now measures ${r2.rmsDb.toFixed(1)} dB RMS with peaks at ${r2.peakDb.toFixed(1)} dB.`
-                 : `Boost set to ${fmtGain(comp.boost)}, but the track measures ${r2.rmsDb.toFixed(1)} dB RMS — try a higher Strength and run it again.`;
-    if (added) msg += ' A Limiter at −3.5 dB was added after the compressor.';
-    if (wasBypassed) msg += ' The effects chain has been switched back on.';
-    if (Math.abs(live.vol) > 0.05) msg += ' Set this track\'s volume back to 0 dB so the export matches.';
-    setNote(status, msg, ok ? 'ok' : 'err');
+    showScan(res, 'Checked before the track volume.');
+    setNote(status, pass ? 'Done — this track now meets the ACX levels. Here\'s what was set:' : 'Done, but some levels still need attention — see below.', pass ? 'ok' : 'err');
   } catch (e) {
     console.error(e);
-    setNote(status, e.message === 'silent' ? 'The track is silent — nothing to level.' : 'Couldn\'t finish — please try again.', 'err');
+    setNote(status, e.message === 'silent' ? 'The track is silent — nothing to fix.' : 'Couldn\'t finish — please try again.', 'err');
   } finally { fxBusy = false; setTimeout(() => fxProg(prog, null), 600); renderFx(); }
+}
+
+// Suggestions about the raw recording, when it's outside the recommended
+// recording levels — and why that matters for the effects.
+function fixerAdvice(raw, region, boost, nrMaxed) {
+  const out = [], pk = raw.peakDb, rms = raw.rmsDb, rt = region ? region.db : raw.floorDb;
+  if (raw.clips || pk > REC.pkMax)
+    out.push({ cls: 'bad', title: `Your raw peaks reached ${fdb(pk)}${raw.clips ? ' and some of them clipped' : ''}`,
+      why: 'Above −3 dB a recording risks clipping — distortion that no effect can remove — and the Limiter has to squash every loud moment. Turn your gain down so your loudest moments sit between −12 and −6 dB.' });
+  else if (pk > REC.pkHi)
+    out.push({ cls: 'warn', title: `Your raw peaks are a little hot (${fdb(pk)})`,
+      why: 'Peaks between −6 and −3 dB leave very little safety margin — one louder moment can clip. Bring your gain down a touch.' });
+  else if (pk < REC.pkLo)
+    out.push({ cls: 'warn', title: `Your raw recording is quiet (peaks ${fdb(pk)})`,
+      why: `The Compressor needed a boost of ${fmtGain(boost)} to reach ACX level, and that raises your room noise by the same amount, so Noise Reduction has to work harder. Turn your gain up so your peaks land between −12 and −6 dB.` });
+  if (pk >= REC.pkLo && pk <= REC.pkHi && rms < REC.rmsLo)
+    out.push({ cls: 'warn', title: `Your raw average level is low (${fdb(rms)} RMS)`,
+      why: 'A big boost is needed to reach −20 dB RMS. Your peaks are already in the right place, so turning up the gain would push them too high — speaking louder overall, without making your loudest moments louder, is the better fix.' });
+  if (rms > REC.rmsHi)
+    out.push({ cls: 'warn', title: `Your raw average level is high (${fdb(rms)} RMS)`,
+      why: 'That leaves very little room between your average and your peaks, so the Limiter does a lot of the work. Check that no compressor or automatic gain is switched on in your interface or computer.' });
+  if (isFinite(rt) && rt > REC.rtMax)
+    out.push({ cls: 'bad', title: `Your room tone is ${fdb(rt)}`,
+      why: `Above −60 dB, Noise Reduction has to work much harder to bring the noise floor down to −85 dB, and heavy noise reduction can make a voice sound watery or metallic.${nrMaxed ? ' Here it hit its maximum and still couldn\'t get all the way.' : ''}` });
+  return out;
+}
+
+function renderAcxOut(box, x) {
+  const L = x.last, key = L ? String(L.when) : 'none';
+  if (box.dataset.key === key) return;
+  box.dataset.key = key;
+  if (!L) { box.innerHTML = ''; return; }
+  const row = (label, a, b, tgt, ok) => `<tr><td>${label}</td><td>${fdb(a)}</td><td class="after ${ok ? 'ok' : 'bad'}">${fdb(b)}</td><td class="tgt">${tgt}</td></tr>`;
+  const r = L.raw, f = L.after;
+  let h = `<table class="acx-table"><tr><th></th><th>Raw</th><th>After</th><th>ACX</th></tr>
+    ${row('Peak', r.peakDb, f.peakDb, '−3 dB or lower', f.peakDb <= -3)}
+    ${row('RMS', r.rmsDb, f.rmsDb, '−23 to −18 dB', f.rmsDb >= -23 && f.rmsDb <= -18)}
+    ${row('Noise floor', r.floorDb, f.floorDb, '−60 dB or lower', f.floorDb <= -60)}</table>
+    <div class="acx-sub">What it set</div><ul class="acx-list">${L.changes.map(c => `<li>${escH(c)}</li>`).join('')}</ul>`;
+  L.notes.forEach(n => { h += `<div class="fx-note err">${escH(n)}</div>`; });
+  if (L.advice.length) {
+    h += '<div class="acx-sub">About your raw recording</div>';
+    L.advice.forEach(a => { h += `<div class="acx-adv ${a.cls}"><b>${escH(a.title)}</b><span>${escH(a.why)}</span></div>`; });
+    h += '<div class="fx-note">Open the <b>Recording Settings Checker</b> to adjust your setup, then try recording again. The better the raw recording, the less the effects have to do.</div>';
+  }
+  box.innerHTML = h;
+}
+
+// ═══════════════════════════════════════════════════════════
+// RECORDING SETTINGS CHECKER
+// Records (or takes) a short test, measures the raw audio — always with
+// effects off — and says what to adjust: gain, delivery, room or gear.
+// ═══════════════════════════════════════════════════════════
+const ck = { busy: false };
+const CK_SILENCE = 3, CK_READ = 25, CK_MAX = 300;
+
+function openChecker(runNow) {
+  if (!P) { toast('Open or create a project first.'); return; }
+  closeModal('devices-modal');
+  ckShow('intro'); ckStatus('');
+  updateCkTarget();
+  openModal('check-modal');
+  if (runNow) ckRun();
+}
+function ckShow(which) { $('ck-intro').hidden = which !== 'intro'; $('ck-report').hidden = which !== 'report'; }
+function ckStatus(msg, cls) { const el = $('ck-status'); el.textContent = msg || ''; el.className = 'modal-status' + (cls ? ' ' + cls : ''); }
+
+// what will be checked: the selected item(s), the time selection, or the latest take
+function ckTarget() {
+  if (!P) return null;
+  const found = [...ui.selItems].map(findItem).filter(Boolean);
+  if (found.length) {
+    const tr = found[0].track, its = found.filter(f => f.track === tr).map(f => f.item);
+    return { track: tr, items: its, a: Math.min(...its.map(i => i.start)), b: Math.max(...its.map(itemEnd)),
+      label: its.length === 1 ? `the selected item on “${tr.name}”` : `${its.length} selected items on “${tr.name}”` };
+  }
+  const pick = () => (ui.armed != null && findTrack(ui.armed)) || [...ui.selTracks].map(findTrack).filter(Boolean)[0] || P.tracks.find(t => t.items.length) || null;
+  if (ui.timeSel && ui.timeSel.b - ui.timeSel.a > 0.5) {
+    const tr = [...ui.selTracks].map(findTrack).filter(Boolean)[0] || pick();
+    const its = tr ? tr.items.filter(i => itemEnd(i) > ui.timeSel.a && i.start < ui.timeSel.b) : [];
+    if (its.length) return { track: tr, items: its, a: ui.timeSel.a, b: ui.timeSel.b, label: `the time selection on “${tr.name}”` };
+  }
+  const tr = pick();
+  if (!tr || !tr.items.length) return null;
+  const it = tr.items.reduce((m, i) => i.id > m.id ? i : m);
+  return { track: tr, items: [it], a: it.start, b: itemEnd(it), label: `the latest take on “${tr.name}”` };
+}
+function updateCkTarget() {
+  const tg = ckTarget(), el = $('ck-target');
+  if (tg) el.innerHTML = `Ready to check <b>${escH(tg.label)}</b> (${fmtTime(Math.min(tg.b - tg.a, CK_MAX), false)}${tg.b - tg.a > CK_MAX ? ', first 5 minutes' : ''}). To check something else, select it on the timeline first.`;
+  else el.innerHTML = 'Nothing recorded yet — press <b>Record a test</b> and follow the prompts next to the time display.';
+  $('ck-analyse').disabled = !tg || ck.busy || !!rec;
+  $('ck-record').disabled = ck.busy || !!rec;
+}
+
+// Records a guided test at the end of the project: 3 s silence, read, 3 s silence.
+async function ckRecordTest() {
+  if (!P || rec || ck.busy) return;
+  closeModal('check-modal');
+  if (play) stopPlayback();
+  const modeSel = $('rec-mode'), preCb = $('preroll-on'), oldMode = modeSel.value, oldPre = preCb.checked;
+  const end = projectEnd();
+  ui.selItems.clear(); ui.timeSel = null;
+  ui.cursor = end > 0 ? end + 2 : 0;
+  modeSel.value = 'punch'; preCb.checked = false;
+  try { await startRecording(); }
+  finally { modeSel.value = oldMode; preCb.checked = oldPre; }
+  if (rec) {
+    rec.ckTest = true;
+    toast('Test recording — stay silent for 3 seconds, read when the prompt says, then stay silent again. It stops by itself.', false, 9000);
+  } else openChecker();
+}
+// guidance shown next to the time display while the test records
+function ckRecStatus(t) {
+  const e = t - rec.a, readEnd = CK_SILENCE + CK_READ, stopAt = readEnd + CK_SILENCE + 0.5;
+  if (e >= stopAt) { stopRecording(); return ['Saving…', 'pre']; }
+  if (e < CK_SILENCE) return [`Settings test · stay silent · ${Math.ceil(CK_SILENCE - e)}`, 'pre'];
+  if (e < readEnd) return [`● Settings test · read now · ${Math.ceil(readEnd - e)} s`, 'live'];
+  return [`Settings test · stay silent · ${Math.max(1, Math.ceil(stopAt - 0.5 - e))}`, 'pre'];
+}
+// when the test take is saved, check it straight away
+function ckAfterTest(r) {
+  const tr = P && findTrack(r.trackId), it = tr && tr.items.find(i => i.src === r.file);
+  if (it) { ui.selItems.clear(); ui.selItems.add(it.id); markStatic(); openChecker(true); }
+  else { openChecker(); ckStatus('The test didn\'t record — check your microphone in Mic & Output and try again.', 'err'); }
+}
+
+async function ckRun() {
+  const tg = ckTarget();
+  if (!tg) { ckStatus('Record a test first, or select a recording on the timeline to check.', 'err'); return; }
+  if (ck.busy || rec) return;
+  if (tg.items.some(i => { const s = sources.get(i.src); return !s || s.missing; })) { ckStatus('Some of that audio is missing from the project folder, so it can\'t be checked.', 'err'); return; }
+  ck.busy = true; updateCkTarget(); ckStatus('Checking your recording…'); fxProg('ck-progress', 0.1);
+  try {
+    const rate = P.settings.rate, b = Math.min(tg.b, tg.a + CK_MAX);
+    const stereo = tg.items.some(i => { const s = sources.get(i.src); return s && s.nCh === 2; });
+    // the raw recording: no effects, no track volume
+    const [L, R] = await renderTrackRange({ items: tg.items, vol: 0 }, { on: false, list: [] }, tg.a, b, rate, false);
+    fxProg('ck-progress', 0.5); await tick(40);
+    const m = analyseRecording(L, R, rate, stereo);
+    fxProg('ck-progress', 1);
+    if (m.error) { ckStatus(m.error, 'err'); return; }
+    ckStatus('');
+    $('ck-report').innerHTML = ckReportHtml(m, tg, b - tg.a);
+    ckShow('report');
+    $('ck-report').querySelector('.ck-retest').addEventListener('click', ckRecordTest);
+    $('ck-report').querySelector('.ck-back').addEventListener('click', () => { ckShow('intro'); updateCkTarget(); });
+  } catch (e) {
+    console.error(e); ckStatus('The check didn\'t finish — please try again.', 'err');
+  } finally { ck.busy = false; updateCkTarget(); setTimeout(() => fxProg('ck-progress', null), 400); }
+}
+
+// ── the analysis ────────────────────────────────────────────
+function analyseRecording(L, R, rate, stereo) {
+  const n = L.length, x = new Float32Array(n), m = { stereo, dur: n / rate };
+  let pk = 0, clips = 0, run = 0, sumL = 0, sumR = 0;
+  for (let i = 0; i < n; i++) {
+    const l = L[i], r = R[i];
+    x[i] = (l + r) * 0.5;
+    const al = l < 0 ? -l : l, ar = r < 0 ? -r : r, a = al > ar ? al : ar;
+    if (a > pk) pk = a;
+    if (a >= 0.989) { if (++run === 3) clips++; } else run = 0;
+    sumL += l; sumR += r;
+  }
+  m.peakDb = pk > 0 ? 20 * Math.log10(pk) : -Infinity; m.clips = clips;
+  // levels every 50 ms
+  const WIN = Math.round(0.05 * rate), nW = Math.floor(n / WIN);
+  if (nW < 60) return { error: 'That recording is too short to check — record at least 10 seconds (3 seconds of silence, then some reading).' };
+  const db = new Float64Array(nW), zero = new Uint8Array(nW);
+  for (let w = 0; w < nW; w++) {
+    let p = 0, zr = 0, zmax = 0;
+    for (let i = w * WIN, e = i + WIN; i < e; i++) {
+      const l = L[i], r = R[i]; p += (l * l + r * r) * 0.5;
+      if (l === 0 && r === 0) { if (++zr > zmax) zmax = zr; } else zr = 0;
+    }
+    p /= WIN; db[w] = p > 1e-13 ? 10 * Math.log10(p) : -130; zero[w] = zmax >= 64 || p <= 1e-13 ? 1 : 0;
+  }
+  const live = []; for (let w = 0; w < nW; w++) if (!zero[w]) live.push(db[w]);
+  if (live.length < nW * 0.3 || pk < 1e-5) return { error: 'That recording is silent — check your microphone is selected in Mic & Output and the track is armed.' };
+  const lo = pct(live, 0.1), hi = pct(live, 0.95);
+  if (hi - lo < 12) return { error: 'We couldn\'t tell your voice apart from the background — make sure the test has a few seconds of silence and then some reading, and that your mic is turned up.' };
+  // voice = clearly above the background, widened 150 ms each side so word edges count as voice
+  const thr = lo + clamp((hi - lo) * 0.35, 10, 20), sp = new Uint8Array(nW);
+  for (let w = 0; w < nW; w++) if (db[w] > thr) for (let k = Math.max(0, w - 3); k <= Math.min(nW - 1, w + 3); k++) sp[k] = 1;
+  const first = sp.indexOf(1), last = sp.lastIndexOf(1);
+  if (first < 0) return { error: 'We couldn\'t hear any voice in that recording.' };
+  // room tone: the silence before the first word and after the last (edges trimmed)
+  m.headLen = first * 0.05; m.tailLen = (nW - 1 - last) * 0.05;
+  m.rtLen = Math.max(m.headLen, m.tailLen);
+  const regions = [];
+  const addReg = (w0, w1) => { if (w1 - w0 >= 16) regions.push([w0 * WIN, w1 * WIN]); };   // at least 0.8 s
+  addReg(4, first - 2); addReg(last + 3, nW - 4);
+  m.missingRt = m.rtLen < 2 || !regions.length;
+  // voice section
+  const sa = first * WIN, sb = Math.min(n, (last + 1) * WIN);
+  let ss = 0, pL = 0, pR = 0, cr = 0;
+  for (let i = sa; i < sb; i++) { const l = L[i], r = R[i]; ss += (l * l + r * r) * 0.5; pL += l * l; pR += r * r; cr += l * r; }
+  m.rmsDb = dbP(ss / (sb - sa)); m.speechDur = (sb - sa) / rate;
+  m.extra = [];
+  const add = (sure, title, text) => m.extra.push({ sure, title, text });
+
+  // ── room tone ──
+  m.rtDb = NaN;
+  if (!m.missingRt) {
+    let rp = 0, rn = 0, zeros = 0;
+    regions.forEach(([a, b]) => { for (let i = a; i < b; i++) { rp += x[i] * x[i]; rn++; } for (let w = a / WIN; w < b / WIN; w++) zeros += zero[w]; });
+    m.rtDb = dbP(rp / rn);
+    if (m.rtLen < CK_SILENCE - 0.2) add(true, `Your room tone was only ${m.rtLen.toFixed(1)} seconds`, 'That\'s enough to measure, but leave a full 3 seconds of silence next time for a more reliable reading.');
+    // too clean to be real: a gate or noise suppression somewhere
+    if (zeros > 0 || m.rtDb < -90)
+      add(true, 'Your room tone is almost completely silent', `${isFinite(m.rtDb) ? `It measured ${fdb(m.rtDb)}${zeros ? ', with stretches of total digital silence' : ''}` : 'It\'s total digital silence'}. That usually means a noise gate or noise suppression is switched on somewhere — in your interface's software, your computer's sound settings (such as Voice Isolation on a Mac, or microphone enhancements in Windows), or an app like Krisp. Switch them off: they cut off the ends of words and can make files fail ACX's noise floor checks. The DAW itself always records with the browser's own noise suppression, echo cancellation and automatic gain switched off.`);
+    // steadiness (20 ms windows)
+    const W2 = Math.round(0.02 * rate), lv = [];
+    regions.forEach(([a, b]) => { for (let s = a; s + W2 <= b; s += W2) { let p = 0; for (let i = s; i < s + W2; i++) p += x[i] * x[i]; lv.push(dbP(p / W2)); } });
+    const med = pct(lv, 0.5), top = Math.max(...lv);
+    if (m.rtDb > -90 && top - med > 10)
+      add(true, 'Noises in your room tone', `Your room tone isn't steady — it jumps by up to ${Math.round(top - med)} dB. That's usually intermittent noise like traffic, neighbours, pipes or a computer fan spinning up. Try recording at a quieter time of day, or find and quieten the source.`);
+    // hum and rumble, from the longest stretch of room tone
+    const [ra, rb] = regions.reduce((p, q) => (q[1] - q[0] > p[1] - p[0] ? q : p));
+    const N = rb - ra >= 16384 ? 16384 : rb - ra >= 8192 ? 8192 : 0;
+    const S = N ? powerSpectrum(x, ra, rb, N) : null;
+    if (S && m.rtDb > -88) {
+      const df = rate / N;
+      let humBase = 0;
+      if (N === 16384) {
+        const prom = f => {
+          const k = Math.round(f / df); let peak = 0; for (let j = k - 1; j <= k + 1; j++) peak = Math.max(peak, S[j]);
+          const loc = []; for (let j = Math.round((f - 20) / df); j <= Math.round((f + 20) / df); j++) if (Math.abs(j * df - f) >= 7) loc.push(S[j]);
+          return dbP(peak) - dbP(pct(loc, 0.5));
+        };
+        let best = 0;
+        [50, 60].forEach(base => {
+          const pr = [1, 2, 3, 4].map(h => prom(base * h)), count = pr.filter(v => v >= 8).length;
+          const hum = ((pr[0] >= 12 || pr[1] >= 12) && count >= 2) || Math.max(...pr) >= 20;
+          const score = pr.reduce((s, v) => s + Math.max(0, v), 0);
+          if (hum && score > best) { best = score; humBase = base; }
+        });
+        if (humBase) add(true, `Electrical hum at ${humBase} Hz`, `There's a steady hum in your room tone at ${humBase} Hz and its harmonics — the frequency of your mains power. Check your cables, try plugging your interface and computer into the same socket, unplug a laptop charger to test, and keep audio cables away from power leads. A ground loop isolator can help.`);
+      }
+      let low = bandSum(S, df, 20, 80);
+      if (humBase) for (let k = Math.round((humBase - 7) / df); k <= Math.round((humBase + 7) / df); k++) low -= S[k];
+      const share = low / Math.max(1e-30, bandSum(S, df, 20, rate / 2));
+      if (share >= 0.5 && m.rtDb + 10 * Math.log10(share) > -75)
+        add(true, 'Low rumble', 'Most of your room tone\'s energy sits below 80 Hz — typically air con, a fridge, traffic, or knocks travelling up a desk mic stand. Switch off what you can, use a shock mount, and turn on the EQ\'s high-pass filter (the High-pass 80 Hz preset).');
+    }
+  }
+
+  // ── the whole recording ──
+  const dc = Math.max(Math.abs(sumL / n), Math.abs(sumR / n));
+  if (dc > 0.004) add(true, 'DC offset', `Your recording sits slightly off the centre line (${(dc * 100).toFixed(1)}%). This comes from the interface or its driver. The EQ's high-pass filter removes it, but updating your interface's driver can fix it at the source.`);
+  if (stereo) {
+    const dL = dbP(pL / (sb - sa)), dR = dbP(pR / (sb - sa)), diff = dL - dR, corr = cr / Math.sqrt(pL * pR + 1e-30);
+    if (Math.abs(diff) > 25 || !isFinite(diff))
+      add(true, 'One side of your recording is silent', `This take was recorded in stereo, but the ${diff > 0 ? 'right' : 'left'} channel is ${isFinite(diff) ? Math.round(Math.abs(diff)) + ' dB quieter' : 'silent'}. Set <b>Record in</b> to <b>Mono</b> in Settings, and choose the input your mic is plugged into in Mic &amp; Output.`);
+    else if (corr > 0.999 && Math.abs(diff) < 0.5)
+      add(true, 'Both sides are identical', 'This take was recorded in stereo, but both channels are the same. Recording in mono halves the file size, and ACX accepts mono. Set <b>Record in</b> to <b>Mono</b> in Settings.');
+  }
+
+  // ── the voice (possible issues) ──
+  if (m.speechDur >= 5) {
+    const thrP = Math.pow(10, thr / 10), N = 2048, w = hann(N), re = new Float64Array(N), im = new Float64Array(N), df = rate / N;
+    const hf = [], mid = []; let lowD = 0, midD = 0;
+    for (let s = sa; s + N <= sb; s += N / 2) {
+      let p = 0; for (let i = 0; i < N; i++) p += x[s + i] * x[s + i];
+      if (p / N < thrP) continue;
+      for (let i = 0; i < N; i++) { re[i] = x[s + i] * w[i]; im[i] = 0; }
+      fft(re, im);
+      const S = new Float64Array(N / 2 + 1); for (let k = 0; k <= N / 2; k++) S[k] = re[k] * re[k] + im[k] * im[k];
+      mid.push(dbP(bandSum(S, df, 300, 3000)));
+      if (rate / 2 > 9000) hf.push(dbP(bandSum(S, df, 5000, 9000)));
+      lowD += bandSum(S, df, 80, 200) / 120; midD += bandSum(S, df, 400, 800) / 400;
+    }
+    if (hf.length > 20 && pct(hf, 0.95) >= pct(mid, 0.95) - 3)
+      add(false, 'Harsh sibilance', 'Your S sounds are nearly as strong as your vowels. Angle the mic slightly off-axis (pointing at the corner of your mouth). The EQ\'s Harsh sibilance preset can soften what\'s left.');
+    if (mid.length > 20 && dbP(lowD) - dbP(midD) >= 13)
+      add(false, 'Too close to the mic', 'There\'s a strong build-up of low frequencies, which happens when you work very close to the mic (the proximity effect). Try backing off to about a fist to a hand-span away.');
+    // plosives: short bursts of very low-frequency energy
+    const lf = lowpass(lowpass(x.slice(sa, sb), 80, rate), 80, rate), W2 = Math.round(0.02 * rate), nw = Math.floor((sb - sa) / W2);
+    const lfDb = new Float64Array(nw), fullDb = new Float64Array(nw);
+    for (let k = 0; k < nw; k++) {
+      let a = 0, b = 0; for (let i = k * W2, e = i + W2; i < e; i++) { a += lf[i] * lf[i]; b += x[sa + i] * x[sa + i]; }
+      lfDb[k] = dbP(a / W2); fullDb[k] = dbP(b / W2);
+    }
+    const isLf = k => lfDb[k] >= m.rmsDb - 3 && lfDb[k] >= fullDb[k] - 3;
+    let pops = 0, lastPop = -99;
+    for (let k = 5; k < nw; k++) {
+      if (!isLf(k) || isLf(k - 1) || k - lastPop < 10) continue;
+      let prev = 0; for (let j = k - 5; j < k; j++) prev += Math.pow(10, lfDb[j] / 10);
+      if (lfDb[k] - dbP(prev / 5) < 10) continue;
+      let len = 0; while (k + len < nw && isLf(k + len)) len++;
+      if (len <= 5) { pops++; lastPop = k; }
+    }
+    if (pops >= 2) add(false, 'Plosives', `We found ${pops} short bursts of low-frequency energy — the “pop” on P and B sounds. A pop filter helps, as does angling the mic slightly off to one side so your breath doesn't hit it straight on, or moving back a little.`);
+    // loudest moments far above the average
+    const crest = m.peakDb - m.rmsDb;
+    if (!clips && crest > 27) add(false, 'Uneven level', `Your loudest moments are ${Math.round(crest)} dB above your average. This often means your distance from the mic is changing, or your delivery is very dynamic. Try to keep a steady position and level.`);
+    // room echo: how quickly the voice dies away when a phrase ends
+    const ref = isFinite(m.rtDb) ? m.rtDb : lo, W3 = Math.round(0.01 * rate), n3 = Math.floor((n - sa) / W3), env = new Float64Array(n3);
+    for (let k = 0; k < n3; k++) { let p = 0; for (let i = sa + k * W3, e = i + W3; i < e; i++) p += x[i] * x[i]; env[k] = dbP(p / W3); }
+    const rts = [];
+    for (let k = 1; k < n3 - 25; k++) {
+      if (!(env[k] < ref + 8 && env[k - 1] >= ref + 8)) continue;
+      let quiet = true; for (let j = k; j < k + 25; j++) if (env[j] >= ref + 8) { quiet = false; break; }
+      if (!quiet) continue;
+      let pkK = -1, Lp = -Infinity; for (let j = Math.max(0, k - 40); j < k; j++) if (env[j] > Lp) { Lp = env[j]; pkK = j; }
+      if (Lp - ref < 30) continue;
+      let t1 = -1, t2 = -1;
+      for (let j = pkK; j < k + 25; j++) { if (t1 < 0 && env[j] <= Lp - 5) t1 = j; if (env[j] <= Lp - 25) { t2 = j; break; } }
+      if (t1 >= 0 && t2 > t1) rts.push(3 * (t2 - t1) * 0.01);
+    }
+    if (rts.length >= 3) { const rt60 = pct(rts, 0.5); if (rt60 > 0.45) add(false, 'Room echo', `Your voice takes about ${rt60.toFixed(1)} seconds to die away after phrases, which suggests a reflective room. Soft furnishings, blankets or a closet full of clothes absorb reflections. See ${ROOM_LINK}.`); }
+  }
+  return m;
+}
+
+// ── the report ──────────────────────────────────────────────
+function ckReportHtml(m, tg, len) {
+  const pk = m.peakDb, rms = m.rmsDb, rt = m.rtDb;
+  const pOver = m.clips > 0 || pk > REC.pkMax, pHot = !pOver && pk > REC.pkHi, pLow = pk < REC.pkLo, pOk = !pOver && !pHot && !pLow;
+  const rLow = rms < REC.rmsLo, rHigh = rms > REC.rmsHi, rOk = !rLow && !rHigh;
+  const tHigh = !m.missingRt && rt > REC.rtMax, tGate = !m.missingRt && rt < -90, tOk = !m.missingRt && !tHigh && !tGate;
+  const card = (label, val, target, cls, msg) => `<div class="ck-card ${cls}"><span class="ck-lbl">${label}</span><b>${val}</b><span class="ck-tgt">Aim for ${target}</span><em>${msg}</em></div>`;
+  const cards =
+    card('Peaks', fdb(pk), '−12 to −6 dB', pOk ? 'ok' : pOver ? 'bad' : 'warn',
+      pOk ? '✓ In the ideal range' : pOver ? (m.clips ? '✕ Clipping — too high' : '✕ Too high') : pHot ? '! A little hot' : '! Too quiet') +
+    card('RMS', fdb(rms), '−35 to −25 dB', rOk ? 'ok' : 'warn', rOk ? '✓ In the recommended range' : rLow ? '! Too quiet' : '! Too loud') +
+    (m.missingRt ? card('Room Tone', '—', '−60 dB or lower', 'warn', '! Not measured — no 3 seconds of silence found')
+      : card('Room Tone', fdb(rt), '−60 dB or lower', tOk ? 'ok' : tHigh ? 'bad' : 'warn', tOk ? '✓ Quiet enough' : tHigh ? '✕ Too noisy' : '! Suspiciously silent'));
+
+  // what to do next — the main decisions, in order
+  const todo = [], tip = (cls, title, html) => todo.push(`<div class="ck-tip ${cls}"><b>${title}</b><p>${html}</p></div>`);
+  if (m.missingRt) tip('warn', 'Record again with silence at the start or end', 'We couldn\'t find 3 seconds of silence, so your room tone couldn\'t be measured. Record a new test: stay completely silent for 3 seconds, read for 20–30 seconds, then stay silent for another 3 seconds.');
+  if (pOver) tip('bad', 'Turn your gain down', `Your loudest moments reached ${fdb(pk)}${m.clips ? ', and some of them clipped — that\'s distortion that can\'t be removed afterwards' : ''}. Anything above −3 dB risks clipping. Turn the gain on your interface down until your loudest moments sit between −12 and −6 dB.`);
+  else if (pHot) tip('warn', 'Bring your gain down a little', `Your loudest moments reached ${fdb(pk)}. That's inside the limit, but leaves little safety margin — one louder line could clip. Bring the gain down slightly so your peaks sit between −12 and −6 dB.`);
+  else if (pLow) tip('warn', 'Turn your gain up', `Your loudest moments only reached ${fdb(pk)}. Turn the gain on your interface up until they land between −12 and −6 dB. A quiet recording needs a big boost later, which brings the background noise up with it.`);
+  if (pOk && rLow) tip('warn', 'Speak a little louder overall', `Your peaks are in a good place, but your average level (RMS) is ${fdb(rms)}, below −35 dB. Turning up the gain would push your peaks too high, so the fix is your delivery: speak generally louder and more evenly, without making your loudest moments any louder. Keeping a steady distance from the mic helps too.`);
+  if (rHigh && !pOver) tip('warn', 'Your average level is high', `Your RMS is ${fdb(rms)}, above −25 dB. That's unusual for a raw recording — check that no compressor or automatic gain is switched on in your interface or computer. If not, bring your gain down a touch.`);
+  if (tHigh) {
+    if (pOver || pHot) tip('bad', 'Room tone is high — test again after lowering your gain', `Your room tone is ${fdb(rt)}. Turning your gain down lowers it by the same amount, so record another test once your peaks are in range. If it's still above −60 dB, work on treating your space: ${ROOM_LINK}.`);
+    else if (pLow) tip('bad', 'Work on your room', `Your room tone is already ${fdb(rt)} with your gain low, and turning the gain up will raise it further. The noise is coming from your room or your gear, so work on treating your space: ${ROOM_LINK}.`);
+    else tip('bad', 'Work on your room', `Your room tone is ${fdb(rt)}, above −60 dB. Your gain is in the right place, so the noise is coming from your room or your gear rather than your gain. Turn off fans and appliances, and work on treating your space — read ${ROOM_LINK} for ideas.`);
+  } else if (tOk && pLow) tip('plain', 'Re-check your room tone after turning up the gain', `Your room tone measures ${fdb(rt)} now, but it will rise by the same amount you turn your gain up. Record another test afterwards to make sure it stays below −60 dB.`);
+  if (!todo.length) tip('ok', 'Your recording settings look good', 'Your peaks, RMS and room tone are all in the recommended ranges. You\'re ready to record.');
+
+  const extra = m.extra.map(e => `<div class="ck-tip ${e.sure ? 'warn' : 'plain'}"><b>${e.sure ? '' : '<span class="ck-maybe">Possible</span>'}${escH(e.title)}</b><p>${e.text}</p></div>`).join('');
+  return `<p class="sub">Checked ${escH(tg.label)} — ${fmtTime(len, false)} of raw audio, with effects off.${tg.b - tg.a > CK_MAX ? ' Only the first 5 minutes were checked.' : ''}</p>
+    <div class="ck-cards">${cards}</div>
+    <div class="ck-h">What to do next</div>${todo.join('')}
+    ${extra ? `<div class="ck-h">Other things we noticed</div>${extra}` : ''}
+    <div class="modal-actions"><button class="btn-secondary ck-back">Back</button><button class="btn-primary ck-retest">Record another test</button></div>`;
 }
 
 function showScan(r, note) {
@@ -4376,10 +5115,10 @@ function renderFx() {
     sel.dataset.key = key;
   }
   sel.value = String(t.id);
-  const fx = t.fx, byp = fx.on === false, onCount = fx.list.filter(x => x.on).length;
+  const fx = t.fx, byp = fx.on === false, sound = fx.list.filter(x => x.type !== 'acx'), onCount = sound.filter(x => x.on).length;
   $('fx-all-on').checked = !byp;
   $('fx-panel').classList.toggle('byp', byp);
-  setNote('fx-all-note', !fx.list.length ? 'No effects yet' : byp ? 'Bypassed — you\'re hearing the track dry' : `${onCount} of ${fx.list.length} on`, byp ? 'live' : '');
+  setNote('fx-all-note', !fx.list.length ? 'No effects yet' : byp ? 'Bypassed — you\'re hearing the track dry' : `${onCount} of ${sound.length} on`, byp ? 'live' : '');
   // cards: rebuilt only when effects are added, removed or reordered
   const box = $('fx-list'), lkey = t.id + '|' + fx.list.map(x => x.id).join(',');
   if (box.dataset.key !== lkey) {
@@ -4462,6 +5201,10 @@ $('wave-up-btn').addEventListener('click', () => setWaveZoom(1.25));
 $('wave-down-btn').addEventListener('click', () => setWaveZoom(0.8));
 $('keys-btn').addEventListener('click', () => openModal('keys-modal'));
 $('fx-btn').addEventListener('click', toggleFx);
+$('check-btn').addEventListener('click', () => openChecker());
+$('dev-check-link').addEventListener('click', e => { e.preventDefault(); openChecker(); });
+$('ck-analyse').addEventListener('click', () => ckRun());
+$('ck-record').addEventListener('click', ckRecordTest);
 
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
