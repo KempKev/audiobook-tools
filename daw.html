@@ -606,13 +606,14 @@
 
     <h3>Track effects &amp; analysis</h3>
     <ul>
-      <li>Open <b>Effects</b> (<b>Alt/Opt + F</b>, the <b>FX</b> button on a track, or right-click) to build an effects chain for a whole track. Use <b>＋ Add effect</b> to add Noise Reduction, EQ, a Compressor, a Limiter or the ACX Audio Fixer — as many as you like, even two of the same — and the <b>✕</b> on an effect to remove it (Undo brings it back). Drag the <b>⋮⋮</b> handle to change the order: the sound flows from the top effect to the bottom one. Press <b>▾</b> (or click an empty part of an effect's title bar) to fold its settings away, and <b>↺</b> to reset an effect to its starting settings — a learned noise profile is kept.</li>
-      <li>Each effect has its own on/off switch, and <b>Effects chain</b> switches them all on or off at once (<b>Alt/Opt + Shift + F</b>) so you can hear before and after. Every new track comes with a ready-made chain — EQ (High-pass 80 Hz), Noise Reduction (press <b>Learn</b> to give it a profile), Compressor, Limiter (−3.5 dB) and the ACX Audio Fixer — with <b>Effects chain</b> switched off until you want it. Effects run whenever you play or export; your takes are never changed. A track with effects on shows an orange <b>FX</b> button — crossed out while the chain is switched off.</li>
+      <li>Open <b>Effects</b> (<b>Alt/Opt + F</b>, the <b>FX</b> button on a track, or right-click) to build an effects chain for a whole track. Use <b>＋ Add effect</b> to add an EQ, Noise Reduction, Gain, a Compressor, a Limiter or the ACX Audio Fixer — as many as you like, even two of the same — or <b>Add default chain</b> to put the whole ready-made chain on the track in one go, and the <b>✕</b> on an effect to remove it (Undo brings it back). Drag the <b>⋮⋮</b> handle to change the order: the sound flows from the top effect to the bottom one. Press <b>▾</b> (or click an empty part of an effect's title bar) to fold its settings away, and <b>↺</b> to reset an effect to its starting settings — a learned noise profile is kept.</li>
+      <li>Each effect has its own on/off switch, and <b>Effects chain</b> switches them all on or off at once (<b>Alt/Opt + Shift + F</b>) so you can hear before and after. Every new track comes with a ready-made chain — EQ (High-pass 80 Hz), Noise Reduction (press <b>Learn</b> to give it a profile), Gain, Compressor, Limiter (−3.5 dB) and the ACX Audio Fixer — with <b>Effects chain</b> switched off until you want it. Effects run whenever you play or export; your takes are never changed. A track with effects on shows an orange <b>FX</b> button — crossed out while the chain is switched off.</li>
       <li><b>Noise Reduction</b> — press <b>Learn</b>, then play a few seconds of just room tone (no voice) and stop. The DAW learns that noise and takes it out. <b>Amount</b> sets how much: 0% leaves the audio as it is, 100% is complete silence. Use the least that sounds clean — too much can make a voice sound watery.</li>
       <li><b>EQ</b> — start from a preset (High-pass 80 Hz, Male or Female voice, Harsh sibilance, Boxy space and more), then fine-tune each band. The curve shows what you're doing to the sound.</li>
+      <li><b>Gain</b> — raises or lowers the level going into the next effect. It sits before the Compressor because a compressor only turns down the parts of your voice that are louder than its threshold: on a quiet recording it barely works, and the Limiter ends up squashing every loud moment. Gain brings your voice up to the Compressor first, so it can even things out smoothly.</li>
       <li><b>Compressor</b> — <b>Strength</b> evens out loud and quiet moments and <b>Boost</b> raises the level afterwards.</li>
       <li><b>Limiter</b> — stops peaks going over the ceiling without distorting. The <b>ACX −3.5 dB</b> preset keeps you safely inside ACX's −3 dB peak limit.</li>
-      <li><b>ACX Audio Fixer</b> — sits at the end of the chain and sets up the effects above it for ACX. Press <b>Run ACX Audio Fixer</b> and it listens to the whole track, finds the cleanest room tone and learns your noise from it, then sets the high-pass EQ, Noise Reduction, Compressor and Limiter so the track lands at about −20 dB RMS, peaks at −3.5 dB and a noise floor close to −85 dB. Any of those effects that are missing are added for you. It shows before-and-after numbers and everything it changed, and if your raw recording is outside the recommended levels it explains why that matters. It makes no sound of its own, and Undo puts everything back.</li>
+      <li><b>ACX Audio Fixer</b> — sits at the end of the chain and sets up the effects above it for ACX. Press <b>Run ACX Audio Fixer</b> and it listens to the whole track, finds the cleanest room tone and learns your noise from it, then sets the high-pass EQ, Noise Reduction, Gain, Compressor and Limiter so the track lands at about −20 dB RMS, peaks at −3.5 dB and a noise floor close to −85 dB. Any of those effects that are missing are added for you. It shows before-and-after numbers and everything it changed, and if your raw recording is outside the recommended levels it explains why that matters. It makes no sound of its own, and Undo puts everything back.</li>
       <li><b>Audio Analysis</b> shows the highest peak and the RMS as you play. <b>Scan whole track</b> checks the entire track (after effects and volume) and shows its peak, RMS and noise floor against the ACX requirements.</li>
     </ul>
 
@@ -636,7 +637,7 @@
 </section>
 
 <div id="disclaimer">The Audiobook Guy DAW is still under construction. While we work on it, we can't guarantee its stability and can't be held responsible for lost recordings, projects or files. Please keep backups of anything important.</div>
-<div id="tool-version">v6.0</div>
+<div id="tool-version">v7.0</div>
 <div id="tag-footer"></div>
 
 <!-- ═══ MODALS ═══ -->
@@ -803,8 +804,11 @@
   <div id="fx-list"></div>
   <select id="fx-add" title="Add an effect to the end of the chain — drag the ⋮⋮ handle to move it">
     <option value="">＋ Add effect…</option>
-    <option value="nr">Noise Reduction</option>
+    <option value="default">Add default chain (all of the below, in order)</option>
+    <option value="" disabled>──────────</option>
     <option value="eq">EQ</option>
+    <option value="nr">Noise Reduction</option>
+    <option value="gain">Gain</option>
     <option value="comp">Compressor</option>
     <option value="lim">Limiter</option>
     <option value="acx">ACX Audio Fixer</option>
@@ -1126,10 +1130,10 @@ async function readZip(file) {
 }
 
 // ═══════════════════════════════════════════════════════════
-// THE AUDIOBOOK GUY DAW — v5.2
+// THE AUDIOBOOK GUY DAW — v7.0
 // ═══════════════════════════════════════════════════════════
 'use strict';
-const APP_VERSION = '6.0';
+const APP_VERSION = '7.0';
 const PROJECT_EXT = '.tagdaw';
 const AUDIO_DIR   = 'Audio Files';
 const DEF_TRACK_H = 96, MIN_TRACK_H = 60, MAX_TRACK_H = 480;
@@ -1537,7 +1541,7 @@ const LOOKAHEAD = 2.5, PUMP_MS = 120;
 // ═══════════════════════════════════════════════════════════
 // TRACK EFFECTS — noise reduction, EQ, compressor, limiter, meters
 // ═══════════════════════════════════════════════════════════
-// Each track runs:  items → Noise Reduction → EQ → Compressor → Limiter → volume/pan.
+// Each track runs its own chain (by default EQ → Noise Reduction → Gain → Compressor → Limiter) → volume/pan.
 // The same chain is built for playback and for export, so what you hear is
 // what you get. Noise reduction and the limiter look a little ahead, which
 // delays their track slightly; every other track is delayed to match so
@@ -1766,6 +1770,8 @@ function eqFrom(key, on) {
 const FX_TYPES = {
   nr:   { name: 'Noise Reduction', make: () => ({ amount: 50, profile: null, rate: 0, secs: 0 }) },
   eq:   { name: 'EQ', make: () => eqFrom('flat', true) },
+  // raises or lowers the level going into the next effect — sits before the Compressor
+  gain: { name: 'Gain', make: () => ({ gain: 0 }) },
   comp: { name: 'Compressor', make: () => ({ strength: 40, boost: 0 }) },
   lim:  { name: 'Limiter', make: () => ({ ceiling: -3.5 }) },
   // makes no sound of its own — it sets up the effects above it (see runAcxFixer)
@@ -1774,12 +1780,13 @@ const FX_TYPES = {
 function fxId() { return 'fx' + Date.now().toString(36).slice(-4) + Math.random().toString(36).slice(2, 7); }
 function newFx(type, extra) { return Object.assign(FX_TYPES[type].make(), { id: fxId(), type, on: true }, extra || {}); }
 // New tracks start with a ready-made voice chain, switched off until wanted:
-// EQ (High-pass 80 Hz) → Noise Reduction (no profile yet) → Compressor (Medium) → Limiter (−3.5 dB),
+// EQ (High-pass 80 Hz) → Noise Reduction (no profile yet) → Gain (0 dB) → Compressor → Limiter (−3.5 dB),
 // with the ACX Audio Fixer at the end, ready to set them all up.
 function defaultFx() {
   return { on: false, list: [
     newFx('eq', eqFrom('hpf', true)),
     newFx('nr'),
+    newFx('gain'),
     newFx('comp'),
     newFx('lim'),
     newFx('acx'),
@@ -1855,6 +1862,10 @@ function buildChain(c, fx, o) {
   fx.list.forEach(x => {
     if (!fxRuns(fx, x, o.learn)) return;
     if (x.type === 'eq') { const fs = makeEqFilters(c, x); fs.forEach(add); byId.set(x.id, fs); return; }
+    if (x.type === 'gain') {
+      const g = c.createGain(); g.channelCount = 2; g.channelCountMode = 'explicit'; g.channelInterpretation = 'speakers';
+      g.gain.value = dbToGain(+x.gain || 0); add(g); byId.set(x.id, g); return;
+    }
     if (!wk) return;
     let n;
     if (x.type === 'nr') {
@@ -1885,6 +1896,7 @@ function applyFxLive(t) {
   t.fx.list.forEach(x => {
     const n = b.chain.byId.get(x.id); if (!n) return;
     if (x.type === 'eq') setEqLive(n, x, ctx.currentTime);
+    else if (x.type === 'gain') n.gain.setTargetAtTime(dbToGain(+x.gain || 0), ctx.currentTime, 0.02);
     else if (x.type === 'comp') n.port.postMessage(compParams(x));
     else if (x.type === 'lim') n.port.postMessage({ ceiling: x.ceiling });
     else if (x.type === 'nr' && play.learnFx !== x.id) n.port.postMessage({ amount: x.amount / 100 });
@@ -4171,16 +4183,18 @@ const FX_BODY = {
     <label class="fx-slider"><span class="k">Amount</span><input type="range" class="nr-amt" min="0" max="100" step="1"><span class="v nr-amt-v"></span></label>
     <div class="fx-note">Press <b>Learn</b>, then play a few seconds of this track where there's only room tone (no voice) and stop. 0% leaves the audio as it is; 100% is complete silence. Most voices sound natural somewhere around 30–60%.</div>`,
   eq: `<select class="eq-preset" title="EQ preset"></select><canvas class="eq-curve"></canvas><div class="eq-bands"></div>`,
+  gain: `<label class="fx-slider"><span class="k">Gain</span><input type="range" class="gain-amt" min="-12" max="24" step="0.5"><span class="v gain-amt-v"></span></label>
+    <div class="fx-note">Raises or lowers the level going into the next effect. Before the Compressor, it decides how much of your voice the Compressor gets to work on: more gain means more of your voice is evened out. 0 dB leaves the level as it is.</div>`,
   comp: `<label class="fx-slider"><span class="k">Strength</span><input type="range" class="comp-str" min="0" max="100" step="1"><span class="v comp-str-v"></span></label>
     <label class="fx-slider"><span class="k">Boost</span><input type="range" class="comp-boost" min="-12" max="30" step="0.5"><span class="v comp-boost-v"></span></label>
     <div class="fx-note live comp-gr"></div>
-    <div class="fx-note"><b>Strength</b> evens out loud and quiet moments; <b>Boost</b> raises the whole track afterwards. To set this up for ACX automatically, use the <b>ACX Audio Fixer</b> at the end of the chain.</div>`,
+    <div class="fx-note"><b>Strength</b> evens out loud and quiet moments; <b>Boost</b> raises the whole track afterwards. If the Compressor barely does anything, turn up the <b>Gain</b> above it. To set all of this up for ACX automatically, use the <b>ACX Audio Fixer</b> at the end of the chain.</div>`,
   lim: `<select class="lim-preset" title="Limiter preset">
       <option value="-3.5">ACX — limit at −3.5 dB</option><option value="-1">General — limit at −1.0 dB</option>
       <option value="-0.3">Loudest — limit at −0.3 dB</option><option value="custom">Custom</option></select>
     <label class="fx-slider"><span class="k">Ceiling</span><input type="range" class="lim-ceil" min="-12" max="0" step="0.1"><span class="v lim-ceil-v"></span></label>
     <div class="fx-note">Stops peaks going above the ceiling, without distorting. ACX needs peaks at −3 dB or lower.</div>`,
-  acx: `<div class="fx-note">Sets up the effects <b>above it</b> to bring this track to ACX levels: a high-pass EQ, Noise Reduction learned from your room tone, the Compressor at about −20 dB RMS and the Limiter at −3.5 dB, with the noise floor aimed at −85 dB. You'll see every setting it changes, and you can still adjust them yourself afterwards.</div>
+  acx: `<div class="fx-note">Sets up the effects <b>above it</b> to bring this track to ACX levels: a high-pass EQ, Noise Reduction learned from your room tone, the Gain and Compressor set to suit your voice, a level of about −20 dB RMS and the Limiter at −3.5 dB, with the noise floor aimed at −85 dB. You'll see every setting it changes, and you can still adjust them yourself afterwards.</div>
     <div class="fx-row"><button class="btn-primary btn-sm acx-run">Run ACX Audio Fixer</button><span class="fx-note acx-status"></span></div>
     <div class="progress acx-prog"><div></div></div>
     <div class="acx-out"></div>
@@ -4273,6 +4287,9 @@ function buildFxCard(x) {
       });
       box.appendChild(be);
     });
+  } else if (x.type === 'gain') {
+    bindFxSlider(q('.gain-amt'), (t, v) => { const f = inst(t); if (f) f.gain = v; });
+    q('.gain-amt').addEventListener('dblclick', () => { const t = fxTrack(), f = inst(t); if (!f) return; const before = snapshot(); f.gain = 0; applyFxLive(t); pushUndo(before, true); });
   } else if (x.type === 'comp') {
     bindFxSlider(q('.comp-str'), (t, v) => { const f = inst(t); if (f) f.strength = v; });
     bindFxSlider(q('.comp-boost'), (t, v) => { const f = inst(t); if (f) f.boost = v; });
@@ -4313,6 +4330,8 @@ function updateFxCard(el, x, i, t, name) {
         : fmtHz(band.f) + ' · ' + fmtGain(band.g) + (b.q ? ' · Q ' + band.q.toFixed(1) : '');
     });
     drawEqCurve(q('.eq-curve'), x, t.fx.on !== false);
+  } else if (x.type === 'gain') {
+    setRange(q('.gain-amt'), +x.gain || 0); q('.gain-amt-v').textContent = fmtGain(+x.gain || 0);
   } else if (x.type === 'comp') {
     const sv = Math.round(x.strength);
     setRange(q('.comp-str'), sv); q('.comp-str-v').textContent = (sv < 34 ? 'Gentle' : sv < 67 ? 'Medium' : 'Strong') + ' · ' + sv;
@@ -4331,6 +4350,7 @@ function updateFxCard(el, x, i, t, name) {
 function fxSummary(x) {
   if (x.type === 'nr') return x.profile ? Math.round(x.amount) + '%' : 'Needs Learn';
   if (x.type === 'eq') { const p = EQ_PRESETS.find(pp => pp[0] === x.preset); return p ? p[1].split(' — ')[0] : 'Custom'; }
+  if (x.type === 'gain') return fmtGain(+x.gain || 0);
   if (x.type === 'comp') { const sv = Math.round(x.strength); return (sv < 34 ? 'Gentle' : sv < 67 ? 'Medium' : 'Strong') + ' · ' + fmtGain(+x.boost); }
   if (x.type === 'acx') return x.last ? (x.last.pass ? 'ACX levels pass' : 'Check the results') : 'Not run yet';
   return fmtGain(+x.ceiling);
@@ -4350,6 +4370,25 @@ function moveFx(id, tgt) {
   list.splice(to, 0, f);
   if (list.map(g => g.id).join() === t.fx.list.map(g => g.id).join()) return;
   edit(() => { t.fx.list = list; }); renderFx();
+}
+
+// Puts the ready-made voice chain on a track: EQ → Noise Reduction → Gain →
+// Compressor → Limiter → ACX Audio Fixer. If the track already has effects,
+// they're replaced (after asking) — a learned noise profile is carried over.
+async function addDefaultChain(t) {
+  const has = t.fx.list.length > 0;
+  if (has && !(await confirmBox('Replace this track\'s effects?', 'The default chain (EQ, Noise Reduction, Gain, Compressor, Limiter and the ACX Audio Fixer) will replace the effects on this track. A learned noise profile is kept. Undo brings the old effects back.', 'Replace effects'))) return;
+  const live = findTrack(t.id); if (!live) return;
+  const oldNr = live.fx.list.find(f => f.type === 'nr' && f.profile);
+  if (ui.learnTrack === live.id) { ui.learnTrack = null; ui.learnFx = null; learnDumps = []; learnHold = []; }
+  edit(() => {
+    const d = defaultFx();
+    if (oldNr) { const nr = d.list.find(f => f.type === 'nr'); Object.assign(nr, { profile: oldNr.profile, rate: oldNr.rate, secs: oldNr.secs, amount: oldNr.amount }); }
+    live.fx.list = d.list;
+    if (!has) live.fx.on = true;
+  });
+  renderFx();
+  toast(has ? 'Default chain added in place of the old effects — Undo brings them back.' : 'Default chain added. Press Run on the ACX Audio Fixer to set it up for ACX, or adjust each effect yourself.', false, 5000);
 }
 
 function learnClick(id) {
@@ -4382,8 +4421,9 @@ function renderLearn(el, t, x) {
     const t = fxTrack(); if (!t) return;
     const v = $('fx-all-on').checked; edit(() => { t.fx.on = v; }); renderFx();
   });
-  $('fx-add').addEventListener('change', () => {
+  $('fx-add').addEventListener('change', async () => {
     const t = fxTrack(), type = $('fx-add').value; $('fx-add').value = '';
+    if (t && type === 'default') { addDefaultChain(t); return; }
     if (!t || !FX_TYPES[type]) return;
     const f = newFx(type);
     edit(() => { t.fx.list.push(f); });
@@ -4518,12 +4558,78 @@ function quietestHalfSecond(L, R, from, rate) {
 // Runs the same sequence as the ACX Audio Fixer app, but instead of making
 // a new file it sets up the effects above it so you can see (and change)
 // everything it did:  EQ high-pass → Noise Reduction learned from the room
-// tone → Compressor boost for −20 dB RMS → Limiter at −3.5 dB, with Noise
-// Reduction tuned so the noise floor lands close to −85 dB.
+// tone → Gain and Compressor Strength set from the voice → Compressor boost
+// for −20 dB RMS → Limiter at −3.5 dB, with Noise Reduction tuned so the
+// noise floor lands close to −85 dB.
 // ═══════════════════════════════════════════════════════════
 const ACX_RMS = -20, ACX_FLOOR = -85, ACX_FLOOR_LO = -87, ACX_FLOOR_HI = -83, NR_MAX = 95;
 const round1 = v => Math.round(v * 10) / 10, QUANTUM = 128;
 function trackSpan(t) { return { ts: Math.min(...t.items.map(i => i.start)), te: Math.max(...t.items.map(itemEnd)) }; }
+
+// ── setting the Gain and the Compressor's Strength ──────────
+// Gain: the loud parts of the voice (the 95th percentile of 50 ms peaks) are
+// brought to −10 dB going into the Compressor — the level of a well-gained
+// recording — so its threshold catches the voice however loud the take was.
+// Strength: 40 (the default), or higher if the voice's loudness still swings
+// by more than 5.5 dB from phrase to phrase (loud 400 ms stretches against
+// typical ones). Fast spikes such as plosives are left to the Limiter: a
+// compressor can't catch them, and chasing them would only over-compress. The search runs without Noise
+// Reduction or the Limiter: they barely change these numbers and would slow it down.
+const LVL_GAIN_TARGET = -10, LVL_GAIN_MIN = -12, LVL_GAIN_MAX = 24;
+const LVL_SPREAD = 5.5, LVL_STR_MIN = 40, LVL_STR_MAX = 85;
+class LevelStats {
+  constructor(rate) { this.win = Math.round(0.05 * rate); this.wp = []; this.cur = 0; this.cn = 0; this.hist = new Float64Array(1200); this.ss = 0; this.n = 0;
+    this.lwin = Math.round(0.4 * rate); this.lw = []; this.lp = 0; this.ln = 0; }
+  // a: the louder channel's level for this frame, p: its power (both channels averaged)
+  push(a, p) {
+    this.ss += p; this.n++;
+    if (a > this.cur) this.cur = a;
+    if (++this.cn === this.win) { this.wp.push(this.cur); this.cur = 0; this.cn = 0; }
+    this.lp += p; if (++this.ln === this.lwin) { const m = this.lp / this.ln; if (m > 1e-12) this.lw.push(10 * Math.log10(m)); this.lp = 0; this.ln = 0; }
+    if (a > 1e-5) { const b = Math.floor((20 * Math.log10(a) + 100) * 10); this.hist[b < 0 ? 0 : b > 1199 ? 1199 : b]++; }
+  }
+  get rmsDb() { return dbP(this.n ? this.ss / this.n : 0); }
+  // the level the loudest `frac` of 50 ms windows reach
+  winPeakDb(f) { const v = pct(this.wp, f); return v > 0 ? 20 * Math.log10(v) : -Infinity; }
+  // the level only `frac` of all samples go above
+  peakDb(frac) {
+    const want = frac * this.n; let c = 0;
+    for (let b = 1199; b >= 0; b--) { c += this.hist[b]; if (c >= want) return (b + 1) / 10 - 100; }
+    return -Infinity;
+  }
+  // how much the voice's loudness swings: the loud end (95th percentile) of
+  // 400 ms windows above the typical (median) one — speech windows only
+  get spreadDb() {
+    if (this.lw.length < 4) return 0;
+    const s = Float64Array.from(this.lw).sort(), q = (a, f) => a[Math.min(a.length - 1, Math.floor(f * (a.length - 1)))];
+    const top = q(s, 0.95), sp = s.filter(v => v >= top - 25);
+    return top - q(sp, 0.5);
+  }
+}
+// renders a track through `chain` (before the track volume) and collects LevelStats
+async function levelScan(t, chain, onProg) {
+  const rate = P.settings.rate, { ts, te } = trackSpan(t), SEG = 60, st = new LevelStats(rate);
+  for (let s0 = ts; s0 < te - 1e-6; s0 += SEG) {
+    const e = Math.min(te, s0 + SEG), [L, R] = await renderTrackRange(t, chain, s0, e, rate, false);
+    for (let i = 0; i < L.length; i++) {
+      const l = L[i], r = R[i], al = l < 0 ? -l : l, ar = r < 0 ? -r : r;
+      st.push(al > ar ? al : ar, (l * l + r * r) * 0.5);
+    }
+    if (onProg) onProg((e - ts) / (te - ts));
+    await tick();
+  }
+  return st;
+}
+// lowest Strength (from 40) that brings the voice's loudness swing down to LVL_SPREAD or less
+async function pickStrength(spreadAt, onStep) {
+  let k = 0; const step = () => { if (onStep) onStep(Math.min(1, ++k / 7)); };
+  const ok = async s => { const c = await spreadAt(s); step(); return c <= LVL_SPREAD; };
+  if (await ok(LVL_STR_MIN)) return { strength: LVL_STR_MIN, maxed: false };
+  if (!(await ok(LVL_STR_MAX))) return { strength: LVL_STR_MAX, maxed: true };
+  let lo = LVL_STR_MIN, hi = LVL_STR_MAX;
+  while (hi - lo > 3) { const mid = Math.round((lo + hi) / 2); if (await ok(mid)) hi = mid; else lo = mid; }
+  return { strength: hi, maxed: false };
+}
 
 // The raw track (no effects, no volume): peak, RMS, noise floor and clipping,
 // plus the level of every 50 ms so the room tone can be found afterwards.
@@ -4637,12 +4743,17 @@ async function runAcxFixer(fid, card) {
     }
     let lim = pre.slice(pre.indexOf(comp) + 1).filter(f => f.type === 'lim').pop();
     if (!lim) { lim = newFx('lim', { ceiling: -3.5 }); pre.push(lim); added.push('Limiter'); }
+    // …and a Gain just before the Compressor (projects made before v7.0 won't have one)
+    let gain = pre.slice(0, pre.indexOf(comp)).filter(f => f.type === 'gain').pop();
+    if (!gain) { gain = newFx('gain'); pre.splice(pre.indexOf(comp), 0, gain); added.push('Gain'); }
     const chain = { on: true, list: pre };
+    // other Gains or Compressors you've added keep their settings; only these are set
+    if (pre.some(f => f !== gain && f.type === 'gain' && f.on)) notes.push('There\'s more than one Gain above the ACX Audio Fixer — it set the one just above the Compressor and left the others as they were.');
     // EQ: the high-pass clears rumble before the noise is learned
     const hpWasOn = eq.hp.on;
     if (eq.preset === 'flat') Object.assign(eq, eqFrom('hpf', true), { id: eq.id, collapsed: eq.collapsed });
     else if (!eq.hp.on) { eq.hp.on = true; eq.hp.f = 80; eq.preset = 'custom'; }
-    eq.on = true; comp.on = true; lim.on = true; lim.ceiling = -3.5;
+    eq.on = true; gain.on = true; comp.on = true; lim.on = true; lim.ceiling = -3.5;
 
     // 2 — listen to the raw recording and find the room tone
     say('Listening to your raw recording…', 0);
@@ -4659,10 +4770,20 @@ async function runAcxFixer(fid, card) {
     }
     if (!nr.on) notes.push('No clean stretch of room tone was found to learn the noise from, so Noise Reduction was left off. Leave a few seconds of silence at the start or end of the track and run it again.');
 
-    // 4 — measure before limiting and set the compressor's boost
+    // 4 — set the Gain, then the Compressor's Strength, from how your voice moves
     const lims = pre.slice(pre.indexOf(comp) + 1).filter(f => f.type === 'lim'), was = lims.map(f => f.on);
     lims.forEach(f => { f.on = false; }); comp.boost = 0;
-    const r0 = await scanTrack(t, chain, false, span(0.18, 0.33, 'Measuring the level…'));
+    const nrWas = nr.on; nr.on = false; comp.on = false; gain.gain = 0;
+    const g0 = await levelScan(t, chain, span(0.18, 0.22, 'Measuring your level…'));
+    if (!isFinite(g0.rmsDb) || g0.rmsDb < -100) throw new Error('silent');
+    const gainWant = round1(LVL_GAIN_TARGET - g0.winPeakDb(0.95));
+    gain.gain = clamp(gainWant, LVL_GAIN_MIN, LVL_GAIN_MAX);
+    comp.on = true;
+    say('Setting the Compressor…', 0.22);
+    const ps = await pickStrength(async s => { comp.strength = s; return (await levelScan(t, chain)).spreadDb; }, p => fxProg(prog, 0.22 + p * 0.08));
+    comp.strength = ps.strength;
+    nr.on = nrWas;
+    const r0 = await scanTrack(t, chain, false, span(0.3, 0.36, 'Measuring the level…'));
     if (!r0 || !isFinite(r0.rmsDb) || r0.rmsDb < -100) throw new Error('silent');
     comp.boost = clamp(round1(ACX_RMS - r0.rmsDb), -12, 30);
     lims.forEach((f, i) => { f.on = was[i]; }); lim.on = true;
@@ -4710,12 +4831,15 @@ async function runAcxFixer(fid, card) {
     }
     if (nrMaxed) notes.push(`The background noise is too loud to bring all the way down to ${ACX_FLOOR} dB without harming the voice — Noise Reduction is at its ${NR_MAX}% maximum.`);
     const pass = res.peakDb <= -3 && res.rmsDb >= -23 && res.rmsDb <= -18 && res.floorDb <= -60;
-    if (!pass && res.rmsDb < -23) notes.push('The track is still too quiet — the Compressor\'s boost is at its limit. Try a higher Strength and run it again.');
+    if (!pass && res.rmsDb < -23) notes.push('The track is still too quiet — the Gain and the Compressor\'s Boost are at their limits. The recording is very quiet; turn your mic gain up and record again.');
+    if (gainWant > LVL_GAIN_MAX) notes.push(`Your recording is so quiet the Gain is at its +${LVL_GAIN_MAX} dB maximum — the Compressor's Boost made up the rest.`);
+    if (ps.maxed) notes.push('Your recording has very big jumps between quiet and loud moments, so even at full Strength the Limiter is catching more peaks than usual. Listen through for any loud moments that sound squashed.');
 
     // what it changed
     if (added.length) changes.push(`Added ${added.join(', ')} above the ACX Audio Fixer`);
     changes.push(`EQ — high-pass at ${eq.hp.f} Hz${hpWasOn ? '' : ' (switched on)'}`);
     changes.push(nr.on ? `Noise Reduction — ${Math.round(nr.amount)}%, learned from ${(+nr.secs).toFixed(1)} s of room tone at ${fmtTime(region.a, false)}` : 'Noise Reduction — off');
+    changes.push(`Gain — ${fmtGain(gain.gain)}, so the Compressor works on your voice at a steady level`);
     changes.push(`Compressor — Strength ${Math.round(comp.strength)}, Boost ${fmtGain(comp.boost)}`);
     changes.push('Limiter — ceiling −3.5 dB');
     if (wasBypassed) changes.push('Effects chain switched on');
@@ -4727,7 +4851,7 @@ async function runAcxFixer(fid, card) {
       when: Date.now(), pass,
       raw: { peakDb: raw.peakDb, rmsDb: raw.rmsDb, floorDb: raw.floorDb, rtDb: region ? region.db : NaN, clips: raw.clips },
       after: { peakDb: res.peakDb, rmsDb: res.rmsDb, floorDb: res.floorDb },
-      changes, notes, advice: fixerAdvice(raw, region, comp.boost, nrMaxed),
+      changes, notes, advice: fixerAdvice(raw, region, (+gain.gain || 0) + (+comp.boost || 0), nrMaxed),
     };
     fx.on = true; fx.list = pre.concat([me], post);
     const before = snapshot(); live.fx = fx; pushUndo(before);
@@ -4741,6 +4865,7 @@ async function runAcxFixer(fid, card) {
 
 // Suggestions about the raw recording, when it's outside the recommended
 // recording levels — and why that matters for the effects.
+// `boost` is the total lift: the Gain plus the Compressor's Boost
 function fixerAdvice(raw, region, boost, nrMaxed) {
   const out = [], pk = raw.peakDb, rms = raw.rmsDb, rt = region ? region.db : raw.floorDb;
   if (raw.clips || pk > REC.pkMax)
@@ -4751,7 +4876,7 @@ function fixerAdvice(raw, region, boost, nrMaxed) {
       why: 'Peaks between −6 and −3 dB leave very little safety margin — one louder moment can clip. Bring your gain down a touch.' });
   else if (pk < REC.pkLo)
     out.push({ cls: 'warn', title: `Your raw recording is quiet (peaks ${fdb(pk)})`,
-      why: `The Compressor needed a boost of ${fmtGain(boost)} to reach ACX level, and that raises your room noise by the same amount, so Noise Reduction has to work harder. Turn your gain up so your peaks land between −12 and −6 dB.` });
+      why: `The Gain and Boost together had to raise it by ${fmtGain(boost)} to reach ACX level, and that raises your room noise by the same amount, so Noise Reduction has to work harder. Turn your gain up so your peaks land between −12 and −6 dB.` });
   if (pk >= REC.pkLo && pk <= REC.pkHi && rms < REC.rmsLo)
     out.push({ cls: 'warn', title: `Your raw average level is low (${fdb(rms)} RMS)`,
       why: 'A big boost is needed to reach −20 dB RMS. Your peaks are already in the right place, so turning up the gain would push them too high — speaking louder overall, without making your loudest moments louder, is the better fix.' });
