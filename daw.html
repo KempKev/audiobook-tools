@@ -563,7 +563,7 @@
       </div>
     </div>
     <div id="readout"></div>
-    <div class="hint-line">Click to place the cursor · Drag across a lane to select time (drag its edges to adjust) · Drag an item's top bar to move it (also between tracks) · Drag an item's edge to trim · Drag the small corner squares for fades · <span class="alt-key">Alt</span>-drag inside an item to slide its audio · Drag a track's bottom edge to make it taller · Right-click for more</div>
+    <div class="hint-line">Click to place the cursor · Drag along the time bar to select time (drag its edges to adjust) · Drag an item anywhere on it to move it (also between tracks) · Drag an item's edge to trim · Drag the small corner squares for fades · <span class="alt-key">Alt</span>-drag inside an item to slide its audio · Drag a track's bottom edge to make it taller · Right-click for more</div>
   </section>
 </main>
 
@@ -588,7 +588,7 @@
       <li>Set your microphone and headphones in <b>Mic &amp; Output</b>. Arm a track with its red <b>●</b> button — the meter shows your input level. Aim for peaks well below the red.</li>
       <li><b>Punch &amp; Roll</b> — stop at a mistake, place the cursor where you want to pick up, and press <b>R</b> (or <b>Ctrl/Cmd + R</b>, or <b>Shift + Space</b>). The pre-roll plays the lead-in so you can match your read, then recording starts at the cursor. Everything after that point on the armed track is replaced by the new take (Undo brings it back).</li>
       <li><b>Record over selected item</b> — click an item, press <b>R</b>, and the new take replaces just that item. Recording keeps going until you stop it, so you can carry on past the item's end.</li>
-      <li><b>Record over time selection</b> — drag across the armed track to select a stretch (it can cover several items) and press <b>R</b>. Only that stretch is replaced; recording keeps going until you stop it.</li>
+      <li><b>Record over time selection</b> — drag along the time bar above the items to select a stretch (it can cover several items) and press <b>R</b>. Click a track's name area first to choose which track it applies to. Only that stretch is replaced; recording keeps going until you stop it.</li>
       <li>Press <b>Space</b>, <b>Esc</b> or <b>R</b> to stop. Takes are written as WAV files into your project's Audio Files folder while you record.</li>
       <li><b>Recording Settings Checker</b> (next to Mic &amp; Output) — record a short guided test (3 seconds of silence, about 25 seconds of reading, 3 more seconds of silence) and it measures your raw peaks, RMS and room tone against the recommended levels: peaks −12 to −6 dB (never above −3 dB), RMS −35 to −25 dB, room tone −60 dB or lower. It tells you whether to change your gain, your delivery or your room, and flags things like clipping, hum, rumble, a noise gate left on, plosives and room echo. You can also select any recording on the timeline and check that instead.</li>
       <li><b>Every take keeps all of your audio</b> — the pre-roll and anything after the end of the item or selection are recorded too. The new item sits exactly where you punched in, and you can <b>Alt/Opt-drag</b> inside it to slide the take, or drag its edges to reveal the extra audio, to blend it with the takes either side.</li>
@@ -596,12 +596,12 @@
 
     <h3>Editing</h3>
     <ul>
-      <li><b>Select</b> — drag across a track to make a time selection, then drag either edge of it to fine-tune. Click an item to select it; click an empty spot or press <b>Esc</b> to deselect.</li>
+      <li><b>Select</b> — drag along the time bar above the items to make a time selection, then drag either edge of it to fine-tune. Click an item to select it; click an empty spot or press <b>Esc</b> to deselect.</li>
       <li><b>Split</b> (<b>S</b>) cuts selected items — or the selected track — at the cursor, with a tiny crossfade so the cut is seamless.</li>
       <li><b>Delete</b> (<b>Delete</b>, <b>Backspace</b> or <b>Shift + D</b>) removes the selection and leaves a gap; everything else stays exactly where it is.</li>
       <li><b>Delete &amp; Join</b> (<b>Shift + Delete</b>, <b>Alt/Opt + Delete</b> or <b>Alt/Opt + Shift + D</b>) removes the selection and closes the gap so everything after slides up, and crossfades the two pieces either side. The cursor jumps to a second before the join so you can press Play and hear it.</li>
       <li><b>Close Gaps</b> (<b>Alt/Opt + Shift + Space</b>) slides the items on the selected tracks back to back so there's no silence between them, with a short crossfade at each join so there are no clicks.</li>
-      <li>Drag an item's top bar to move it, including onto another track. Drag its edges to trim, and the small squares at its top corners to fade in or out. Overlap two items on a track and they crossfade automatically. <b>Alt/Opt-drag</b> inside an item slides its audio while the item stays put — the audio loops round, so you can always slide it, even when the item is the full length of its take (a faint dotted line shows where the take starts over).</li>
+      <li>Drag an item anywhere on it to move it, including onto another track. Drag its edges to trim, and the small squares at its top corners to fade in or out. Overlap two items on a track and they crossfade automatically. <b>Alt/Opt-drag</b> inside an item slides its audio while the item stays put — the audio loops round, so you can always slide it, even when the item is the full length of its take (a faint dotted line shows where the take starts over).</li>
       <li><b>Ripple editing</b> (<b>Alt/Opt + P</b>, or the <b>Ripple</b> switch) — when it's on, everything after an edit moves with it: Delete closes the gap, trimming the end of an item pulls or pushes what follows, moving an item carries the rest of the track along, and pasting or importing makes room. Turn it off to change one item without disturbing anything else.</li>
       <li>Every edit is non-destructive — your original takes are never changed, and Undo goes all the way back.</li>
     </ul>
@@ -640,7 +640,7 @@
 </section>
 
 <div id="disclaimer">The Audiobook Guy DAW is still under construction. While we work on it, we can't guarantee its stability and can't be held responsible for lost recordings, projects or files. Please keep backups of anything important.</div>
-<div id="tool-version">v8.0</div>
+<div id="tool-version">v9.0</div>
 <div id="tag-footer"></div>
 
 <!-- ═══ MODALS ═══ -->
@@ -706,9 +706,9 @@
       </div>
       <div class="ck-how"><b>Your test recording</b>
         <ol><li>Set your mic and headphones in <b>Mic &amp; Output</b>.</li>
-          <li>Press <b>Record a test</b>. Stay completely silent for 3 seconds — that's your room tone.</li>
-          <li>When the prompt next to the time display says <b>read now</b>, read for about 25 seconds at your normal narration level.</li>
-          <li>Stay silent for 3 more seconds. The test stops by itself and is checked straight away.</li></ol>
+          <li>Press <b>Record a test</b>. The timeline lays the whole test out for you: stay completely silent for the first <b>red</b> section (3 seconds) — that's your room tone.</li>
+          <li>When the recording reaches the <b>green</b> section (the prompt next to the time display says <b>read now</b>), read for about 25 seconds at your normal narration level.</li>
+          <li>Stay silent through the last <b>red</b> section (3 more seconds). The test stops by itself and is checked straight away.</li></ol>
         <p>The test is recorded at the end of your project on the armed track, so nothing you've recorded is touched. Delete it afterwards if you don't need it.</p>
       </div>
       <div class="ck-target" id="ck-target"></div>
@@ -1134,10 +1134,10 @@ async function readZip(file) {
 }
 
 // ═══════════════════════════════════════════════════════════
-// THE AUDIOBOOK GUY DAW — v8.0
+// THE AUDIOBOOK GUY DAW — v9.0
 // ═══════════════════════════════════════════════════════════
 'use strict';
-const APP_VERSION = '8.0';
+const APP_VERSION = '9.0';
 const PROJECT_EXT = '.tagdaw';
 const AUDIO_DIR   = 'Audio Files';
 const DEF_TRACK_H = 96, MIN_TRACK_H = 60, MAX_TRACK_H = 480;
@@ -2420,7 +2420,7 @@ async function startRecording() {
     target = findItem(selIds[0]);
     track = target.track; a = target.item.start; b = itemEnd(target.item);
   } else if (mode === 'range') {
-    if (!ui.timeSel || ui.timeSel.b - ui.timeSel.a < 0.05) { toast('Drag across the track to select the time to record over, then press Record.'); return; }
+    if (!ui.timeSel || ui.timeSel.b - ui.timeSel.a < 0.05) { toast('Drag along the time bar above the items to select the time to record over, then press Record.'); return; }
     a = ui.timeSel.a; b = ui.timeSel.b;
     if (!track) { const sel = [...ui.selTracks].map(findTrack).filter(Boolean); track = sel[0] || null; }
   } else {
@@ -2872,6 +2872,32 @@ function drawStatic() {
   $('empty-hint').hidden = P.tracks.some(t => t.items.length) || !!rec;
 }
 
+// Recording Settings Checker: the whole test laid out on the timeline before it happens —
+// muted red = stay silent, muted green = read, muted red = stay silent again.
+function drawCkBands(g, r, G) {
+  const a = r.a, bands = [
+    [a, a + CK_SILENCE, 'rgba(176,74,74,0.26)', 'rgba(176,74,74,0.75)', 'Stay silent'],
+    [a + CK_SILENCE, a + CK_SILENCE + CK_READ, 'rgba(62,140,88,0.26)', 'rgba(62,140,88,0.80)', 'Read now'],
+    [a + CK_SILENCE + CK_READ, a + 2 * CK_SILENCE + CK_READ, 'rgba(176,74,74,0.26)', 'rgba(176,74,74,0.75)', 'Stay silent']
+  ];
+  g.save();
+  g.font = '700 11px "Raleway", "Open Sans", sans-serif'; g.textBaseline = 'middle';
+  bands.forEach(([t0, t1, fill, edge, label]) => {
+    const x0 = tToX(t0), x1 = tToX(t1);
+    if (x1 < 0 || x0 > W) return;
+    const cx0 = Math.max(x0, 0), cx1 = Math.min(x1, W);
+    g.fillStyle = fill; g.fillRect(cx0, G.top, cx1 - cx0, G.h);
+    g.fillStyle = edge; g.fillRect(x0, G.top, 2, G.h); g.fillRect(x1 - 2, G.top, 2, G.h);
+    const tw = g.measureText(label).width;
+    if (x1 - x0 > tw + 16) {
+      g.save(); g.beginPath(); g.rect(cx0, G.top, cx1 - cx0, G.h); g.clip();
+      g.fillStyle = edge; g.fillText(label, Math.min(Math.max(x0 + 10, 10), x1 - tw - 8), G.top + BAR_H + 12);
+      g.restore();
+    }
+  });
+  g.restore();
+}
+
 function drawOverlay() {
   if (!P || $('workspace').hidden) return;
   if (staticDirty) { drawStatic(); staticDirty = false; }
@@ -2883,6 +2909,7 @@ function drawOverlay() {
     if (row >= 0) {
       const rTop = rowTop(row), rH = trackH(P.tracks[row]), G = itemGeom(rTop, rH);
       const xa = tToX(rec.a);
+      if (rec.ckTest) drawCkBands(g, rec, G);
       if (rec.len > 0) {
         // the new take growing over what it replaces. The take is also capturing
         // the pre-roll (kept in the file, not shown), and anything after the end
@@ -2891,15 +2918,17 @@ function drawOverlay() {
         const tNow = t0r + rec.len / rec.rate, tEnd = Math.min(tNow, rec.capB);
         const xs = tToX(rec.capA), x1 = tToX(tEnd), xr = tToX(tNow);
         if (x1 > xs) {
-          g.fillStyle = 'rgba(242,242,242,0.7)'; g.fillRect(xs, G.top, x1 - xs, G.h);
-          g.fillStyle = 'rgba(220,38,38,0.16)'; g.fillRect(xs, G.top, x1 - xs, G.h);
+          if (!rec.ckTest) {   // the settings test keeps its red / green guide bands visible instead
+            g.fillStyle = 'rgba(242,242,242,0.7)'; g.fillRect(xs, G.top, x1 - xs, G.h);
+            g.fillStyle = 'rgba(220,38,38,0.16)'; g.fillRect(xs, G.top, x1 - xs, G.h);
+          }
           g.fillStyle = '#dc2626'; g.fillRect(xs, G.top + 1, x1 - xs, BAR_H);
         }
         if (xr > x1 && tNow > rec.capB) { g.fillStyle = 'rgba(220,38,38,0.07)'; g.fillRect(Math.max(xs, x1), G.top, xr - Math.max(xs, x1), G.h); }
         const mid = (G.waveTop + G.waveBot) / 2, amp = (G.waveBot - G.waveTop) / 2 * 0.95 * ui.waveZoom, binDur = PEAK_BIN / rec.rate;
         const mins = rec.pk.mins, maxs = rec.pk.maxs;
         for (let x = Math.max(0, Math.floor(xs)); x < Math.min(W, xr); x++) {
-          g.fillStyle = x < x1 ? 'rgba(185,28,28,0.85)' : 'rgba(185,28,28,0.35)';
+          g.fillStyle = rec.ckTest ? 'rgba(34,34,34,0.8)' : (x < x1 ? 'rgba(185,28,28,0.85)' : 'rgba(185,28,28,0.35)');
           const b0 = Math.floor((xToT(x) - t0r) / binDur), b1 = Math.max(b0 + 1, Math.floor((xToT(x + 1) - t0r) / binDur));
           let lo = 127, hi = -127; for (let b = Math.max(0, b0); b < b1 && b < mins.length; b++) { if (mins[b] < lo) lo = mins[b]; if (maxs[b] > hi) hi = maxs[b]; }
           if (hi >= lo) { const ya = Math.max(G.waveTop, mid - hi / 127 * amp), yb = Math.min(G.waveBot, mid - lo / 127 * amp); g.fillRect(x, ya, 1, Math.max(1, yb - ya)); }
@@ -2978,7 +3007,7 @@ lanesCv.addEventListener('pointerdown', e => {
   const it = h.item;
   if (h.part === 'seledge') {
     drag = { kind: 'seledge', which: h.which, x0: x, y0: y, moved: false };
-  } else if (it && (h.part === 'bar') && !e.altKey) {
+  } else if (it && (h.part === 'bar' || h.part === 'body') && !e.altKey) {
     if (e.shiftKey || e.metaKey || e.ctrlKey) { ui.selItems.has(it.id) ? ui.selItems.delete(it.id) : ui.selItems.add(it.id); }
     else if (!ui.selItems.has(it.id)) { ui.selItems.clear(); ui.selItems.add(it.id); }
     selectTrackOnly(h.track.id, e.shiftKey);
@@ -3008,6 +3037,7 @@ lanesCv.addEventListener('pointermove', e => {
   const { x, y } = lanePos(e);
   if (!drag) { setHoverCursor(x, y, e.altKey); return; }
   if (drag.kind === 'resize') { drag.moved = true; resizeTrackTo(drag.track, drag.h0 + (e.clientY - drag.cy0)); return; }
+  if (drag.kind === 'range') return;   // dragging on empty lane space does nothing — a click still places the cursor (select time on the ruler)
   if (!drag.moved && Math.abs(x - drag.x0) < 3 && Math.abs(y - (drag.y0 || y)) < 3) return;
   drag.moved = true;
   const dt = (x - drag.x0) / ui.pps;
@@ -3111,7 +3141,7 @@ function setHoverCursor(x, y, alt) {
   let c = 'text';
   if (h.part === 'resize') c = 'row-resize';
   else if (h.part === 'seledge') c = 'ew-resize';
-  else if (h.item) c = { bar: alt ? 'move' : 'grab', left: 'ew-resize', right: 'ew-resize', fadein: 'col-resize', fadeout: 'col-resize', body: alt ? 'move' : 'text' }[h.part] || 'text';
+  else if (h.item) c = { bar: alt ? 'move' : 'grab', left: 'ew-resize', right: 'ew-resize', fadein: 'col-resize', fadeout: 'col-resize', body: alt ? 'move' : 'grab' }[h.part] || 'text';
   lanesCv.style.cursor = c;
 }
 function selectTrackOnly(id, add) { if (!add) ui.selTracks.clear(); ui.selTracks.add(id); updateTrackHeaders(); }
@@ -3131,6 +3161,7 @@ rulerCv.addEventListener('pointermove', e => {
   rulerDrag.moved = true;
   const t1 = snapTime(Math.max(0, xToT(x)));
   ui.timeSel = { a: Math.min(rulerDrag.t0, t1), b: Math.max(rulerDrag.t0, t1) };
+  ui.selItems.clear();
   markStatic(); updateReadout();
 });
 rulerCv.addEventListener('pointerup', () => {
@@ -3341,7 +3372,7 @@ function deleteSel(join) {
       ui.selItems.clear();
       if (found.length) ui.cursor = join ? Math.max(0, found[found.length - 1].item.start - 1) : found[found.length - 1].item.start;
     });
-  } else { toast('Select an item or drag across a track to choose what to delete.'); return; }
+  } else { toast('Select an item or drag along the time bar to choose what to delete.'); return; }
   markStatic(); updateTimeDisplay();
 }
 
@@ -5181,7 +5212,7 @@ async function ckRecordTest() {
   finally { modeSel.value = oldMode; preCb.checked = oldPre; }
   if (rec) {
     rec.ckTest = true;
-    toast('Test recording — stay silent for 3 seconds, read when the prompt says, then stay silent again. It stops by itself.', false, 9000);
+    toast('Test recording — stay silent in the red section, read in the green section, then stay silent again. It stops by itself.', false, 9000);
   } else openChecker();
 }
 // guidance shown next to the time display while the test records
