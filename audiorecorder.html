@@ -151,7 +151,7 @@
   #editor { margin-bottom: 20px; }
   #waveform-canvas {
     width: 100%; height: 110px; display: block; border-radius: 6px;
-    background: var(--bg); border: 1px solid var(--rule); cursor: text; touch-action: none;
+    background: var(--bg); border: 1px solid var(--rule); cursor: default; touch-action: none;
     user-select: none; -webkit-user-select: none;
   }
   #view-scroll { width: 100%; margin: 6px 0 0; accent-color: var(--accent); height: 14px; visibility: hidden; }
@@ -440,7 +440,7 @@
           </div>
         </div>
         <div id="edit-readout"></div>
-        <div class="playback-hint">Drag across the waveform to select, or click an item · Delete removes it, leaving a gap · Delete &amp; Join closes the gap · Drag an item's top bar to slide it · Drag an item's edge to reveal or hide audio · <span id="slip-hint">Alt</span>-drag slides the audio inside an item</div>
+        <div class="playback-hint">Drag along the time bar above to select · Click an item to select it · Delete removes it, leaving a gap · Delete &amp; Join closes the gap · Drag an item to slide it · Drag an item's edge to reveal or hide audio · <span id="slip-hint">Alt</span>-drag slides the audio inside an item</div>
       </div>
 
       <div class="post-fields">
@@ -556,7 +556,7 @@
     <h3>Punch &amp; roll</h3>
     <p>Once you have a recording, the Record button <b>punches in</b>.</p>
     <ul>
-      <li><b>Place the playhead</b> where you want to pick up from (click on the waveform), then hit <b>Record</b> (or <b>Ctrl/Cmd + R</b> or <b>Shift + Space</b>).</li>
+      <li><b>Place the playhead</b> where you want to pick up from (click on the waveform or the time bar), then hit <b>Record</b> (or <b>Ctrl/Cmd + R</b> or <b>Shift + Space</b>).</li>
       <li>Your new take replaces only the audio <b>underneath it</b> — from the punch point to where you stop. Anything before it, and anything still left after it, stays exactly as it was, joined to the new take with short crossfades. So you can re-record just a few words in the middle of a take.</li>
       <li><b>Pre-roll</b> — switch it on and set how many seconds you'd like. It plays back that much of what's already there before the punch point, so you can match your pace and tone, then starts recording right at the punch point.</li>
       <li>Wear <b>headphones</b> for pre-roll, so the playback doesn't bleed into your mic.</li>
@@ -574,12 +574,12 @@
     <h3>Editing</h3>
     <p>Editing is <b>non-destructive</b>: your original takes are always kept underneath, so nothing is ever lost until you save.</p>
     <ul>
-      <li><b>Select</b> — click and drag across the waveform to make a time selection. Drag either edge of the grey selection to fine-tune it.</li>
+      <li><b>Select</b> — click and drag along the <b>time bar</b> above the waveform to make a time selection. Drag either edge of the grey selection to fine-tune it.</li>
       <li><b>Select an item</b> — click on an item. It gets an orange outline, and the playhead moves to where you clicked. Click an empty spot or press <b>Esc</b> to deselect.</li>
       <li><b>Delete</b> — press <b>Delete</b> or <b>Shift + D</b> (or the Delete button) to remove the time selection, or the selected item if there's no time selection. Everything else stays exactly where it is, so you're left with a gap of silence and separate <b>items</b> either side.</li>
       <li><b>Delete &amp; Join</b> — press <b>Alt/Opt + Shift + D</b> or <b>Alt/Opt + Delete</b> (or the Delete &amp; Join button). The time selection (or selected item) is removed, the gap closes up, and the two items either side are joined with a short crossfade (the little X) so the join is smooth. The playhead jumps to a second before the join so you can hit Play and hear it.</li>
       <li><b>Delete space between items</b> — <b>Alt/Opt + Shift + Space</b> closes every gap so the items sit back to back.</li>
-      <li><b>Adjust the crossfade</b> — drag an item by its <b>orange top bar</b> to slide it. Overlap it more for a longer crossfade, pull it away for a gap.</li>
+      <li><b>Move an item</b> — drag it from <b>anywhere on the item</b> to slide it. Overlap it more for a longer crossfade, pull it away for a gap.</li>
       <li><b>Reveal or hide audio</b> — drag the <b>left or right edge</b> of any item. Drag outwards and the original audio comes back.</li>
       <li><b>Slide audio inside an item</b> — hold <b>Alt/Opt</b> and drag, either way. The item stays put; the recording moves within its boundaries. The audio loops round, so you can always slide it — even when the item is the full length of the take (a faint dotted line shows where the take starts over).</li>
       <li><b>Split</b> — press <b>S</b> to split the item under the playhead into two.</li>
@@ -2151,7 +2151,7 @@ const timeToX = t => ((t - viewStart) / viewDur) * cssW;
 const xToTime = x => viewStart + (x / cssW) * viewDur;
 function laneGeom() {
   const headH = document.body.classList.contains('editor-expanded') ? 16 : 11;
-  const top = 3, bottom = cssH - RULER_H - 3;
+  const top = RULER_H + 3, bottom = cssH - 3;
   return { top, bottom, headH, waveTop: top + headH + 2, waveBot: bottom - 2 };
 }
 
@@ -2257,7 +2257,7 @@ function draw() {
       g.fillRect(xa, L.top + 1, xb - xa, L.headH);
     }
     g.fillStyle = '#dc2626';
-    g.fillRect(xa - 1, 0, 2, H - RULER_H);
+    g.fillRect(xa - 1, RULER_H, 2, H - RULER_H);
   }
 
   // a file being dragged over the waveform — where it'll land
@@ -2281,15 +2281,19 @@ function draw() {
   if (selection) {
     const x0 = timeToX(selection.a), x1 = timeToX(selection.b);
     g.fillStyle = 'rgba(34,34,34,0.16)';
-    g.fillRect(x0, 0, x1 - x0, H - RULER_H);
+    g.fillRect(x0, RULER_H, x1 - x0, H - RULER_H);
     g.fillStyle = '#222222';
     [x0, x1].forEach(x => {
-      g.fillRect(x - 1, 0, 2, H - RULER_H);
-      g.beginPath(); g.moveTo(x - 6, 0); g.lineTo(x + 6, 0); g.lineTo(x, 7); g.closePath(); g.fill();
+      g.fillRect(x - 1, RULER_H, 2, H - RULER_H);
+      g.beginPath(); g.moveTo(x - 6, RULER_H); g.lineTo(x + 6, RULER_H); g.lineTo(x, RULER_H + 7); g.closePath(); g.fill();
     });
   }
 
   drawRuler(W, H);
+  if (selection) {   // the selection also shows on the time bar, where it is made
+    g.fillStyle = 'rgba(224,90,0,0.28)';
+    g.fillRect(timeToX(selection.a), 0, timeToX(selection.b) - timeToX(selection.a), RULER_H - 1);
+  }
 
   // playhead
   const xp = timeToX(playhead);
@@ -2305,11 +2309,11 @@ function draw() {
 
 function drawRuler(W, H) {
   const g = waveformCtx;
-  const y = H - RULER_H;
+  const y = 0;
   g.fillStyle = '#ffffff';
   g.fillRect(0, y, W, RULER_H);
   g.fillStyle = '#e0e0e0';
-  g.fillRect(0, y, W, 1);
+  g.fillRect(0, y + RULER_H - 1, W, 1);
   const steps = [0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1, 2, 5, 10, 15, 30, 60, 120, 300, 600];
   const pxPerSec = W / viewDur;
   const step = steps.find(s => s * pxPerSec >= 64) || 600;
@@ -2318,9 +2322,9 @@ function drawRuler(W, H) {
   for (let t = Math.ceil(viewStart / step) * step; t <= viewStart + viewDur; t += step) {
     const x = timeToX(t);
     g.fillStyle = '#c9c9c9';
-    g.fillRect(Math.round(x), y + 1, 1, 5);
+    g.fillRect(Math.round(x), y + RULER_H - 6, 1, 5);
     g.fillStyle = '#999999';
-    g.fillText(fmtTime(t, step < 1), x + 3, y + RULER_H / 2 + 2);
+    g.fillText(fmtTime(t, step < 1), x + 3, y + RULER_H / 2);
   }
 }
 
@@ -2383,11 +2387,10 @@ function hitTest(x, y) {
       }
     }
     if (best) return best;
-    if (y <= L.top + L.headH + 1) {
-      const it = itemAt(t);
-      if (it) return { type: 'move', it };
-    }
+    const it = itemAt(t);
+    if (it) return { type: 'move', it };
   }
+  if (y < RULER_H) return { type: 'ruler' };
   return { type: 'body' };
 }
 
@@ -2401,7 +2404,7 @@ function itemAt(t) {
   return null;
 }
 
-const CURSORS = { sel: 'ew-resize', edge: 'ew-resize', move: 'grab', body: 'text', slip: 'move' };
+const CURSORS = { sel: 'ew-resize', edge: 'ew-resize', move: 'grab', ruler: 'text', body: 'default', slip: 'move' };
 
 function cursorFor(x, y, altKey) {
   const L = laneGeom();
@@ -2429,7 +2432,8 @@ waveformCanvas.addEventListener('pointerdown', (e) => {
       drag = { type: hit.type, it: hit.it, edge: hit.edge, startX: x, orig: { ...hit.it }, before: snapshot() };
       if (hit.type === 'move') waveformCanvas.style.cursor = 'grabbing';
     } else {
-      drag = { type: 'new', startX: x, startY: y, startT: clamp(xToTime(x), 0, timelineEnd()), moved: false };
+      // only the time bar makes a time selection; empty space just places the playhead
+      drag = { type: 'new', ruler: hit.type === 'ruler', startX: x, startY: y, startT: clamp(xToTime(x), 0, timelineEnd()), moved: false };
     }
   }
   waveformCanvas.setPointerCapture(e.pointerId);
@@ -2447,7 +2451,7 @@ waveformCanvas.addEventListener('pointermove', (e) => {
   const t = xToTime(x);
   const end = timelineEnd();
   if (drag.type === 'new') {
-    if (Math.abs(x - drag.startX) > 3) drag.moved = true;
+    if (drag.ruler && Math.abs(x - drag.startX) > 3) drag.moved = true;
     if (drag.moved) {
       const tt = clamp(t, 0, end);
       selection = { a: Math.min(drag.startT, tt), b: Math.max(drag.startT, tt) };
@@ -2582,6 +2586,8 @@ const SHORTCUTS = [
     ['Delete the time selection or selected item — leaves a gap, everything else stays put', [['Delete'], ['Backspace'], ['Shift', 'D']]],
     ['Delete the time selection or selected item and move the items together, crossfaded', [[ALT_KEY, 'Shift', 'D'], [ALT_KEY, 'Delete']]],
     ['Select an item (and move the playhead there)', [['Click']]],
+    ['Select a time range', [['Drag on the time bar']]],
+    ['Move an item', [['Drag the item']]],
     ['Delete space between items', [[ALT_KEY, 'Shift', 'Space']]],
     ['Move the recording within the item boundaries', [[ALT_KEY, 'Drag']]],
     ['Split at the playhead', [['S']]],
@@ -3392,7 +3398,7 @@ copyLinkBtn.addEventListener('click', async () => {
   }
 });
 </script>
-<div id="tool-version">v14.0</div>
+<div id="tool-version">v15.0</div>
 <div id="tag-footer"></div>
 <script src="/partials/inject-brand.js"></script>
 </body>
