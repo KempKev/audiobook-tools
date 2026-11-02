@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The Audiobook Guy DAW</title>
-<link rel="manifest" href="daw.webmanifest">
 <meta name="theme-color" content="#e05a00">
 <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;600;700;800&family=Open+Sans:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/lamejs@1.2.1/lame.min.js"></script>
@@ -476,10 +475,6 @@
       <input type="file" id="backup-input" accept=".zip,application/zip" hidden>
     </div>
     <div class="start-drop-hint" id="start-drop-hint">You can also drag a project folder, a .tagdaw project file or a backup .zip onto this card.</div>
-    <div class="banner plain" id="install-banner" hidden>
-      <div class="grow"><b>Open projects with a double-click.</b> <span id="install-text">Install the DAW as an app and your computer will open any .tagdaw project file straight into it.</span></div>
-      <button class="btn-secondary" id="install-btn" hidden>Install the DAW</button>
-    </div>
     <h3>Recent projects</h3>
     <div id="recent-list"></div>
   </section>
@@ -576,7 +571,7 @@
     <ul>
       <li><b>New Project</b> asks for a name and where to keep it. Choose a folder on your computer and the DAW creates <b>Project Name › Project Name.tagdaw</b> (the project file and backup) plus an <b>Audio Files</b> folder holding every take and import.</li>
       <li>Everything saves automatically as you work. To come back to a project, use <b>Recent projects</b>, <b>Open Project Folder</b>, or drag the project's folder onto the start screen.</li>
-      <li><b>Open with a double-click</b> — install the DAW as an app (the <b>Install the DAW</b> button on the start screen, or the install icon at the right of Chrome or Edge's address bar). After that, double-clicking any <b>.tagdaw</b> file opens that project. The first time, the DAW asks you to OK its folder — choose <b>Allow on every visit</b> and it opens straight away from then on.</li>
+      <li><b>Open from the project file</b> — drag any <b>.tagdaw</b> file onto the start screen and the DAW opens that project. The first time, it asks you to OK the project's folder — choose <b>Allow on every visit</b> and it opens straight away from then on.</li>
       <li>Audio <b>plays straight from your project folder</b> instead of being loaded into the browser, so even long projects use very little memory. Keep the project folder where it is (and plugged in, if it's on an external drive) while you work.</li>
       <li><b>Clean Project</b> lists audio files the timeline no longer uses (old takes, deleted imports) and removes them from the folder.</li>
       <li><b>Backup</b> downloads the whole project — project file and audio — as one .zip. <b>Open Backup</b> restores it anywhere.</li>
@@ -640,7 +635,7 @@
 </section>
 
 <div id="disclaimer">The Audiobook Guy DAW is still under construction. While we work on it, we can't guarantee its stability and can't be held responsible for lost recordings, projects or files. Please keep backups of anything important.</div>
-<div id="tool-version">v9.0</div>
+<div id="tool-version">v10.0</div>
 <div id="tag-footer"></div>
 
 <!-- ═══ MODALS ═══ -->
@@ -1134,10 +1129,10 @@ async function readZip(file) {
 }
 
 // ═══════════════════════════════════════════════════════════
-// THE AUDIOBOOK GUY DAW — v9.0
+// THE AUDIOBOOK GUY DAW — v10.0
 // ═══════════════════════════════════════════════════════════
 'use strict';
-const APP_VERSION = '9.0';
+const APP_VERSION = '10.0';
 const PROJECT_EXT = '.tagdaw';
 const AUDIO_DIR   = 'Audio Files';
 const DEF_TRACK_H = 96, MIN_TRACK_H = 60, MAX_TRACK_H = 480;
@@ -3772,10 +3767,9 @@ async function renderRecents() {
 $('close-btn').addEventListener('click', () => closeProject());
 
 // ═══════════════════════════════════════════════════════════
-// DOUBLE-CLICK LAUNCH, INSTALL + DROPPING PROJECTS ON THE START SCREEN
+// OPENING PROJECT FILES + DROPPING PROJECTS ON THE START SCREEN
 // ═══════════════════════════════════════════════════════════
-// Installed as an app, the DAW is registered for .tagdaw files: the
-// operating system hands the file over here. The file sits in its project
+// A .tagdaw file dropped on the start screen is handed over here. The file sits in its project
 // folder, so the DAW finds that folder (from Recent projects, or by asking
 // you to confirm it — the picker opens right inside it).
 let launchAction = null;
@@ -3815,30 +3809,6 @@ async function openProjectFileHandle(fh) {
     ? 'Your browser needs your OK to use this project\'s folder. Choose “Allow on every visit” and next time it opens straight away.'
     : 'Confirm the project\'s folder — the folder picker opens right where this project lives, so just press Open / Select.', 'Open project', pick);
 }
-if ('launchQueue' in window) {
-  window.launchQueue.setConsumer(params => {
-    if (params && params.files && params.files.length) openProjectFileHandle(params.files[0]);
-  });
-}
-
-let deferredInstall = null;
-const IS_APP = matchMedia('(display-mode: standalone)').matches || matchMedia('(display-mode: window-controls-overlay)').matches;
-function updateInstallUI() {
-  $('install-banner').hidden = !HAS_FS || IS_APP;
-  $('install-btn').hidden = !deferredInstall;
-  $('install-text').textContent = deferredInstall
-    ? 'Install the DAW as an app and your computer will open any .tagdaw project file straight into it.'
-    : 'Install the DAW as an app (the install icon at the right of Chrome or Edge\'s address bar, or the browser menu › Install) and your computer will open any .tagdaw project file straight into it.';
-}
-window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredInstall = e; updateInstallUI(); });
-window.addEventListener('appinstalled', () => { deferredInstall = null; updateInstallUI(); toast('Installed — double-click any .tagdaw project file to open it.', false, 5000); });
-$('install-btn').addEventListener('click', async () => {
-  if (!deferredInstall) return;
-  deferredInstall.prompt();
-  try { await deferredInstall.userChoice; } catch (e) {}
-  deferredInstall = null; updateInstallUI();
-});
-
 // Drop a project folder, .tagdaw file or backup .zip onto the start card
 const startCard = $('start-screen');
 startCard.addEventListener('dragover', e => { if (!e.dataTransfer || !e.dataTransfer.types.includes('Files')) return; e.preventDefault(); startCard.classList.add('drag-over'); });
@@ -5641,7 +5611,6 @@ window.addEventListener('beforeunload', e => {
   if (!AC || !OAC) { $('no-support').hidden = false; ['new-project-btn', 'open-folder-btn', 'open-backup-btn'].forEach(id => $(id).disabled = true); return; }
   if (!HAS_FS) { $('browser-banner').hidden = false; $('start-drop-hint').textContent = 'You can also drag a backup .zip onto this card.'; }
   document.querySelectorAll('.alt-key').forEach(el => el.textContent = IS_MAC ? 'Option' : 'Alt');
-  updateInstallUI();
   renderRecents();
   checkHandoff();
 })();
